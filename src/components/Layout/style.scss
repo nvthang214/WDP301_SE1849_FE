@@ -1,0 +1,8 @@
+.layout__common--sider {
+  &::-webkit-scrollbar {
+    width: 2px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #e2e1e1;
+  }
+}

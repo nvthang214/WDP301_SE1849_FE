@@ -8,6 +8,7 @@ import React from "react";
 
 // react lazy imports
 // const HomeMain = React.lazy(() => import("../pages/private/Home"));
+const AppliedJobs = React.lazy(() => import("../pages/private/AppliedJobs"));
 
 const routes = [
   {
@@ -18,7 +19,14 @@ const routes = [
       </LazyLoadingComponent>
     ),
   },
-
+  {
+    path: ROUTER.APPLIED_JOBS,
+    element: (
+      <LazyLoadingComponent>
+        <AppliedJobs />
+      </LazyLoadingComponent>
+    ),
+  },
   {
     path: "*",
     element: (

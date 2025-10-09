@@ -5,7 +5,7 @@ const ROUTER = {
   USER_LOCKED: `${USER}/tai-khoan-bi-khoa`,
   USER_VERIFICATION: `${USER}/xac-minh-tai-khoan`,
   USER_HIGHLIGHTED: `${USER}/nguoi-dung-noi-bat`,
-
+  APPLY_JOB: "/nop-don-ung-tuyen",
   CONTENT_REPORTS: "/danh-sach-bao-cao-vi-pham",
   CONTENT_BANNED_KEYWORDS: "/tu-khoa-cam",
 

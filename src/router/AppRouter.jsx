@@ -7,41 +7,18 @@ import ROUTER from "./ROUTER";
 import React from "react";
 
 // react lazy imports
-const HomeMain = React.lazy(() => import("../pages/private/Home"));
+// const HomeMain = React.lazy(() => import("../pages/private/Home"));
 
 const routes = [
   {
     path: ROUTER.HOME,
     element: (
       <LazyLoadingComponent>
-        <HomeMain />
+        <div>Home Page</div>
       </LazyLoadingComponent>
     ),
   },
-  {
-    path: ROUTER.USER_LIST,
-    element: (
-      <LazyLoadingComponent>
-        <div>User List</div>
-      </LazyLoadingComponent>
-    ),
-  },
-  {
-    path: ROUTER.USER_LOCKED,
-    element: (
-      <LazyLoadingComponent>
-        <div>Locked Accounts</div>
-      </LazyLoadingComponent>
-    ),
-  },
-  {
-    path: ROUTER.OPERATION_LOG,
-    element: (
-      <LazyLoadingComponent>
-        <div>Operation Log</div>
-      </LazyLoadingComponent>
-    ),
-  },
+
   {
     path: "*",
     element: (

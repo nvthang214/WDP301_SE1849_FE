@@ -1,4 +1,4 @@
-import api from "../00-Axios";
+import api from "../axios";
 import { getAll } from "./urls";
 const getUser = async () => await api.get(`${getAll}`);
 

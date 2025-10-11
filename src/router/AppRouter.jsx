@@ -9,6 +9,12 @@ import React from "react";
 // react lazy imports
 // const HomeMain = React.lazy(() => import("../pages/private/Home"));
 
+// Job imports
+const JobList = React.lazy(() => import("../pages/private/Job/JobList"));
+const JobDetails = React.lazy(() => import("../pages/private/Job/JobDetails"));
+const JobPosting = React.lazy(() => import("../pages/private/Job/JobPosting"));
+const JobEditing = React.lazy(() => import("../pages/private/Job/JobEditing"));
+
 const routes = [
   {
     path: ROUTER.HOME,
@@ -18,7 +24,38 @@ const routes = [
       </LazyLoadingComponent>
     ),
   },
-
+  // Job routes
+  {
+    path: ROUTER.JOBS,
+    element: (
+      <LazyLoadingComponent>
+        <JobList />
+      </LazyLoadingComponent>
+    ),
+  },{
+    path: ROUTER.JOB_DETAILS,
+    element: (
+      <LazyLoadingComponent>
+        <JobDetails />
+      </LazyLoadingComponent>
+    ),
+  },
+  {
+    path: ROUTER.JOB_POST,
+    element: (
+      <LazyLoadingComponent>
+        <JobPosting />
+      </LazyLoadingComponent>
+    ),
+  },
+  {
+    path: ROUTER.JOB_EDIT,
+    element: (
+      <LazyLoadingComponent>
+        <JobEditing />
+      </LazyLoadingComponent>
+    ),
+  },
   {
     path: "*",
     element: (

@@ -18,9 +18,96 @@ function Tag({ children }) {
   );
 }
 
+function ApplyModal({ open, onClose, jobTitle }) {
+  const [resume, setResume] = useState("");
+  const [coverLetter, setCoverLetter] = useState("");
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6 relative">
+        <button
+          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
+          onClick={onClose}
+        >
+          <svg width="22" height="22" fill="none" stroke="currentColor">
+            <path d="M6 6l10 10M6 16L16 6" strokeWidth="2" />
+          </svg>
+        </button>
+        <h3 className="text-lg font-semibold mb-4">Apply Job: {jobTitle}</h3>
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">
+            Choose Resume
+          </label>
+          <select
+            className="w-full border rounded px-3 py-2"
+            value={resume}
+            onChange={(e) => setResume(e.target.value)}
+          >
+            <option value="">Select...</option>
+            <option value="resume1.pdf">Resume 1 (resume1.pdf)</option>
+            <option value="resume2.pdf">Resume 2 (resume2.pdf)</option>
+            {/* Có thể fetch danh sách resume thực tế ở đây */}
+          </select>
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">Cover Letter</label>
+          <textarea
+            className="w-full border rounded px-3 py-2 min-h-[100px]"
+            placeholder="Write down your biography here. Let the employers know who you are..."
+            value={coverLetter}
+            onChange={(e) => setCoverLetter(e.target.value)}
+          />
+          {/* Toolbar giả lập */}
+          <div className="flex gap-2 mt-2 text-gray-400">
+            <button type="button" className="hover:text-blue-500">
+              <b>B</b>
+            </button>
+            <button type="button" className="hover:text-blue-500">
+              <i>I</i>
+            </button>
+            <button type="button" className="hover:text-blue-500">
+              U
+            </button>
+            <button type="button" className="hover:text-blue-500">
+              🔗
+            </button>
+            <button type="button" className="hover:text-blue-500">
+              •
+            </button>
+          </div>
+        </div>
+        <div className="flex justify-end gap-2 mt-6">
+          <button
+            className="px-4 py-2 rounded border border-gray-300 bg-gray-50 hover:bg-gray-100"
+            onClick={onClose}
+            type="button"
+          >
+            Cancel
+          </button>
+          <button
+            className="px-6 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700"
+            type="button"
+            onClick={() => {
+              // Xử lý gửi đơn ứng tuyển ở đây
+              alert("Applied!");
+              onClose();
+            }}
+          >
+            Apply Now
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Job Details Page
 export default function JobDetails() {
   const { id } = useParams();
   const [job, setJob] = useState(null);
+  const [showApply, setShowApply] = useState(false);
 
   useEffect(() => {
     async function fetchJob() {
@@ -45,6 +132,7 @@ export default function JobDetails() {
 
   return (
     <div className="bg-gray-50 min-h-screen px-0 md:px-8 py-8">
+      <ApplyModal open={showApply} onClose={() => setShowApply(false)} jobTitle={job.title} />
       {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white rounded-xl px-8 py-6 mb-6 shadow-sm">
         <div className="flex items-center gap-4">
@@ -94,7 +182,9 @@ export default function JobDetails() {
               />
             </svg>
           </button>
-          <button className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 flex items-center gap-2">
+          <button className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 flex items-center gap-2"
+            onClick={() => setShowApply(true)}
+          >
             Apply Now <span className="ml-1">→</span>
           </button>
         </div>

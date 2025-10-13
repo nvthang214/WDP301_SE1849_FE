@@ -1,6 +1,5 @@
 import { Link, useRoutes } from "react-router-dom";
 // src/router/AppRouter.jsx
-import { useRoutes } from "react-router-dom";
 import LayoutCommon from "../components/Layout";
 import LazyLoadingComponent from "../components/LazyLoading";
 import NotFound from "../pages/public/NotFound";

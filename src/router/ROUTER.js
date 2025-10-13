@@ -1,5 +1,7 @@
 const ROUTER = {
   HOME: "/",
+  LOGIN: "/login",
+  REGISTER: "/register",
 
   // Job routes
   JOBS: "/jobs",

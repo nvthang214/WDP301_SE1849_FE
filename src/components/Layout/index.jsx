@@ -1,17 +1,20 @@
 import { Layout } from "antd";
+import HeaderMain from "./Header";
+import FooterCommon from "./Footer";
 const { Content, Sider } = Layout;
 
 const LayoutCommon = ({ children }) => {
   return (
-    <Layout>
-      {/* <HeaderMain set={setHeaderHeight} /> */}
-      <Layout>
-        {/* <MenuLeft headerHeight={headerHeight} /> */}
-        <Layout>
-          <Content>{children}</Content>
-        </Layout>
-      </Layout>
-    </Layout>
+    <div className="">
+      {/* Header */}
+      <HeaderMain />
+
+      {/* Content */}
+      <div className="min-h-screen">{children}</div>
+
+      {/* Footer */}
+      <FooterCommon />
+    </div>
   );
 };
 export default LayoutCommon;

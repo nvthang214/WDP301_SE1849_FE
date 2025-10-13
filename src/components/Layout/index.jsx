@@ -1,13 +1,19 @@
 import { Layout } from "antd";
 import HeaderMain from "./Header";
+import FooterCommon from "./Footer";
 const { Content, Sider } = Layout;
 
 const LayoutCommon = ({ children }) => {
   return (
-    <div>
+    <div className="">
+      {/* Header */}
       <HeaderMain />
 
-      <div>{children}</div>
+      {/* Content */}
+      <div className="min-h-screen">{children}</div>
+
+      {/* Footer */}
+      <FooterCommon />
     </div>
   );
 };

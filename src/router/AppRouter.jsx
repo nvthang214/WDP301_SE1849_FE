@@ -22,6 +22,11 @@ const JobDetails = React.lazy(() => import("../pages/private/Job/JobDetails"));
 const JobPosting = React.lazy(() => import("../pages/private/Job/JobPosting"));
 const JobEditing = React.lazy(() => import("../pages/private/Job/JobEditing"));
 
+// Company imports
+const CompanyPosting = React.lazy(() => import("../pages/private/Company/CompanyPosting"));
+const CompanyList = React.lazy(() => import("../pages/private/Company/CompanyList"));
+const CompanyUpdate = React.lazy(() => import("../pages/private/Company/CompanyUpdate"));
+
 const routes = [
   {
     path: ROUTER.HOME,
@@ -79,6 +84,31 @@ const routes = [
     element: (
       <LazyLoadingComponent>
         <JobEditing />
+      </LazyLoadingComponent>
+    ),
+  },
+  // Company routes
+  {
+    path: ROUTER.COMPANIES,
+    element: (
+      <LazyLoadingComponent>
+        <CompanyList />
+      </LazyLoadingComponent>
+    ),
+  },
+  {
+    path: ROUTER.COMPANY_POST,
+    element: (
+      <LazyLoadingComponent>
+        <CompanyPosting />
+      </LazyLoadingComponent>
+    ),
+  },
+  {
+    path: ROUTER.COMPANY_EDIT,
+    element: (
+      <LazyLoadingComponent>
+        <CompanyUpdate />
       </LazyLoadingComponent>
     ),
   },

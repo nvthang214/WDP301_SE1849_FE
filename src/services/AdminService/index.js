@@ -1,4 +1,4 @@
-import api from "../axios";
+import api from "../00-Axios";
 import { adminUrls } from "./urls";
 
 // User Management Services

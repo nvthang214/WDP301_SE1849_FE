@@ -20,15 +20,15 @@ const ROUTER = {
   SOCIAL_MEDIA: "/recruiter/social-media",  
 
   // Company routes
-  COMPANIES: "/companies",
-  COMPANY_DETAILS: "/companies/:id",
-  COMPANY_POST: "/company/posting",
-  COMPANY_EDIT: "/companies/edit/:id",
+  COMPANIES: "/recruiter/companies",
+  COMPANY_DETAILS: "/recruiter/companies/:id",
+  COMPANY_POST: "/recruiter/company/posting",
+  COMPANY_EDIT: "/recruiter/companies/edit/:id",
 
   // Recruiter routes
   RECRUITER_DASHBOARD: "/recruiter/dashboard",
   //company for candidate view
-  COMPANY_DETAILS: "/company/:id",
+  COMPANY_INFORMATION: "/company/:id",
 };
 
 export default ROUTER;

@@ -1,0 +1,1 @@
+export const getById = (id) => `/companies/${id}`;

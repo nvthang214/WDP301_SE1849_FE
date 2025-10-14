@@ -91,7 +91,9 @@ const routes = [
     path: ROUTER.JOB_POST,
     element: (
       <LazyLoadingComponent>
-        <JobPosting />
+        <LayoutDashboard>
+          <JobPosting />
+        </LayoutDashboard>
       </LazyLoadingComponent>
     ),
   },
@@ -99,7 +101,9 @@ const routes = [
     path: ROUTER.JOB_EDIT,
     element: (
       <LazyLoadingComponent>
-        <JobEditing />
+        <LayoutDashboard>
+          <JobEditing />
+        </LayoutDashboard>
       </LazyLoadingComponent>
     ),
   },

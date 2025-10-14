@@ -3,8 +3,8 @@ const { Header } = Layout;
 
 const HeaderMain = (props) => {
   return (
-    <div>
-      <div className="search-bar"></div>
+    <div className="container mx-auto">
+      <div className="search-bar">ádasdasd</div>
     </div>
   );
 };

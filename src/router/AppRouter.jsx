@@ -11,6 +11,8 @@ import DashboardLayout from "../pages/private/dashboard/dashboardLayout.jsx";
 // const HomeMain = React.lazy(() => import("../pages/private/Home"));
 const Login = React.lazy(() => import("../pages/public/Authentication/Login"));
 const Register = React.lazy(() => import("../pages/public/Authentication/Register"));
+const ForgotPassword = React.lazy(() => import("../pages/public/Authentication/ForgotPassword"));
+const ResetPassword = React.lazy(() => import("../pages/public/Authentication/ResetPassword"));
 const DashboardRecruiter = React.lazy(() => import("../pages/private/dashboard/dashboardRcruiter"));
 const AccountSettings = React.lazy(
   () => import("../pages/private/dashboard/setting/account-setting")
@@ -46,6 +48,22 @@ const routes = [
     element: (
       <LazyLoadingComponent>
         <Register />
+      </LazyLoadingComponent>
+    ),
+  },
+  {
+    path: ROUTER.FORGOT_PASSWORD,
+    element: (
+      <LazyLoadingComponent>
+        <ForgotPassword />
+      </LazyLoadingComponent>
+    ),
+  },
+  {
+    path: ROUTER.RESET_PASSWORD,
+    element: (
+      <LazyLoadingComponent>
+        <ResetPassword />
       </LazyLoadingComponent>
     ),
   },

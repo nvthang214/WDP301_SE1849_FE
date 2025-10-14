@@ -90,6 +90,9 @@ const routes = [
     ),
   },
   // Company routes
+  //Recruiter
+  
+  // Candidate
   {
     path: ROUTER.COMPANY_INFO,
     element: (
@@ -99,7 +102,7 @@ const routes = [
     ),
   },
   {
-    path: ROUTER.COMPANY_DETAILS,
+    path: ROUTER.COMPANY_INFORMATION,
     element: (
       <LazyLoadingComponent>
         <CompanyInformation />

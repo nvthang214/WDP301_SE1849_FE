@@ -1,6 +1,5 @@
 import { Link, useRoutes } from "react-router-dom";
 // src/router/AppRouter.jsx
-import { useRoutes } from "react-router-dom";
 import LayoutCommon from "../components/Layout";
 import LazyLoadingComponent from "../components/LazyLoading";
 import NotFound from "../pages/public/NotFound";
@@ -13,7 +12,9 @@ import DashboardLayout from "../pages/private/dashboard/dashboardLayout.jsx";
 const Login = React.lazy(() => import("../pages/public/Authentication/Login"));
 const Register = React.lazy(() => import("../pages/public/Authentication/Register"));
 const DashboardRecruiter = React.lazy(() => import("../pages/private/dashboard/dashboardRcruiter"));
-const AccountSettings = React.lazy(() => import("../pages/private/dashboard/setting/account-setting"));
+const AccountSettings = React.lazy(
+  () => import("../pages/private/dashboard/setting/account-setting")
+);
 const CompanyInfo = React.lazy(() => import("../pages/private/dashboard/setting/company-info"));
 const SocialMedia = React.lazy(() => import("../pages/private/dashboard/setting/social-media"));
 const JobList = React.lazy(() => import("../pages/private/Job/JobList"));
@@ -57,7 +58,8 @@ const routes = [
         <JobList />
       </LazyLoadingComponent>
     ),
-  },{
+  },
+  {
     path: ROUTER.JOB_DETAILS,
     element: (
       <LazyLoadingComponent>
@@ -93,23 +95,23 @@ const routes = [
     path: "/recruiter",
     element: <DashboardLayout />,
     children: [
-        {
-            path: "dashboard",
-            element: <DashboardRecruiter />,
-        },
-        {
-            path: "account-settings",
-            element: <AccountSettings />,
-        },
-        {
-            path: "company-info",
-            element: <CompanyInfo />,
-        },
-        {
-            path: "social-media",
-            element: <SocialMedia />,
-        },
-    ]
+      {
+        path: "dashboard",
+        element: <DashboardRecruiter />,
+      },
+      {
+        path: "account-settings",
+        element: <AccountSettings />,
+      },
+      {
+        path: "company-info",
+        element: <CompanyInfo />,
+      },
+      {
+        path: "social-media",
+        element: <SocialMedia />,
+      },
+    ],
   },
 ];
 

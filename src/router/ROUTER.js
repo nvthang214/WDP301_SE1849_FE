@@ -2,6 +2,8 @@ const ROUTER = {
   HOME: "/",
   LOGIN: "/login",
   REGISTER: "/register",
+  FORGOT_PASSWORD: "/forgot-password",
+  RESET_PASSWORD: "/reset-password",
 
   // Job routes
   // Recruiter Job management

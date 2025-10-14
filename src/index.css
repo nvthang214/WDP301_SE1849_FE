@@ -3,23 +3,24 @@
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 @theme {
-  /* Màu chủ đạo */
-  --color-primary-50: oklch(0.98 0.02 175);
-  --color-primary-100: oklch(0.95 0.03 175);
-  --color-primary-200: oklch(0.9 0.06 175);
-  --color-primary-300: oklch(0.83 0.09 175);
-  --color-primary-400: oklch(0.76 0.1 175);
-  --color-primary-500: oklch(0.72 0.11 178); /* chính */
-  --color-primary-600: oklch(0.64 0.12 178);
-  --color-primary-700: oklch(0.55 0.12 178);
-  --color-primary-800: oklch(0.47 0.11 178);
-  --color-primary-900: oklch(0.4 0.1 178);
+  /* Màu chủ đạo (Primary: #0A65CC) */
+  --color-primary: #0a65cc;
+  --color-primary-50: oklch(0.97 0.02 260); /* xanh nhạt gần trắng */
+  --color-primary-100: oklch(0.93 0.04 260);
+  --color-primary-200: oklch(0.86 0.06 260);
+  --color-primary-300: oklch(0.78 0.09 260);
+  --color-primary-400: oklch(0.7 0.12 260);
+  --color-primary-500: oklch(0.63 0.14 260); /* chính (#0A65CC) */
+  --color-primary-600: oklch(0.55 0.14 260);
+  --color-primary-700: oklch(0.47 0.13 260);
+  --color-primary-800: oklch(0.39 0.11 260);
+  --color-primary-900: oklch(0.3 0.09 260);
 
-  /* Màu phụ */
-  --color-secondary-500: oklch(0.75 0.1 120);
-  --color-accent-500: oklch(0.85 0.12 80);
+  /* Màu phụ và nhấn */
+  --color-secondary-500: oklch(0.75 0.1 180); /* xanh ngọc nhạt */
+  --color-accent-500: oklch(0.83 0.12 85); /* vàng sáng cho contrast */
 
-  /* Màu neutral */
+  /* Neutral (màu xám nền, text) */
   --color-neutral-50: #fafafa;
   --color-neutral-100: #f5f5f5;
   --color-neutral-200: #e5e5e5;

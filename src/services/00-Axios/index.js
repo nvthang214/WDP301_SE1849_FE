@@ -45,7 +45,7 @@ api.interceptors.response.use(
     // Nếu request là một trong các auth endpoints -> đẩy lỗi ra component (không redirect ở đây)
     if (authPaths.some((p) => originalRequest.url?.includes(p))) {
       // thông báo lỗi tuỳ backend (interceptor chung có thể vẫn notify)
-      const msg = error.response?.data?.msg || "Đã xảy ra lỗi";
+      const msg = error.response?.data?.msg || "Đã xảy ra lỗi vui lòng thử lại.";
       notifyError(msg);
       return Promise.reject(error);
     }

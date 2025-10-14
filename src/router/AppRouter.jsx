@@ -5,10 +5,12 @@ import NotFound from "../pages/public/NotFound";
 import ROUTER from "./ROUTER";
 import React from "react";
 
-// --- React.lazy imports ---
+// react lazy imports
+const HomePage = React.lazy(() => import("../pages/public/Home"));
 const Login = React.lazy(() => import("../pages/public/Authentication/Login"));
 const Register = React.lazy(() => import("../pages/public/Authentication/Register"));
-
+const ForgotPassword = React.lazy(() => import("../pages/public/Authentication/ForgotPassword"));
+const ResetPassword = React.lazy(() => import("../pages/public/Authentication/ResetPassword"));
 const AccountSettings = React.lazy(() => import("../pages/private/Dashboard/AccountSetting"));
 const CompanyInfo = React.lazy(() => import("../pages/private/Dashboard/CompanyInfo"));
 const SocialMedia = React.lazy(() => import("../pages/private/Dashboard/SocialMedia"));
@@ -24,16 +26,13 @@ const CompanyList = React.lazy(() => import("../pages/private/Company/CompanyLis
 const CompanyUpdate = React.lazy(() => import("../pages/private/Company/CompanyUpdate"));
 const CompanyInformation = React.lazy(() => import("../pages/private/Company/CompanyInformation"));
 
-
 // --- Routes config ---
 const routes = [
   {
     path: ROUTER.HOME,
     element: (
       <LazyLoadingComponent>
-        <Link to={ROUTER.LOGIN}>Đăng nhập</Link>
-        <br />
-        <Link to={ROUTER.REGISTER}>Đăng ký</Link>
+        <HomePage />
       </LazyLoadingComponent>
     ),
   },
@@ -55,6 +54,23 @@ const routes = [
   },
 
   // --- Job routes ---
+  {
+    path: ROUTER.FORGOT_PASSWORD,
+    element: (
+      <LazyLoadingComponent>
+        <ForgotPassword />
+      </LazyLoadingComponent>
+    ),
+  },
+  {
+    path: ROUTER.RESET_PASSWORD,
+    element: (
+      <LazyLoadingComponent>
+        <ResetPassword />
+      </LazyLoadingComponent>
+    ),
+  },
+  // Job routes
   {
     path: ROUTER.JOBS,
     element: (

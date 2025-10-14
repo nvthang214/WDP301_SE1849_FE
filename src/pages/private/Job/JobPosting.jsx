@@ -1,18 +1,49 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { JobService } from "../../../services/JobService";
+import { TagService } from "../../../services/TagService";
+import { CategoryService } from "../../../services/CategoryService";
+import { Select } from "antd";
 
-const jobTypes = ["FULL-TIME", "PART-TIME", "INTERNSHIP", "TEMPORARY", "CONTRACT BASE"];
+const jobTypes = [
+  "FULL-TIME",
+  "PART-TIME",
+  "INTERNSHIP",
+  "TEMPORARY",
+  "CONTRACT BASE",
+];
 const jobLevels = ["Intern", "Fresher", "Junior", "Middle", "Senior", "Lead"];
 const benefitsList = [
-  "401k Salary", "Distributed Team", "Async", "Vision Insurance", "Dental Insurance", "Medical Insurance", "Unlimited vacation",
-  "4 day workweek", "401k matching", "company retreats", "Learning budget", "Free gym membership", "Pay in crypto",
-  "Profit Sharing", "Equity Compensation", "No whiteboard interview", "No politics at work", "We hire old (and young)"
+  "401k Salary",
+  "Distributed Team",
+  "Async",
+  "Vision Insurance",
+  "Dental Insurance",
+  "Medical Insurance",
+  "Unlimited vacation",
+  "4 day workweek",
+  "401k matching",
+  "company retreats",
+  "Learning budget",
+  "Free gym membership",
+  "Pay in crypto",
+  "Profit Sharing",
+  "Equity Compensation",
+  "No whiteboard interview",
+  "No politics at work",
+  "We hire old (and young)",
+  "Bảo hiểm",
+  "Du lịch",
+  "Thưởng lễ tết",
+  "Làm việc từ xa",
 ];
 
 export default function JobPosting() {
   const [form, setForm] = useState({
+    company: "",
+    recruiter: "",
+    category: "",
     title: "",
-    tags: "",
+    tags: [],
     role: "",
     minSalary: "",
     maxSalary: "",
@@ -30,14 +61,52 @@ export default function JobPosting() {
     description: "",
     requirements: "",
     desirable: "",
-    applyType: "jobpilot",
+    applyType: "Jobpilot",
+    location: "",
+    isActive: true,
   });
+
+  const [allTags, setAllTags] = useState([]);
+  const [allCategories, setAllCategories] = useState([]);
+
+  // Fetch all tags for selection
+  useEffect(() => {
+    async function fetchTags() {
+      try {
+        const res = await TagService.getAllTags();
+        setAllTags(res.data || []);
+      } catch {
+        setAllTags([]);
+      }
+    }
+    fetchTags();
+  }, []);
+
+  // Fetch all categories for selection
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const res = await CategoryService.getAllCategories();
+        setAllCategories(res.data || []);
+      } catch {
+        setAllCategories([]);
+      }
+    }
+    fetchCategories();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleTagsChange = (values) => {
+    setForm((prev) => ({
+      ...prev,
+      tags: values,
     }));
   };
 
@@ -50,16 +119,38 @@ export default function JobPosting() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Gửi form lên backend tại đây
-    JobService.postJob(form)
-      .then((response) => {
-        alert("Job posted successfully!");
-      })
-      .catch((error) => {
-        alert("Failed to post job:\n" + error.message);
-      });
+    // TODO: Lấy đúng company, recruiter, category id từ context hoặc props nếu có
+    const submitData = {
+      company: form.company || "68ebcd210612c5184b23abc5", // sửa lại id phù hợp với hệ thống của bạn
+      recruiter: form.recruiter || "68ebccd50612c5184b23abbe", // sửa lại id phù hợp với hệ thống của bạn
+      category: form.category,
+      title: form.title,
+      description: form.description,
+      tags: form.tags,
+      role: form.role,
+      minSalary: Number(form.minSalary),
+      maxSalary: Number(form.maxSalary),
+      salaryType: form.salaryType,
+      education: form.education,
+      experience: form.experience,
+      jobType: form.jobType,
+      vacancies: Number(form.vacancies),
+      expiration: form.expiration ? new Date(form.expiration).toISOString() : "",
+      jobLevel: form.jobLevel,
+      country: form.country,
+      city: form.city,
+      remote: !!form.remote,
+      benefits: form.benefits,
+      applyType: form.applyType,
+      requirements: form.requirements,
+      desirable: form.desirable,
+      location: form.location || form.city,
+      isActive: typeof form.isActive === "boolean" ? form.isActive : true,
+    };
+    await JobService.postJob(submitData);
+    alert("Job posted successfully!");
   };
 
   return (
@@ -80,32 +171,34 @@ export default function JobPosting() {
       <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block font-medium mb-1">Tags</label>
-          <input
-            className="w-full border rounded px-3 py-2"
-            name="tags"
-            placeholder="Job keyword, tags etc..."
+          <Select
+            mode="multiple"
+            allowClear
+            style={{ width: "100%" }}
+            placeholder="Select tags"
             value={form.tags}
-            onChange={handleChange}
+            onChange={handleTagsChange}
+            options={allTags.map((tag) => ({
+              label: tag.name,
+              value: tag._id,
+            }))}
+            optionFilterProp="label"
           />
         </div>
         <div>
           <label className="block font-medium mb-1">Job Role</label>
-          <select
+          <input
             className="w-full border rounded px-3 py-2"
             name="role"
             value={form.role}
             onChange={handleChange}
-          >
-            <option value="">Select...</option>
-            <option value="Developer">Developer</option>
-            <option value="Designer">Designer</option>
-            <option value="Manager">Manager</option>
-            {/* Thêm các role khác nếu cần */}
-          </select>
+            placeholder="Job role"
+          />
         </div>
       </div>
-      {/* Salary */}
+      {/* Salary, Salary Type, Category */}
       <div className="mb-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+        {/* Min Salary */}
         <div>
           <label className="block font-medium mb-1">Min Salary</label>
           <div className="flex">
@@ -117,9 +210,12 @@ export default function JobPosting() {
               onChange={handleChange}
               type="number"
             />
-            <span className="bg-gray-100 px-3 py-2 rounded-r border border-l-0">USD</span>
+            <span className="bg-gray-100 px-3 py-2 rounded-r border border-l-0">
+              USD
+            </span>
           </div>
         </div>
+        {/* Max Salary */}
         <div>
           <label className="block font-medium mb-1">Max Salary</label>
           <div className="flex">
@@ -131,82 +227,112 @@ export default function JobPosting() {
               onChange={handleChange}
               type="number"
             />
-            <span className="bg-gray-100 px-3 py-2 rounded-r border border-l-0">USD</span>
+            <span className="bg-gray-100 px-3 py-2 rounded-r border border-l-0">
+              USD
+            </span>
           </div>
         </div>
+        {/* Salary Type */}
         <div>
           <label className="block font-medium mb-1">Salary Type</label>
-          <select
-            className="w-full border rounded px-3 py-2"
-            name="salaryType"
-            value={form.salaryType}
-            onChange={handleChange}
-          >
-            <option value="">Select...</option>
-            <option value="Monthly">Monthly</option>
-            <option value="Yearly">Yearly</option>
-          </select>
+          <Select
+            style={{ width: "100%" }}
+            value={form.salaryType || undefined}
+            onChange={(val) =>
+              setForm((prev) => ({ ...prev, salaryType: val }))
+            }
+            options={[
+              { label: "Monthly", value: "Monthly" },
+              { label: "Yearly", value: "Yearly" },
+              { label: "USD", value: "USD" },
+            ]}
+            placeholder="Select salary type"
+            allowClear
+            showSearch
+          />
+        </div>
+        {/* Category */}
+        <div>
+          <label className="block font-medium mb-1">Category</label>
+          <Select
+            style={{ width: "100%" }}
+            value={form.category || undefined}
+            onChange={(val) =>
+              setForm((prev) => ({ ...prev, category: val }))
+            }
+            options={allCategories.map((cat) => ({
+              label: cat.name,
+              value: cat._id,
+            }))}
+            placeholder="Select category"
+            allowClear
+            showSearch
+            optionFilterProp="label"
+          />
         </div>
       </div>
       {/* Advance Information */}
       <div className="mb-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+        {/* Education */}
         <div>
           <label className="block font-medium mb-1">Education</label>
-          <select
-            className="w-full border rounded px-3 py-2"
-            name="education"
-            value={form.education}
-            onChange={handleChange}
-          >
-            <option value="">Select...</option>
-            <option value="Graduation">Graduation</option>
-            <option value="Master">Master</option>
-            <option value="PhD">PhD</option>
-          </select>
+          <Select
+            style={{ width: "100%" }}
+            value={form.education || undefined}
+            onChange={(val) =>
+              setForm((prev) => ({ ...prev, education: val }))
+            }
+            options={[
+              { label: "Graduated", value: "Graduated" },
+              { label: "Bachelor", value: "Bachelor" },
+              { label: "Master", value: "Master" },
+              { label: "Ph.D", value: "Ph.D" },
+            ]}
+            placeholder="Select education"
+            allowClear
+            showSearch
+          />
         </div>
+        {/* Experience */}
         <div>
           <label className="block font-medium mb-1">Experience</label>
-          <select
+          <input
             className="w-full border rounded px-3 py-2"
             name="experience"
+            placeholder="Experience"
             value={form.experience}
             onChange={handleChange}
-          >
-            <option value="">Select...</option>
-            <option value="0-1">0-1 years</option>
-            <option value="1-3">1-3 years</option>
-            <option value="3-5">3-5 years</option>
-            <option value="5+">5+ years</option>
-          </select>
+          />
         </div>
+        {/* Job Type */}
         <div>
           <label className="block font-medium mb-1">Job Type</label>
-          <select
-            className="w-full border rounded px-3 py-2"
-            name="jobType"
-            value={form.jobType}
-            onChange={handleChange}
-          >
-            <option value="">Select...</option>
-            {jobTypes.map((type) => (
-              <option key={type} value={type}>{type}</option>
-            ))}
-          </select>
+          <Select
+            style={{ width: "100%" }}
+            value={form.jobType || undefined}
+            onChange={(val) =>
+              setForm((prev) => ({ ...prev, jobType: val }))
+            }
+            options={jobTypes.map((type) => ({ label: type, value: type }))}
+            placeholder="Select job type"
+            allowClear
+            showSearch
+          />
         </div>
+        {/* Vacancies */}
         <div>
           <label className="block font-medium mb-1">Vacancies</label>
-          <select
+          <input
             className="w-full border rounded px-3 py-2"
             name="vacancies"
+            type="number"
+            placeholder="Vacancies"
             value={form.vacancies}
             onChange={handleChange}
-          >
-            <option value="">Select...</option>
-            {[1,2,3,4,5,6,7,8,9,10].map((n) => (
-              <option key={n} value={n}>{n}</option>
-            ))}
-          </select>
+            min={1}
+          />
         </div>
+        {/* Expiration Date */}
         <div>
           <label className="block font-medium mb-1">Expiration Date</label>
           <input
@@ -217,19 +343,23 @@ export default function JobPosting() {
             onChange={handleChange}
           />
         </div>
+        {/* Job Level */}
         <div>
           <label className="block font-medium mb-1">Job Level</label>
-          <select
-            className="w-full border rounded px-3 py-2"
-            name="jobLevel"
-            value={form.jobLevel}
-            onChange={handleChange}
-          >
-            <option value="">Select...</option>
-            {jobLevels.map((level) => (
-              <option key={level} value={level}>{level}</option>
-            ))}
-          </select>
+          <Select
+            style={{ width: "100%" }}
+            value={form.jobLevel || undefined}
+            onChange={(val) =>
+              setForm((prev) => ({ ...prev, jobLevel: val }))
+            }
+            options={jobLevels.map((level) => ({
+              label: level,
+              value: level,
+            }))}
+            placeholder="Select job level"
+            allowClear
+            showSearch
+          />
         </div>
       </div>
       {/* Location */}
@@ -238,34 +368,23 @@ export default function JobPosting() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
           <div>
             <label className="block text-sm mb-1">Country</label>
-            <select
+            <input
               className="w-full border rounded px-3 py-2"
               name="country"
+              placeholder="Country"
               value={form.country}
               onChange={handleChange}
-            >
-              <option value="">Select...</option>
-              <option value="Vietnam">Vietnam</option>
-              <option value="USA">USA</option>
-              <option value="UK">UK</option>
-              {/* Thêm các quốc gia khác nếu cần */}
-            </select>
+            />
           </div>
           <div>
             <label className="block text-sm mb-1">City</label>
-            <select
+            <input
               className="w-full border rounded px-3 py-2"
               name="city"
+              placeholder="City"
               value={form.city}
               onChange={handleChange}
-            >
-              <option value="">Select...</option>
-              <option value="Hanoi">Hanoi</option>
-              <option value="Ho Chi Minh">Ho Chi Minh</option>
-              <option value="London">London</option>
-              <option value="New York">New York</option>
-              {/* Thêm các thành phố khác nếu cần */}
-            </select>
+            />
           </div>
         </div>
         <label className="flex items-center gap-2 mt-2">
@@ -309,15 +428,7 @@ export default function JobPosting() {
           placeholder="Add your job description..."
           value={form.description}
           onChange={handleChange}
-        />        
-        {/* Toolbar giả lập */}
-        <div className="flex gap-2 mt-2 text-gray-400">
-          <button type="button" className="hover:text-blue-500"><b>B</b></button>
-          <button type="button" className="hover:text-blue-500"><i>I</i></button>
-          <button type="button" className="hover:text-blue-500">U</button>
-          <button type="button" className="hover:text-blue-500">🔗</button>
-          <button type="button" className="hover:text-blue-500">•</button>
-        </div>
+        />
       </div>
       {/* Job Requirements */}
       <div className="mb-6">
@@ -328,15 +439,7 @@ export default function JobPosting() {
           placeholder="Add your job requirements..."
           value={form.requirements}
           onChange={handleChange}
-        />        
-        {/* Toolbar giả lập */}
-        <div className="flex gap-2 mt-2 text-gray-400">
-          <button type="button" className="hover:text-blue-500"><b>B</b></button>
-          <button type="button" className="hover:text-blue-500"><i>I</i></button>
-          <button type="button" className="hover:text-blue-500">U</button>
-          <button type="button" className="hover:text-blue-500">🔗</button>
-          <button type="button" className="hover:text-blue-500">•</button>
-        </div>
+        />
       </div>
       {/* Job Desirable */}
       <div className="mb-6">
@@ -347,62 +450,47 @@ export default function JobPosting() {
           placeholder="Add your job description..."
           value={form.desirable}
           onChange={handleChange}
-        />        
-        {/* Toolbar giả lập */}
-        <div className="flex gap-2 mt-2 text-gray-400">
-          <button type="button" className="hover:text-blue-500"><b>B</b></button>
-          <button type="button" className="hover:text-blue-500"><i>I</i></button>
-          <button type="button" className="hover:text-blue-500">U</button>
-          <button type="button" className="hover:text-blue-500">🔗</button>
-          <button type="button" className="hover:text-blue-500">•</button>
-        </div>
-      </div>      
+        />
+      </div>
       {/* Apply Job On */}
       <div className="bg-gray-50 rounded-lg p-6 mb-6">
         <label className="block font-medium mb-2">Apply Job on:</label>
         <div className="flex flex-col md:flex-row gap-4">
-          <label className={`flex-1 flex items-start gap-2 p-4 rounded cursor-pointer border ${form.applyType === "jobpilot" ? "bg-white border-blue-400 shadow" : "bg-gray-50 border-transparent"}`}>
-            <input
-              type="radio"
-              name="applyType"
-              value="jobpilot"
-              checked={form.applyType === "jobpilot"}
-              onChange={handleChange}
-              className="mt-1"
-            />
-            <div>
-              <div className="font-semibold">On Jobpilot</div>
-              <div className="text-xs text-gray-500">Candidate will apply job using jobpilot &amp; all application will show on your dashboard.</div>
-            </div>
-          </label>
-          <label className={`flex-1 flex items-start gap-2 p-4 rounded cursor-pointer border ${form.applyType === "external" ? "bg-white border-blue-400 shadow" : "bg-gray-50 border-transparent"}`}>
-            <input
-              type="radio"
-              name="applyType"
-              value="external"
-              checked={form.applyType === "external"}
-              onChange={handleChange}
-              className="mt-1"
-            />
-            <div>
-              <div className="font-semibold">External Platform</div>
-              <div className="text-xs text-gray-500">Candidate apply job on your website, all application on your own website.</div>
-            </div>
-          </label>
-          <label className={`flex-1 flex items-start gap-2 p-4 rounded cursor-pointer border ${form.applyType === "email" ? "bg-white border-blue-400 shadow" : "bg-gray-50 border-transparent"}`}>
-            <input
-              type="radio"
-              name="applyType"
-              value="email"
-              checked={form.applyType === "email"}
-              onChange={handleChange}
-              className="mt-1"
-            />
-            <div>
-              <div className="font-semibold">On Your Email</div>
-              <div className="text-xs text-gray-500">Candidate apply job on your email address, and all application in your email.</div>
-            </div>
-          </label>
+          {["Jobpilot", "external", "email"].map((type) => (
+            <label
+              key={type}
+              className={`flex-1 flex items-start gap-2 p-4 rounded cursor-pointer border ${
+                form.applyType === type
+                  ? "bg-white border-blue-400 shadow"
+                  : "bg-gray-50 border-transparent"
+              }`}
+            >
+              <input
+                type="radio"
+                name="applyType"
+                value={type}
+                checked={form.applyType === type}
+                onChange={handleChange}
+                className="mt-1"
+              />
+              <div>
+                <div className="font-semibold">
+                  {type === "Jobpilot"
+                    ? "On Jobpilot"
+                    : type === "external"
+                    ? "External Platform"
+                    : "On Your Email"}
+                </div>
+                <div className="text-xs text-gray-500">
+                  {type === "Jobpilot"
+                    ? "Candidate will apply job using jobpilot & all application will show on your dashboard."
+                    : type === "external"
+                    ? "Candidate apply job on your website, all application on your own website."
+                    : "Candidate apply job on your email address, and all application in your email."}
+                </div>
+              </div>
+            </label>
+          ))}
         </div>
       </div>
       {/* Submit */}

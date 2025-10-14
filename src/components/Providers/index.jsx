@@ -1,6 +1,5 @@
 import React from "react";
 import { StoreContext } from "./Context";
-import NotificationProvider from "./NotificationProvider";
 
 const Providers = ({ children }) => {
   const [isLogin, setIsLogin] = React.useState(false);
@@ -8,11 +7,7 @@ const Providers = ({ children }) => {
     loginStore: { isLogin, setIsLogin },
   };
 
-  return (
-    <StoreContext.Provider value={{ store }}>
-      <NotificationProvider>{children}</NotificationProvider>
-    </StoreContext.Provider>
-  );
+  return <StoreContext.Provider value={{ store }}>{children}</StoreContext.Provider>;
 };
 
 export default Providers;

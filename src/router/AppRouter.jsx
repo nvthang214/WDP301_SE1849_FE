@@ -85,14 +85,18 @@ const routes = [
     ),
   },
   // Company routes
+  //Recruiter
+  
+  // Candidate
   {
-    path: ROUTER.COMPANY_INFO,
+    path: ROUTER.COMPANY_DETAILS,
     element: (
       <LazyLoadingComponent>
         <CompanyInformation />
       </LazyLoadingComponent>
     ),
   },
+  // Not Found
   {
     path: "*",
     element: (

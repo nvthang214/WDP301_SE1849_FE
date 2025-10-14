@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 import { JobService } from "../../../services/JobService";
 import { TagService } from "../../../services/TagService";
 import { CategoryService } from "../../../services/CategoryService";
@@ -34,8 +33,8 @@ const benefitsList = [
   "We hire old (and young)",
 ];
 
-export default function JobEditing() {
-  const { id } = useParams();
+export default function JobPosting() {
+  
   const [form, setForm] = useState({
     company: "",
     recruiter: "",
@@ -63,7 +62,7 @@ export default function JobEditing() {
     location: "",
     isActive: true,
   });
-  const [loading, setLoading] = useState(true);
+
 
   // Fetch all tags for selection
   const [allTags, setAllTags] = useState([]);
@@ -93,57 +92,6 @@ export default function JobEditing() {
     fetchCategories();
   }, []);
 
-  // Fetch job details to edit
-  useEffect(() => {
-    async function fetchJob() {
-      try {
-        const res = await JobService.getJobById(id);
-        let tagIds = [];
-        if (Array.isArray(res.data.tags) && res.data.tags.length > 0) {
-          tagIds = res.data.tags.map((tagObj) => tagObj._id || tagObj);
-        }
-        setForm({
-          company: res.data.company?._id || res.data.company || "",
-          recruiter:
-            res.data.recruiter && res.data.recruiter._id
-              ? res.data.recruiter._id
-              : "68ebccd50612c5184b23abbe",
-          category: res.data.category?._id || res.data.category || "",
-          title: res.data.title || "",
-          tags: tagIds,
-          role: res.data.role || "",
-          minSalary: res.data.minSalary || "",
-          maxSalary: res.data.maxSalary || "",
-          salaryType: res.data.salaryType || "",
-          education: res.data.education || "",
-          experience: res.data.experience || "",
-          jobType: res.data.jobType || "",
-          vacancies: res.data.vacancies ? String(res.data.vacancies) : "",
-          expiration: res.data.expiration
-            ? res.data.expiration.slice(0, 10)
-            : "",
-          jobLevel: res.data.jobLevel || "",
-          country: res.data.country || "",
-          city: res.data.city || "",
-          remote: !!res.data.remote,
-          benefits: Array.isArray(res.data.benefits) ? res.data.benefits : [],
-          description: res.data.description || "",
-          requirements: res.data.requirements || "",
-          desirable: res.data.desirable || "",
-          applyType: res.data.applyType || "Jobpilot",
-          location: res.data.location || res.data.city || "",
-          isActive:
-            typeof res.data.isActive === "boolean" ? res.data.isActive : true,
-        });
-      } catch {
-        // handle error
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchJob();
-  }, [id]);
-
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({
@@ -171,8 +119,8 @@ export default function JobEditing() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const submitData = {
-      company: form.company,
-      recruiter: form.recruiter,
+      company: '68ebcd210612c5184b23abc5',
+      recruiter: '68ebccd50612c5184b23abbe',
       category: form.category,
       title: form.title,
       description: form.description,
@@ -199,16 +147,13 @@ export default function JobEditing() {
       location: form.location || form.city,
       isActive: typeof form.isActive === "boolean" ? form.isActive : true,
     };
-    await JobService.updateJob(id, submitData);
-    alert("Job updated!");
+    await JobService.postJob(submitData);
+    alert("Job posted!");
   };
-
-  if (loading)
-    return <div className="text-center py-10 text-gray-400">Loading...</div>;
 
   return (
     <form className="max-w-5xl mx-auto py-8" onSubmit={handleSubmit}>
-      <h2 className="text-2xl font-semibold mb-6">Edit Job</h2>
+      <h2 className="text-2xl font-semibold mb-6">Post Job</h2>
       {/* Job Title */}
       <div className="mb-4">
         <label className="block font-medium mb-1">Job Title</label>

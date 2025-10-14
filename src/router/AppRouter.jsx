@@ -89,6 +89,14 @@ const routes = [
     path: ROUTER.COMPANY_INFO,
     element: (
       <LazyLoadingComponent>
+        <CompanyInfo />
+      </LazyLoadingComponent>
+    ),
+  },
+  {
+    path: ROUTER.COMPANY_DETAILS,
+    element: (
+      <LazyLoadingComponent>
         <CompanyInformation />
       </LazyLoadingComponent>
     ),

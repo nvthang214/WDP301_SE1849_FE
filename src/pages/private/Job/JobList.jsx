@@ -102,11 +102,11 @@ export default function JobList() {
       if (filters.remote !== undefined) params.remote = filters.remote ? "true" : "false";
 
       // Xóa các param undefined/null/rỗng
-      Object.keys(params).forEach(
-        (key) =>
-          (params[key] === undefined || params[key] === "" || params[key] === false) &&
-          delete params[key]
-      );
+      Object.keys(params).forEach((key) => {
+        if (params[key] === undefined || params[key] === "") {
+          delete params[key];
+        }
+      });
 
       const res = await JobService.getJobs(params);
       setJobs(res.data.jobs || []);
@@ -170,7 +170,7 @@ export default function JobList() {
             </svg>
             <input
               className="flex-1 outline-none bg-transparent text-base"
-              placeholder="City, state or zip code"
+              placeholder="City Name"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
             />

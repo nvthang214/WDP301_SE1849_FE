@@ -111,11 +111,6 @@ export default function JobEditing() {
           tagIds = res.data.tags.map((tagObj) => tagObj._id || tagObj);
         }
         setForm({
-          company: res.data.company?._id || res.data.company || "",
-          recruiter:
-            res.data.recruiter && res.data.recruiter._id
-              ? res.data.recruiter._id
-              : "68ebccd50612c5184b23abbe",
           category: res.data.category?._id || res.data.category || "",
           title: res.data.title || "",
           tags: tagIds,

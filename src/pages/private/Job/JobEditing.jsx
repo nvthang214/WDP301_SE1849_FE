@@ -5,13 +5,7 @@ import { TagService } from "../../../services/TagService";
 import { CategoryService } from "../../../services/CategoryService";
 import { Select } from "antd";
 
-const jobTypes = [
-  "FULL-TIME",
-  "PART-TIME",
-  "INTERNSHIP",
-  "TEMPORARY",
-  "CONTRACT BASE",
-];
+const jobTypes = ["FULL-TIME", "PART-TIME", "INTERNSHIP", "TEMPORARY", "CONTRACT BASE"];
 const jobLevels = ["Intern", "Fresher", "Junior", "Middle", "Senior", "Lead"];
 const benefitsList = [
   "401k Salary",
@@ -79,7 +73,7 @@ export default function JobEditing() {
     fetchTags();
   }, []);
 
-  // Fetch categories (not used in form but could be useful)
+  // Fetch categories
   const [allCategories, setAllCategories] = useState([]);
   useEffect(() => {
     async function fetchCategories() {
@@ -91,6 +85,20 @@ export default function JobEditing() {
       }
     }
     fetchCategories();
+  }, []);
+
+  // Fetch company by recruiter ID (hardcoded for now)
+  useEffect(() => {
+    async function fetchCompany() {
+      try {
+        const recruiterId = "68ebccd50612c5184b23abbe"; // Replace with actual recruiter ID
+        const res = await JobService.getCompanyByRecruiterId(recruiterId);
+        setForm((prev) => ({ ...prev, company: res.data._id, recruiter: recruiterId }));
+      } catch (error) {
+        console.error("Failed to fetch company:", error);
+      }
+    }
+    fetchCompany();
   }, []);
 
   // Fetch job details to edit
@@ -119,9 +127,7 @@ export default function JobEditing() {
           experience: res.data.experience || "",
           jobType: res.data.jobType || "",
           vacancies: res.data.vacancies ? String(res.data.vacancies) : "",
-          expiration: res.data.expiration
-            ? res.data.expiration.slice(0, 10)
-            : "",
+          expiration: res.data.expiration ? res.data.expiration.slice(0, 10) : "",
           jobLevel: res.data.jobLevel || "",
           country: res.data.country || "",
           city: res.data.city || "",
@@ -132,8 +138,7 @@ export default function JobEditing() {
           desirable: res.data.desirable || "",
           applyType: res.data.applyType || "Jobpilot",
           location: res.data.location || res.data.city || "",
-          isActive:
-            typeof res.data.isActive === "boolean" ? res.data.isActive : true,
+          isActive: typeof res.data.isActive === "boolean" ? res.data.isActive : true,
         });
       } catch {
         // handle error
@@ -185,9 +190,7 @@ export default function JobEditing() {
       experience: form.experience,
       jobType: form.jobType,
       vacancies: Number(form.vacancies),
-      expiration: form.expiration
-        ? new Date(form.expiration).toISOString()
-        : "",
+      expiration: form.expiration ? new Date(form.expiration).toISOString() : "",
       jobLevel: form.jobLevel,
       country: form.country,
       city: form.city,
@@ -203,8 +206,7 @@ export default function JobEditing() {
     alert("Job updated!");
   };
 
-  if (loading)
-    return <div className="text-center py-10 text-gray-400">Loading...</div>;
+  if (loading) return <div className="text-center py-10 text-gray-400">Loading...</div>;
 
   return (
     <form className="max-w-5xl mx-auto py-8" onSubmit={handleSubmit}>
@@ -263,9 +265,7 @@ export default function JobEditing() {
               onChange={handleChange}
               type="number"
             />
-            <span className="bg-gray-100 px-3 py-2 rounded-r border border-l-0">
-              USD
-            </span>
+            <span className="bg-gray-100 px-3 py-2 rounded-r border border-l-0">USD</span>
           </div>
         </div>
         <div>
@@ -279,9 +279,7 @@ export default function JobEditing() {
               onChange={handleChange}
               type="number"
             />
-            <span className="bg-gray-100 px-3 py-2 rounded-r border border-l-0">
-              USD
-            </span>
+            <span className="bg-gray-100 px-3 py-2 rounded-r border border-l-0">USD</span>
           </div>
         </div>
 
@@ -293,9 +291,7 @@ export default function JobEditing() {
               className="w-full border rounded-l px-3 py-2"
               style={{ width: "100%" }}
               value={form.salaryType ? [form.salaryType] : []}
-              onChange={(val) =>
-                setForm((prev) => ({ ...prev, salaryType: val[0] || "" }))
-              }
+              onChange={(val) => setForm((prev) => ({ ...prev, salaryType: val[0] || "" }))}
               options={[
                 { label: "Monthly", value: "Monthly" },
                 { label: "Yearly", value: "Yearly" },
@@ -360,9 +356,7 @@ export default function JobEditing() {
           <Select
             style={{ width: "100%" }}
             value={form.jobType ? [form.jobType] : []}
-            onChange={(val) =>
-              setForm((prev) => ({ ...prev, jobType: val[0] || "" }))
-            }
+            onChange={(val) => setForm((prev) => ({ ...prev, jobType: val[0] || "" }))}
             options={jobTypes.map((type) => ({ label: type, value: type }))}
             mode="multiple"
             maxTagCount={1}
@@ -396,9 +390,7 @@ export default function JobEditing() {
           <Select
             style={{ width: "100%" }}
             value={form.jobLevel ? [form.jobLevel] : []}
-            onChange={(val) =>
-              setForm((prev) => ({ ...prev, jobLevel: val[0] || "" }))
-            }
+            onChange={(val) => setForm((prev) => ({ ...prev, jobLevel: val[0] || "" }))}
             options={jobLevels.map((level) => ({ label: level, value: level }))}
             mode="multiple"
             maxTagCount={1}
@@ -432,15 +424,9 @@ export default function JobEditing() {
           </div>
         </div>
         <label className="flex items-center gap-2 mt-2">
-          <input
-            type="checkbox"
-            name="remote"
-            checked={form.remote}
-            onChange={handleChange}
-          />
+          <input type="checkbox" name="remote" checked={form.remote} onChange={handleChange} />
           <span>
-            Fully Remote Position -{" "}
-            <span className="font-semibold">Worldwide</span>
+            Fully Remote Position - <span className="font-semibold">Worldwide</span>
           </span>
         </label>
       </div>
@@ -523,15 +509,15 @@ export default function JobEditing() {
                   {type === "Jobpilot"
                     ? "On Jobpilot"
                     : type === "external"
-                    ? "External Platform"
-                    : "On Your Email"}
+                      ? "External Platform"
+                      : "On Your Email"}
                 </div>
                 <div className="text-xs text-gray-500">
                   {type === "Jobpilot"
                     ? "Candidate will apply job using jobpilot & all application will show on your dashboard."
                     : type === "external"
-                    ? "Candidate apply job on your website, all application on your own website."
-                    : "Candidate apply job on your email address, and all application in your email."}
+                      ? "Candidate apply job on your website, all application on your own website."
+                      : "Candidate apply job on your email address, and all application in your email."}
                 </div>
               </div>
             </label>

@@ -14,7 +14,7 @@ import {
   MenuUnfoldOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
-import DashboardSidebar from "../LayoutSidebar/DashboardSidebar.jsx";
+import DashboardSidebar from "../../../components/Layout/Recruiter/LayoutSidebar/DashboardSidebar.jsx";
 
 const { Header, Sider, Content } = Layout;
 
@@ -111,8 +111,7 @@ export default function DashboardHeader({ children }) {
               shape="circle"
               icon={<InstagramOutlined />}
               style={{
-                background:
-                  "linear-gradient(45deg, #f58529, #dd2a7b, #8134af, #515bd4)",
+                background: "linear-gradient(45deg, #f58529, #dd2a7b, #8134af, #515bd4)",
                 color: "#fff",
                 border: "none",
               }}
@@ -121,9 +120,7 @@ export default function DashboardHeader({ children }) {
         </Header>
 
         {/* Content */}
-        <Content style={{ padding: 24, background: "#f9f9f9" }}>
-          {children}
-        </Content>
+        <Content style={{ padding: 24, background: "#f9f9f9" }}>{children}</Content>
       </Layout>
     </Layout>
   );

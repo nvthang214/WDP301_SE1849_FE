@@ -12,7 +12,7 @@ import React from "react";
 const Login = React.lazy(() => import("../pages/public/Authentication/Login"));
 const Register = React.lazy(() => import("../pages/public/Authentication/Register"));
 const DashboardLayout = React.lazy(() => import("../pages/private/LayoutSidebar/DashboardLayout"));
-const DashboardRecruiter = React.lazy(() => import("../pages/private/LayoutSidebar/DashboardRecruiter"));
+const DashboardRecruiter = React.lazy(() => import("../pages/private/LayoutSidebar/DashboardRecruiter.jsx"));
 const AccountSettings = React.lazy(
   () => import("../pages/private/Dashboard/AccountSetting.jsx")
 );

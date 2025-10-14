@@ -4,13 +4,7 @@ import { TagService } from "../../../services/TagService";
 import { CategoryService } from "../../../services/CategoryService";
 import { Select } from "antd";
 
-const jobTypes = [
-  "FULL-TIME",
-  "PART-TIME",
-  "INTERNSHIP",
-  "TEMPORARY",
-  "CONTRACT BASE",
-];
+const jobTypes = ["FULL-TIME", "PART-TIME", "INTERNSHIP", "TEMPORARY", "CONTRACT BASE"];
 const jobLevels = ["Intern", "Fresher", "Junior", "Middle", "Senior", "Lead"];
 const benefitsList = [
   "401k Salary",
@@ -34,7 +28,6 @@ const benefitsList = [
 ];
 
 export default function JobPosting() {
-  
   const [form, setForm] = useState({
     company: "",
     recruiter: "",
@@ -62,7 +55,6 @@ export default function JobPosting() {
     location: "",
     isActive: true,
   });
-
 
   // Fetch all tags for selection
   const [allTags, setAllTags] = useState([]);
@@ -92,6 +84,20 @@ export default function JobPosting() {
     fetchCategories();
   }, []);
 
+  // Fetch company by recruiter ID (hardcoded for now)
+  useEffect(() => {
+    async function fetchCompany() {
+      try {
+        const recruiterId = "68ebccd50612c5184b23abbe"; // Replace with actual recruiter ID
+        const res = await JobService.getCompanyByRecruiterId(recruiterId);
+        setForm((prev) => ({ ...prev, company: res.data._id, recruiter: recruiterId }));
+      } catch (error) {
+        console.error("Failed to fetch company:", error);
+      }
+    }
+    fetchCompany();
+  }, []);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({
@@ -119,8 +125,8 @@ export default function JobPosting() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const submitData = {
-      company: '68ebcd210612c5184b23abc5',
-      recruiter: '68ebccd50612c5184b23abbe',
+      recruiter: form.recruiter,
+      company: form.company,
       category: form.category,
       title: form.title,
       description: form.description,
@@ -133,9 +139,7 @@ export default function JobPosting() {
       experience: form.experience,
       jobType: form.jobType,
       vacancies: Number(form.vacancies),
-      expiration: form.expiration
-        ? new Date(form.expiration).toISOString()
-        : "",
+      expiration: form.expiration ? new Date(form.expiration).toISOString() : "",
       jobLevel: form.jobLevel,
       country: form.country,
       city: form.city,
@@ -208,9 +212,7 @@ export default function JobPosting() {
               onChange={handleChange}
               type="number"
             />
-            <span className="bg-gray-100 px-3 py-2 rounded-r border border-l-0">
-              USD
-            </span>
+            <span className="bg-gray-100 px-3 py-2 rounded-r border border-l-0">USD</span>
           </div>
         </div>
         <div>
@@ -224,9 +226,7 @@ export default function JobPosting() {
               onChange={handleChange}
               type="number"
             />
-            <span className="bg-gray-100 px-3 py-2 rounded-r border border-l-0">
-              USD
-            </span>
+            <span className="bg-gray-100 px-3 py-2 rounded-r border border-l-0">USD</span>
           </div>
         </div>
 
@@ -238,9 +238,7 @@ export default function JobPosting() {
               className="w-full border rounded-l px-3 py-2"
               style={{ width: "100%" }}
               value={form.salaryType ? [form.salaryType] : []}
-              onChange={(val) =>
-                setForm((prev) => ({ ...prev, salaryType: val[0] || "" }))
-              }
+              onChange={(val) => setForm((prev) => ({ ...prev, salaryType: val[0] || "" }))}
               options={[
                 { label: "Monthly", value: "Monthly" },
                 { label: "Yearly", value: "Yearly" },
@@ -305,9 +303,7 @@ export default function JobPosting() {
           <Select
             style={{ width: "100%" }}
             value={form.jobType ? [form.jobType] : []}
-            onChange={(val) =>
-              setForm((prev) => ({ ...prev, jobType: val[0] || "" }))
-            }
+            onChange={(val) => setForm((prev) => ({ ...prev, jobType: val[0] || "" }))}
             options={jobTypes.map((type) => ({ label: type, value: type }))}
             mode="multiple"
             maxTagCount={1}
@@ -341,9 +337,7 @@ export default function JobPosting() {
           <Select
             style={{ width: "100%" }}
             value={form.jobLevel ? [form.jobLevel] : []}
-            onChange={(val) =>
-              setForm((prev) => ({ ...prev, jobLevel: val[0] || "" }))
-            }
+            onChange={(val) => setForm((prev) => ({ ...prev, jobLevel: val[0] || "" }))}
             options={jobLevels.map((level) => ({ label: level, value: level }))}
             mode="multiple"
             maxTagCount={1}
@@ -377,15 +371,9 @@ export default function JobPosting() {
           </div>
         </div>
         <label className="flex items-center gap-2 mt-2">
-          <input
-            type="checkbox"
-            name="remote"
-            checked={form.remote}
-            onChange={handleChange}
-          />
+          <input type="checkbox" name="remote" checked={form.remote} onChange={handleChange} />
           <span>
-            Fully Remote Position -{" "}
-            <span className="font-semibold">Worldwide</span>
+            Fully Remote Position - <span className="font-semibold">Worldwide</span>
           </span>
         </label>
       </div>
@@ -468,15 +456,15 @@ export default function JobPosting() {
                   {type === "Jobpilot"
                     ? "On Jobpilot"
                     : type === "external"
-                    ? "External Platform"
-                    : "On Your Email"}
+                      ? "External Platform"
+                      : "On Your Email"}
                 </div>
                 <div className="text-xs text-gray-500">
                   {type === "Jobpilot"
                     ? "Candidate will apply job using jobpilot & all application will show on your dashboard."
                     : type === "external"
-                    ? "Candidate apply job on your website, all application on your own website."
-                    : "Candidate apply job on your email address, and all application in your email."}
+                      ? "Candidate apply job on your website, all application on your own website."
+                      : "Candidate apply job on your email address, and all application in your email."}
                 </div>
               </div>
             </label>

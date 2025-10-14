@@ -3,9 +3,9 @@ const { Header } = Layout;
 
 const HeaderMain = (props) => {
   return (
-    <Header>
-      <div>header</div>
-    </Header>
+    <div>
+      <div className="search-bar"></div>
+    </div>
   );
 };
 

@@ -1,15 +1,50 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Briefcase, Bookmark, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, Briefcase, Bookmark, Settings, LogOut, Building2 } from "lucide-react";
+import { CompanyService } from "../../../services/CompanyService";
+import ROUTER from "../../../router/ROUTER";
 
 const SidebarMain = ({ role = "recruiter" }) => {
   const navigate = useNavigate();
+  const [hasCompany, setHasCompany] = useState(false);
+  const [companyId, setCompanyId] = useState(null);
+
+  // Mock recruiter ID - trong thực tế sẽ lấy từ context hoặc localStorage
+  const recruiterId = "68ebccd50612c5184b23abbe";
+
+  useEffect(() => {
+    checkCompanyExists();
+  }, []);
+
+  const checkCompanyExists = async () => {
+    try {
+      const response = await CompanyService.getCompanyByRecruiter(recruiterId);
+      if (response && response.data) {
+        setHasCompany(true);
+        setCompanyId(response.data._id);
+      } else {
+        setHasCompany(false);
+      }
+    } catch (error) {
+      console.log("No company found for recruiter");
+      setHasCompany(false);
+    }
+  };
+
+  const handleCompanyClick = () => {
+    if (hasCompany && companyId) {
+      navigate(`${ROUTER.COMPANY_EDIT.replace(":id", companyId)}`);
+    } else {
+      navigate(ROUTER.COMPANY_POST);
+    }
+  };
 
   const menuItems = [
     { icon: LayoutDashboard, label: "Overview", href: "/recruiter/dashboard" },
     { icon: Briefcase, label: "My Jobs", href: "/recruiter/my-jobs" },
+    // { icon: Building2, label: "My Company", onClick: handleCompanyClick },
     { icon: Bookmark, label: "Saved Candidates", href: "/recruiter/saved" },
-    { icon: Settings, label: "Account Settings", href: "/recruiter/account-settings" },
+    { icon: Settings, label: "Account Settings", onClick: handleCompanyClick },
   ];
 
   const handleLogout = () => {
@@ -34,6 +69,21 @@ const SidebarMain = ({ role = "recruiter" }) => {
         <nav className="space-y-2">
           {menuItems.map((item) => {
             const Icon = item.icon;
+
+            // Nếu có onClick thì render button, nếu không thì render NavLink
+            if (item.onClick) {
+              return (
+                <button
+                  key={item.label}
+                  onClick={item.onClick}
+                  className="flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-all text-gray-700 hover:bg-gray-50 hover:text-gray-900 w-full text-left"
+                >
+                  <Icon className="w-5 h-5" />
+                  {item.label}
+                </button>
+              );
+            }
+
             return (
               <NavLink
                 key={item.href}

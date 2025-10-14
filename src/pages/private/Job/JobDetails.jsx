@@ -57,9 +57,7 @@ function ApplyModal({ open, onClose, jobTitle }) {
         </button>
         <h3 className="text-lg font-semibold mb-4">Apply Job: {jobTitle}</h3>
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">
-            Choose Resume
-          </label>
+          <label className="block text-sm font-medium mb-1">Choose Resume</label>
           <select
             className="w-full border rounded px-3 py-2"
             value={resume}
@@ -149,11 +147,7 @@ export default function JobDetails() {
 
   return (
     <div className="bg-gray-50 min-h-screen px-0 md:px-8 py-8">
-      <ApplyModal
-        open={showApply}
-        onClose={() => setShowApply(false)}
-        jobTitle={job.title}
-      />
+      <ApplyModal open={showApply} onClose={() => setShowApply(false)} jobTitle={job.title} />
       {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white rounded-xl px-8 py-6 mb-6 shadow-sm">
         <div className="flex items-center gap-4">
@@ -181,10 +175,7 @@ export default function JobDetails() {
               </span>
             </div>
             <div className="text-gray-500">
-              at{" "}
-              <span className="font-semibold">
-                {job.company?.name || "Company"}
-              </span>
+              at <span className="font-semibold">{job.company?.name || "Company"}</span>
             </div>
           </div>
         </div>
@@ -207,15 +198,11 @@ export default function JobDetails() {
         <div className="col-span-1 lg:col-span-6 max-w-full">
           <div className="bg-white rounded-xl p-8 shadow-sm mb-6">
             <h2 className="font-semibold text-lg mb-2">Job Description</h2>
-            <div className="text-gray-700 whitespace-pre-line">
-              {job.description}
-            </div>
+            <div className="text-gray-700 whitespace-pre-line break-all">{job.description}</div>
             {job.requirements && (
               <>
-                <h2 className="font-semibold text-lg mt-6 mb-2">
-                  Requirements
-                </h2>
-                <ul className="list-disc list-inside text-gray-700 space-y-1">
+                <h2 className="font-semibold text-lg mt-6 mb-2">Requirements</h2>
+                <ul className="list-disc list-inside text-gray-700 space-y-1 break-all">
                   {job.requirements.split("\n").map((line, idx) => (
                     <li key={idx}>{line}</li>
                   ))}
@@ -225,7 +212,7 @@ export default function JobDetails() {
             {job.desirable && (
               <>
                 <h2 className="font-semibold text-lg mt-6 mb-2">Desirable</h2>
-                <ul className="list-disc list-inside text-gray-700 space-y-1">
+                <ul className="list-disc list-inside text-gray-700 space-y-1 break-all">
                   {job.desirable.split("\n").map((line, idx) => (
                     <li key={idx}>{line}</li>
                   ))}
@@ -237,12 +224,10 @@ export default function JobDetails() {
                 <h2 className="font-semibold text-lg mt-6 mb-2 flex items-center gap-2">
                   <Gift size={18} className="text-green-600" /> Benefits
                 </h2>
-                <ul className="list-disc list-inside text-gray-700 space-y-1">
+                <ul className="list-disc list-inside text-gray-700 space-y-1 break-all">
                   {Array.isArray(job.benefits)
                     ? job.benefits.map((b, idx) => <li key={idx}>{b}</li>)
-                    : job.benefits
-                        .split("\n")
-                        .map((line, idx) => <li key={idx}>{line}</li>)}
+                    : job.benefits.split("\n").map((line, idx) => <li key={idx}>{line}</li>)}
                 </ul>
               </>
             )}
@@ -276,9 +261,7 @@ export default function JobDetails() {
                   ? `${job.city}, ${job.country}`
                   : job.city || job.country || "N/A"}
                 {job.remote && (
-                  <span className="ml-2 text-xs text-green-600 font-semibold">
-                    (Remote)
-                  </span>
+                  <span className="ml-2 text-xs text-green-600 font-semibold">(Remote)</span>
                 )}
               </div>
             </div>
@@ -312,22 +295,14 @@ export default function JobDetails() {
                   <Calendar size={14} className="text-blue-600" />
                   JOB POSTED:
                 </div>
-                <div>
-                  {job.createdAt
-                    ? new Date(job.createdAt).toLocaleDateString()
-                    : "--"}
-                </div>
+                <div>{job.createdAt ? new Date(job.createdAt).toLocaleDateString() : "--"}</div>
               </div>
               <div>
                 <div className="text-gray-400 flex items-center gap-1">
                   <Clock size={14} className="text-blue-600" />
                   JOB EXPIRE IN:
                 </div>
-                <div>
-                  {job.expiration
-                    ? new Date(job.expiration).toLocaleDateString()
-                    : "--"}
-                </div>
+                <div>{job.expiration ? new Date(job.expiration).toLocaleDateString() : "--"}</div>
               </div>
               <div>
                 <div className="text-gray-400 flex items-center gap-1">
@@ -365,34 +340,19 @@ export default function JobDetails() {
               <Share2 size={16} className="text-blue-600" /> Share this job:
             </div>
             <div className="flex gap-2 mb-2">
-              <button
-                className="bg-gray-100 hover:bg-gray-200 rounded p-2"
-                title="Copy Link"
-              >
+              <button className="bg-gray-100 hover:bg-gray-200 rounded p-2" title="Copy Link">
                 <LinkIcon size={16} />
               </button>
-              <button
-                className="bg-gray-100 hover:bg-gray-200 rounded p-2"
-                title="LinkedIn"
-              >
+              <button className="bg-gray-100 hover:bg-gray-200 rounded p-2" title="LinkedIn">
                 <Linkedin size={16} className="text-blue-700" />
               </button>
-              <button
-                className="bg-gray-100 hover:bg-gray-200 rounded p-2"
-                title="Facebook"
-              >
+              <button className="bg-gray-100 hover:bg-gray-200 rounded p-2" title="Facebook">
                 <FacebookIcon size={16} className="text-blue-600" />
               </button>
-              <button
-                className="bg-gray-100 hover:bg-gray-200 rounded p-2"
-                title="Twitter"
-              >
+              <button className="bg-gray-100 hover:bg-gray-200 rounded p-2" title="Twitter">
                 <Twitter size={16} className="text-blue-400" />
               </button>
-              <button
-                className="bg-gray-100 hover:bg-gray-200 rounded p-2"
-                title="Email"
-              >
+              <button className="bg-gray-100 hover:bg-gray-200 rounded p-2" title="Email">
                 <Mail size={16} />
               </button>
             </div>
@@ -401,9 +361,7 @@ export default function JobDetails() {
             </div>
             <div className="flex flex-wrap gap-2">
               {Array.isArray(job.tags) && job.tags.length > 0
-                ? job.tags.map((tag, i) => (
-                    <Tag key={tag._id || i}>{tag.name}</Tag>
-                  ))
+                ? job.tags.map((tag, i) => <Tag key={tag._id || i}>{tag.name}</Tag>)
                 : null}
             </div>
           </div>

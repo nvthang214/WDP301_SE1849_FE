@@ -17,14 +17,7 @@ const typeColor = {
 };
 
 const jobTypes = ["FULL-TIME", "PART-TIME", "INTERNSHIP"];
-const experienceLevels = [
-  "Intern",
-  "Fresher",
-  "Junior",
-  "Middle",
-  "Senior",
-  "Lead",
-];
+const experienceLevels = ["Intern", "Fresher", "Junior", "Middle", "Senior", "Lead"];
 const categories = [
   "All Category",
   "Developments",
@@ -53,11 +46,7 @@ const JobCard = ({ job }) => {
     color: "var(--color-neutral-900)",
   };
   return (
-    <Link
-      to={`/jobs/${job._id}`}
-      className="block"
-      style={{ textDecoration: "none" }}
-    >
+    <Link to={`/jobs/${job._id}`} className="block" style={{ textDecoration: "none" }}>
       <div
         className="bg-white rounded-xl border border-gray-200 p-4 flex flex-col gap-3 shadow-none hover:shadow transition relative cursor-pointer"
         style={{
@@ -89,9 +78,7 @@ const JobCard = ({ job }) => {
             className="w-8 h-8 rounded"
           />
           <div>
-            <div className="font-medium text-sm">
-              {job.company?.name || "Company"}
-            </div>
+            <div className="font-medium text-sm">{job.company?.name || "Company"}</div>
             <div className="flex items-center gap-1 text-xs text-gray-400">
               <svg
                 width="14"
@@ -100,18 +87,13 @@ const JobCard = ({ job }) => {
                 stroke="currentColor"
                 className="inline-block mr-1 text-gray-400"
               >
-                <path
-                  d="M7 12s5-3.33 5-7A5 5 0 1 0 2 5c0 3.67 5 7 5 7z"
-                  strokeWidth="1.2"
-                />
+                <path d="M7 12s5-3.33 5-7A5 5 0 1 0 2 5c0 3.67 5 7 5 7z" strokeWidth="1.2" />
               </svg>
               {/* Sửa location: ưu tiên city, country, remote */}
               {job.city && job.country
                 ? `${job.city}, ${job.country}`
                 : job.city || job.country || (job.remote ? "Remote" : "N/A")}
-              {job.remote && (
-                <span className="ml-2 text-green-600 font-semibold">(Remote)</span>
-              )}
+              {job.remote && <span className="ml-2 text-green-600 font-semibold">(Remote)</span>}
             </div>
           </div>
         </div>
@@ -120,13 +102,7 @@ const JobCard = ({ job }) => {
           type="button"
           tabIndex={-1}
         >
-          <svg
-            width="18"
-            height="18"
-            fill="none"
-            stroke="currentColor"
-            className="text-gray-400"
-          >
+          <svg width="18" height="18" fill="none" stroke="currentColor" className="text-gray-400">
             <path
               d="M5 8.5C5 6.01472 7.01472 4 9.5 4C11.9853 4 14 6.01472 14 8.5C14 12.5 9.5 16 9.5 16C9.5 16 5 12.5 5 8.5Z"
               strokeWidth="1.3"
@@ -157,13 +133,15 @@ function FilterSidebar({ open, onClose, filters, setFilters, onApply }) {
         aria-hidden="true"
       />
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-0 bottom-0 w-[320px] bg-white shadow-xl z-50 transform transition-transform duration-200
-        ${open ? "translate-x-0" : "-translate-x-full"}`}>
+      <aside
+        className={`fixed left-0 top-0 bottom-0 w-[320px] bg-white shadow-xl z-50 transform transition-transform duration-200
+        ${open ? "translate-x-0" : "-translate-x-full"}`}
+      >
         <div className="flex items-center justify-between px-6 py-4 border-b">
           <span className="font-semibold text-lg">Filters</span>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-700">
             <svg width="24" height="24" fill="none" stroke="currentColor">
-              <path d="M6 6l12 12M6 18L18 6" strokeWidth="2"/>
+              <path d="M6 6l12 12M6 18L18 6" strokeWidth="2" />
             </svg>
           </button>
         </div>
@@ -172,11 +150,13 @@ function FilterSidebar({ open, onClose, filters, setFilters, onApply }) {
           <div className="mb-4">
             <div className="font-semibold mb-2 text-gray-700">Industry</div>
             <ul>
-              {categories.map(cat => (
+              {categories.map((cat) => (
                 <li
                   key={cat}
                   className={`py-1 px-2 rounded cursor-pointer ${filters.category === cat ? "bg-blue-100 text-blue-700 font-semibold" : "hover:bg-gray-100"}`}
-                  onClick={() => setFilters(f => ({ ...f, category: cat === "All Category" ? "" : cat }))}
+                  onClick={() =>
+                    setFilters((f) => ({ ...f, category: cat === "All Category" ? "" : cat }))
+                  }
                 >
                   {cat}
                 </li>
@@ -186,13 +166,13 @@ function FilterSidebar({ open, onClose, filters, setFilters, onApply }) {
           {/* Job Type */}
           <div className="mb-4">
             <div className="font-semibold mb-2 text-gray-700">Job Type</div>
-            {jobTypes.map(type => (
+            {jobTypes.map((type) => (
               <label key={type} className="flex items-center gap-2 mb-1 cursor-pointer">
                 <input
                   type="radio"
                   name="job_type"
                   checked={filters.job_type === type}
-                  onChange={() => setFilters(f => ({ ...f, job_type: type }))}
+                  onChange={() => setFilters((f) => ({ ...f, job_type: type }))}
                 />
                 <span>{type.replace("-", " ")}</span>
               </label>
@@ -202,7 +182,7 @@ function FilterSidebar({ open, onClose, filters, setFilters, onApply }) {
                 type="radio"
                 name="job_type"
                 checked={!filters.job_type}
-                onChange={() => setFilters(f => ({ ...f, job_type: "" }))}
+                onChange={() => setFilters((f) => ({ ...f, job_type: "" }))}
               />
               <span>All</span>
             </label>
@@ -216,10 +196,14 @@ function FilterSidebar({ open, onClose, filters, setFilters, onApply }) {
                   <input
                     type="radio"
                     name="salary"
-                    checked={!customSalary && filters.salary_min === range.min && filters.salary_max === range.max}
+                    checked={
+                      !customSalary &&
+                      filters.salary_min === range.min &&
+                      filters.salary_max === range.max
+                    }
                     onChange={() => {
                       setCustomSalary(false);
-                      setFilters(f => ({ ...f, salary_min: range.min, salary_max: range.max }));
+                      setFilters((f) => ({ ...f, salary_min: range.min, salary_max: range.max }));
                     }}
                   />
                   <span>{range.label}</span>
@@ -241,9 +225,9 @@ function FilterSidebar({ open, onClose, filters, setFilters, onApply }) {
                     className="border rounded px-2 py-1 w-20"
                     placeholder="Min"
                     value={salary[0]}
-                    onChange={e => {
+                    onChange={(e) => {
                       setSalary([+e.target.value, salary[1]]);
-                      setFilters(f => ({ ...f, salary_min: +e.target.value }));
+                      setFilters((f) => ({ ...f, salary_min: +e.target.value }));
                     }}
                   />
                   <span>-</span>
@@ -252,9 +236,9 @@ function FilterSidebar({ open, onClose, filters, setFilters, onApply }) {
                     className="border rounded px-2 py-1 w-20"
                     placeholder="Max"
                     value={salary[1]}
-                    onChange={e => {
+                    onChange={(e) => {
                       setSalary([salary[0], +e.target.value]);
-                      setFilters(f => ({ ...f, salary_max: +e.target.value }));
+                      setFilters((f) => ({ ...f, salary_max: +e.target.value }));
                     }}
                   />
                 </div>
@@ -267,7 +251,7 @@ function FilterSidebar({ open, onClose, filters, setFilters, onApply }) {
               <input
                 type="checkbox"
                 checked={filters.remote || false}
-                onChange={e => setFilters(f => ({ ...f, remote: e.target.checked }))}
+                onChange={(e) => setFilters((f) => ({ ...f, remote: e.target.checked }))}
               />
               <span>Remote Job</span>
             </label>
@@ -342,28 +326,30 @@ export default function JobList() {
       if (search) params.search = search;
       if (location) params.location = location;
       if (filters.job_type) params.job_type = filters.job_type;
-      if (filters.experience_level)
-        params.experience_level = filters.experience_level;
+      if (filters.experience_level) params.experience_level = filters.experience_level;
       if (filters.category) params.category = filters.category;
-      if (filters.salary_min !== undefined)
-        params.salary_min = filters.salary_min;
-      if (filters.salary_max !== undefined)
-        params.salary_max = filters.salary_max;
+      if (filters.salary_min !== undefined) params.salary_min = filters.salary_min;
+      if (filters.salary_max !== undefined) params.salary_max = filters.salary_max;
       if (filters.remote) params.remote = true;
 
       // Xóa các param undefined/null/rỗng
       Object.keys(params).forEach(
         (key) =>
-          (params[key] === undefined ||
-            params[key] === "" ||
-            params[key] === false) &&
+          (params[key] === undefined || params[key] === "" || params[key] === false) &&
           delete params[key]
       );
 
       const res = await JobService.getJobs(params);
       // Nếu backend trả về { data, pagination }
       setJobs(res.data.jobs || []);
-      setPagination(res.data.pagination || { total: 0, page: 1, limit: 15, totalPages: res.data.totalPages || 1 });
+      setPagination(
+        res.data.pagination || {
+          total: 0,
+          page: 1,
+          limit: 15,
+          totalPages: res.data.totalPages || 1,
+        }
+      );
     } catch (error) {
       setJobs([]);
       setPagination({ total: 0, page: 1, limit: 15, totalPages: 1 });
@@ -392,18 +378,12 @@ export default function JobList() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 px-8 py-6 relative">
+    <div className=" bg-gray-50 py-6 relative flex-1">
       {/* Search bar giống ảnh */}
       <form className="flex flex-col gap-2 mb-4" onSubmit={handleSearch}>
         <div className="flex items-center bg-white rounded-xl shadow-sm px-3 py-2 gap-2 border">
           <div className="flex items-center flex-1 gap-2">
-            <svg
-              width="20"
-              height="20"
-              fill="none"
-              stroke="currentColor"
-              className="text-gray-400"
-            >
+            <svg width="20" height="20" fill="none" stroke="currentColor" className="text-gray-400">
               <circle cx="9" cy="9" r="7" strokeWidth="2" />
               <path d="M16 16L13.5 13.5" strokeWidth="2" />
             </svg>
@@ -415,13 +395,7 @@ export default function JobList() {
             />
           </div>
           <div className="flex items-center flex-1 gap-2 border-l pl-2">
-            <svg
-              width="20"
-              height="20"
-              fill="none"
-              stroke="currentColor"
-              className="text-blue-600"
-            >
+            <svg width="20" height="20" fill="none" stroke="currentColor" className="text-blue-600">
               <path d="M10 2a8 8 0 1 1 0 16a8 8 0 0 1 0-16Z" strokeWidth="2" />
               <path d="M10 6v4l2 2" strokeWidth="2" />
             </svg>
@@ -437,13 +411,7 @@ export default function JobList() {
             className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 rounded px-3 py-2 ml-2"
             onClick={() => setShowFilter(true)}
           >
-            <svg
-              width="20"
-              height="20"
-              fill="none"
-              stroke="currentColor"
-              className="text-gray-600"
-            >
+            <svg width="20" height="20" fill="none" stroke="currentColor" className="text-gray-600">
               <path d="M3 6h14M5 12h10M7 18h6" strokeWidth="2" />
             </svg>
             Filters
@@ -500,9 +468,7 @@ export default function JobList() {
       {/* Job Cards Grid */}
       <div>
         {loading ? (
-          <div className="text-center w-full py-10 text-gray-400">
-            Loading...
-          </div>
+          <div className="text-center w-full py-10 text-gray-400">Loading...</div>
         ) : (
           <div ref={gridRef} className={`grid ${gridCols} gap-6`}>
             {jobs.map((job, idx) => (
@@ -519,13 +485,7 @@ export default function JobList() {
           onClick={() => handlePageChange(page - 1)}
           disabled={page === 1}
         >
-          <svg
-            width="20"
-            height="20"
-            fill="none"
-            stroke="currentColor"
-            className="text-gray-500"
-          >
+          <svg width="20" height="20" fill="none" stroke="currentColor" className="text-gray-500">
             <path d="M13 17l-5-5 5-5" strokeWidth="2" />
           </svg>
         </button>
@@ -545,13 +505,7 @@ export default function JobList() {
           onClick={() => handlePageChange(page + 1)}
           disabled={page === pagination.totalPages}
         >
-          <svg
-            width="20"
-            height="20"
-            fill="none"
-            stroke="currentColor"
-            className="text-gray-500"
-          >
+          <svg width="20" height="20" fill="none" stroke="currentColor" className="text-gray-500">
             <path d="M7 7l5 5-5 5" strokeWidth="2" />
           </svg>
         </button>

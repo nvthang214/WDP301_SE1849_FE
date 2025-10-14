@@ -3,7 +3,7 @@ import { Divider } from "antd";
 import { ArrowRight, Chrome } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { notifySuccess } from "../../../../components/Notification";
+import { notifyError, notifySuccess } from "../../../../components/Notification";
 import ROUTER from "../../../../router/ROUTER";
 import { AuthService } from "../../../../services/AuthService";
 
@@ -12,6 +12,7 @@ const LoginScreen = () => {
   const [formData, setFormData] = useState({
     username: "",
     password: "",
+    remember: false,
   });
   const [loading, setLoading] = useState(false);
 
@@ -35,7 +36,7 @@ const LoginScreen = () => {
       notifySuccess(res?.msg || "Đăng nhập thành công!");
       nav(ROUTER.HOME);
     } catch (error) {
-      // notifyError(error.response?.data?.msg || "Đăng nhập thất bại, vui lòng thử lại!");
+      notifyError(error.response?.data?.msg || "Đăng nhập thất bại, vui lòng thử lại!");
     } finally {
       setLoading(false);
     }

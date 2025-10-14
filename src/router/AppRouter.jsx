@@ -1,4 +1,4 @@
-import { Link, useRoutes } from "react-router-dom";
+import { useRoutes } from "react-router-dom";
 // src/router/AppRouter.jsx
 import LayoutCommon from "../components/Layout";
 import LazyLoadingComponent from "../components/LazyLoading";
@@ -8,7 +8,7 @@ import React from "react";
 import DashboardLayout from "../pages/private/dashboard/dashboardLayout.jsx";
 
 // react lazy imports
-// const HomeMain = React.lazy(() => import("../pages/private/Home"));
+const HomePage = React.lazy(() => import("../pages/public/Home"));
 const Login = React.lazy(() => import("../pages/public/Authentication/Login"));
 const Register = React.lazy(() => import("../pages/public/Authentication/Register"));
 const ForgotPassword = React.lazy(() => import("../pages/public/Authentication/ForgotPassword"));
@@ -29,9 +29,7 @@ const routes = [
     path: ROUTER.HOME,
     element: (
       <LazyLoadingComponent>
-        <Link to={ROUTER.LOGIN}>Đăng nhập</Link>
-        <br />
-        <Link to={ROUTER.REGISTER}>Đăng ký</Link>
+        <HomePage />
       </LazyLoadingComponent>
     ),
   },

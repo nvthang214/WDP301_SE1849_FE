@@ -1,6 +1,4 @@
-import { Divider } from "antd";
-import { Chrome } from "lucide-react";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import ROUTER from "../../router/ROUTER";
 import FooterCommon from "./Footer";
 import HeaderMain from "./Header";
@@ -49,9 +47,9 @@ const LayoutCommon = ({ children }) => {
   }
 
   return (
-    <div className="">
+    <div className="min-h-screen text-neutral-900">
       <HeaderMain />
-      <div className="container mx-auto">{content}</div>
+      <main className="mx-auto flex max-w-7xl items-center justify-between px-4">{content}</main>
       <FooterCommon />
     </div>
   );

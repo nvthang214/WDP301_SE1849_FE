@@ -14,7 +14,7 @@ import {
   MenuUnfoldOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
-import DashboardSidebar from "../dashboard/dashboardSidebar.jsx";
+import DashboardSidebar from "../LayoutSidebar/DashboardSidebar.jsx";
 
 const { Header, Sider, Content } = Layout;
 

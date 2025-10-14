@@ -12,13 +12,22 @@ import DashboardLayout from "../pages/private/dashboard/dashboardLayout.jsx";
 const Login = React.lazy(() => import("../pages/public/Authentication/Login"));
 const Register = React.lazy(() => import("../pages/public/Authentication/Register"));
 const DashboardRecruiter = React.lazy(() => import("../pages/private/dashboard/dashboardRcruiter"));
-const AccountSettings = React.lazy(() => import("../pages/private/dashboard/setting/account-setting"));
+const AccountSettings = React.lazy(
+  () => import("../pages/private/dashboard/setting/account-setting")
+);
 const CompanyInfo = React.lazy(() => import("../pages/private/dashboard/setting/company-info"));
 const SocialMedia = React.lazy(() => import("../pages/private/dashboard/setting/social-media"));
 const JobList = React.lazy(() => import("../pages/private/Job/JobList"));
 const JobDetails = React.lazy(() => import("../pages/private/Job/JobDetails"));
 const JobPosting = React.lazy(() => import("../pages/private/Job/JobPosting"));
 const JobEditing = React.lazy(() => import("../pages/private/Job/JobEditing"));
+
+// Company imports
+const CompanyPosting = React.lazy(() => import("../pages/private/Company/CompanyPosting"));
+const CompanyList = React.lazy(() => import("../pages/private/Company/CompanyList"));
+const CompanyUpdate = React.lazy(() => import("../pages/private/Company/CompanyUpdate"));
+// Company imports
+const CompanyInformation = React.lazy(() => import("../pages/private/Company/CompanyInformation"));
 
 const routes = [
   {
@@ -55,7 +64,8 @@ const routes = [
         <JobList />
       </LazyLoadingComponent>
     ),
-  },{
+  },
+  {
     path: ROUTER.JOB_DETAILS,
     element: (
       <LazyLoadingComponent>
@@ -79,6 +89,48 @@ const routes = [
       </LazyLoadingComponent>
     ),
   },
+  // Company routes
+  {
+    path: ROUTER.COMPANY_INFO,
+    element: (
+      <LazyLoadingComponent>
+        <CompanyInfo />
+      </LazyLoadingComponent>
+    ),
+  },
+  {
+    path: ROUTER.COMPANY_DETAILS,
+    element: (
+      <LazyLoadingComponent>
+        <CompanyInformation />
+      </LazyLoadingComponent>
+    ),
+  },
+  // Company routes
+  {
+    path: ROUTER.COMPANIES,
+    element: (
+      <LazyLoadingComponent>
+        <CompanyList />
+      </LazyLoadingComponent>
+    ),
+  },
+  {
+    path: ROUTER.COMPANY_POST,
+    element: (
+      <LazyLoadingComponent>
+        <CompanyPosting />
+      </LazyLoadingComponent>
+    ),
+  },
+  {
+    path: ROUTER.COMPANY_EDIT,
+    element: (
+      <LazyLoadingComponent>
+        <CompanyUpdate />
+      </LazyLoadingComponent>
+    ),
+  },
   {
     path: "*",
     element: (
@@ -91,23 +143,23 @@ const routes = [
     path: "/recruiter",
     element: <DashboardLayout />,
     children: [
-        {
-            path: "dashboard",
-            element: <DashboardRecruiter />,
-        },
-        {
-            path: "account-settings",
-            element: <AccountSettings />,
-        },
-        {
-            path: "company-info",
-            element: <CompanyInfo />,
-        },
-        {
-            path: "social-media",
-            element: <SocialMedia />,
-        },
-    ]
+      {
+        path: "dashboard",
+        element: <DashboardRecruiter />,
+      },
+      {
+        path: "account-settings",
+        element: <AccountSettings />,
+      },
+      {
+        path: "company-info",
+        element: <CompanyInfo />,
+      },
+      {
+        path: "social-media",
+        element: <SocialMedia />,
+      },
+    ],
   },
 ];
 

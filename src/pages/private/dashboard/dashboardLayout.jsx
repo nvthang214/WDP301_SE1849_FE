@@ -1,6 +1,7 @@
 // src/components/DashboardLayout.jsx
 import React, { useState, useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
+import DashboardHeader from "../layout-header/layout.jsx"; // ✅ Sửa đúng tên import (chú ý chữ viết hoa)
 import DashboardSidebar from "./dashboardSidebar.jsx";
 
 const routeTitles = {
@@ -20,12 +21,12 @@ export default function DashboardLayout() {
   }, [location]);
 
   return (
-    <div className="flex">
-      <DashboardSidebar />
-      <main className="flex-1 p-8">
-        {title && <h1 className="text-2xl font-bold mb-6">{title}</h1>}
+    // ✅ Bọc toàn bộ nội dung bằng DashboardHeader
+    <DashboardHeader>
+      <div style={{ padding: 24 }}>
+        {title && <h1 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24 }}>{title}</h1>}
         <Outlet />
-      </main>
-    </div>
+      </div>
+    </DashboardHeader>
   );
 }

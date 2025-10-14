@@ -21,6 +21,11 @@ const JobList = React.lazy(() => import("../pages/private/Job/JobList"));
 const JobDetails = React.lazy(() => import("../pages/private/Job/JobDetails"));
 const JobPosting = React.lazy(() => import("../pages/private/Job/JobPosting"));
 const JobEditing = React.lazy(() => import("../pages/private/Job/JobEditing"));
+
+// Company imports
+const CompanyPosting = React.lazy(() => import("../pages/private/Company/CompanyPosting"));
+const CompanyList = React.lazy(() => import("../pages/private/Company/CompanyList"));
+const CompanyUpdate = React.lazy(() => import("../pages/private/Company/CompanyUpdate"));
 // Company imports
 const CompanyInformation = React.lazy(() => import("../pages/private/Company/CompanyInformation"));
 
@@ -89,14 +94,46 @@ const routes = [
   
   // Candidate
   {
-    path: ROUTER.COMPANY_DETAILS,
+    path: ROUTER.COMPANY_INFO,
+    element: (
+      <LazyLoadingComponent>
+        <CompanyInfo />
+      </LazyLoadingComponent>
+    ),
+  },
+  {
+    path: ROUTER.COMPANY_INFORMATION,
     element: (
       <LazyLoadingComponent>
         <CompanyInformation />
       </LazyLoadingComponent>
     ),
   },
-  // Not Found
+  // Company routes
+  {
+    path: ROUTER.COMPANIES,
+    element: (
+      <LazyLoadingComponent>
+        <CompanyList />
+      </LazyLoadingComponent>
+    ),
+  },
+  {
+    path: ROUTER.COMPANY_POST,
+    element: (
+      <LazyLoadingComponent>
+        <CompanyPosting />
+      </LazyLoadingComponent>
+    ),
+  },
+  {
+    path: ROUTER.COMPANY_EDIT,
+    element: (
+      <LazyLoadingComponent>
+        <CompanyUpdate />
+      </LazyLoadingComponent>
+    ),
+  },
   {
     path: "*",
     element: (

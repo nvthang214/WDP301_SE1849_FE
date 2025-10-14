@@ -38,7 +38,7 @@ export default function DashboardSidebar() {
       {/* Top section */}
       <div className="p-4">
         <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
-          Employer Dashboard
+          Recruiter Dashboard
         </h2>
         <nav className="space-y-1">
           {menuItems.map((item) => {

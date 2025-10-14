@@ -7,6 +7,7 @@ import {
   deactivateJob,
   activateJob,
   getCompanyByRecruiterId,
+  getJobsByRecruiterId,
 } from "./urls";
 
 // Thêm params vào getJobs
@@ -20,4 +21,5 @@ export const JobService = {
   deactivateJob: async (id) => await api.put(deactivateJob(id)),
   activateJob: async (id) => await api.put(activateJob(id)),
   getCompanyByRecruiterId: async (recruiterId) => await api.get(getCompanyByRecruiterId(recruiterId)),
+  getJobsByRecruiterId: async (recruiterId) => await api.get(getJobsByRecruiterId(recruiterId)),
 };

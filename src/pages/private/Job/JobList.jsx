@@ -18,7 +18,7 @@ const typeColor = {
   INTERNSHIP: { bg: "var(--color-accent-500)", color: "#fff" },
 };
 
-const jobTypes = ["FULL-TIME", "PART-TIME", "INTERNSHIP"];
+const jobTypes = ["FULL-TIME", "PART-TIME", "INTERNSHIP", "TEMPORARY", "CONTRACT BASE"];
 
 const salaryRanges = [
   { label: "$10 - $100", min: 10, max: 100 },

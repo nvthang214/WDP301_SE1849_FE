@@ -24,6 +24,8 @@ const ROUTER = {
   COMPANY_INFO: "/recruiter/company-info",
   //social media
   SOCIAL_MEDIA: "/recruiter/social-media",  
+  //my job
+  MY_JOBS: "/recruiter/my-jobs",
 
   // Company routes
   COMPANIES: "/recruiter/companies",

@@ -17,18 +17,13 @@ const ROUTER = {
   //company info
   COMPANY_INFO: "/recruiter/company-info",
   //social media
-  SOCIAL_MEDIA: "/recruiter/social-media",  
+  SOCIAL_MEDIA: "/recruiter/social-media",
 
   // Company routes
   COMPANIES: "/companies",
   COMPANY_DETAILS: "/companies/:id",
   COMPANY_POST: "/company/posting",
-  COMPANY_EDIT: "/companies/edit/:id",
-
-  // Recruiter routes
-  RECRUITER_DASHBOARD: "/recruiter/dashboard",
-  //company for candidate view
-  COMPANY_DETAILS: "/company/:id",
+  COMPANY_EDIT: "/companies/edit/:id"
 };
 
 export default ROUTER;

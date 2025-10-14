@@ -1,8 +1,9 @@
 // src/components/DashboardLayout.jsx
 import React, { useState, useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import DashboardHeader from "../layout-header/layout.jsx"; // ✅ Sửa đúng tên import (chú ý chữ viết hoa)
-import DashboardSidebar from "./dashboardSidebar.jsx";
+import DashboardSidebar from "../LayoutSidebar/DashboardSidebar.jsx";
+import DashboardHeader from "../LayoutHeader/layout.jsx";
+
 
 const routeTitles = {
   "/recruiter/dashboard": "Dashboard",

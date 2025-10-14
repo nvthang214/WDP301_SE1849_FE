@@ -5,18 +5,19 @@ import LazyLoadingComponent from "../components/LazyLoading";
 import NotFound from "../pages/public/NotFound";
 import ROUTER from "./ROUTER";
 import React from "react";
-import DashboardLayout from "../pages/private/dashboard/dashboardLayout.jsx";
+
 
 // react lazy imports
 // const HomeMain = React.lazy(() => import("../pages/private/Home"));
 const Login = React.lazy(() => import("../pages/public/Authentication/Login"));
 const Register = React.lazy(() => import("../pages/public/Authentication/Register"));
-const DashboardRecruiter = React.lazy(() => import("../pages/private/dashboard/dashboardRcruiter"));
+const DashboardLayout = React.lazy(() => import("../pages/private/LayoutSidebar/DashboardLayout"));
+const DashboardRecruiter = React.lazy(() => import("../pages/private/LayoutSidebar/DashboardRecruiter"));
 const AccountSettings = React.lazy(
-  () => import("../pages/private/dashboard/setting/account-setting")
+  () => import("../pages/private/Dashboard/AccountSetting.jsx")
 );
-const CompanyInfo = React.lazy(() => import("../pages/private/dashboard/setting/company-info"));
-const SocialMedia = React.lazy(() => import("../pages/private/dashboard/setting/social-media"));
+const CompanyInfo = React.lazy(() => import("../pages/private/Dashboard/CompanyInfo.jsx"));
+const SocialMedia = React.lazy(() => import("../pages/private/Dashboard/SocialMedia.jsx"));
 const JobList = React.lazy(() => import("../pages/private/Job/JobList"));
 const JobDetails = React.lazy(() => import("../pages/private/Job/JobDetails"));
 const JobPosting = React.lazy(() => import("../pages/private/Job/JobPosting"));

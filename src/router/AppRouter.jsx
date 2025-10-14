@@ -21,6 +21,8 @@ const JobList = React.lazy(() => import("../pages/private/Job/JobList"));
 const JobDetails = React.lazy(() => import("../pages/private/Job/JobDetails"));
 const JobPosting = React.lazy(() => import("../pages/private/Job/JobPosting"));
 const JobEditing = React.lazy(() => import("../pages/private/Job/JobEditing"));
+// Company imports
+const CompanyInformation = React.lazy(() => import("../pages/private/Company/CompanyInformation"));
 
 const routes = [
   {
@@ -79,6 +81,15 @@ const routes = [
     element: (
       <LazyLoadingComponent>
         <JobEditing />
+      </LazyLoadingComponent>
+    ),
+  },
+  // Company routes
+  {
+    path: ROUTER.COMPANY_INFO,
+    element: (
+      <LazyLoadingComponent>
+        <CompanyInformation />
       </LazyLoadingComponent>
     ),
   },

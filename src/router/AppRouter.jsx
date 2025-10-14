@@ -1,36 +1,38 @@
-import { useRoutes, Navigate } from "react-router-dom";
+import { Link, useRoutes } from "react-router-dom";
+// src/router/AppRouter.jsx
 import LayoutCommon from "../components/Layout";
-import AdminLayout from "../components/Layout/AdminLayout";
-import AdminAuthGuard from "../components/Auth/AdminAuthGuard";
-
 import LazyLoadingComponent from "../components/LazyLoading";
 import NotFound from "../pages/public/NotFound";
 import ROUTER from "./ROUTER";
 import React from "react";
+import DashboardLayout from "../pages/private/dashboard/dashboardLayout.jsx";
 
 // react lazy imports
 // const HomeMain = React.lazy(() => import("../pages/private/Home"));
-
-// Public lazy imports
-const Login = React.lazy(() => import("../pages/public/Login"));
-
-// Admin lazy imports
-const AdminMain = React.lazy(() => import("../pages/private/Admin"));
-const AdminDashboard = React.lazy(() => import("../pages/private/Admin/Dashboard"));
-const UserManagement = React.lazy(() => import("../pages/private/Admin/UserManagement"));
-const RoleManagement = React.lazy(() => import("../pages/private/Admin/RoleManagement"));
+const Login = React.lazy(() => import("../pages/public/Authentication/Login"));
+const Register = React.lazy(() => import("../pages/public/Authentication/Register"));
+const DashboardRecruiter = React.lazy(() => import("../pages/private/dashboard/dashboardRcruiter"));
+const AccountSettings = React.lazy(
+  () => import("../pages/private/dashboard/setting/account-setting")
+);
+const CompanyInfo = React.lazy(() => import("../pages/private/dashboard/setting/company-info"));
+const SocialMedia = React.lazy(() => import("../pages/private/dashboard/setting/social-media"));
+const JobList = React.lazy(() => import("../pages/private/Job/JobList"));
+const JobDetails = React.lazy(() => import("../pages/private/Job/JobDetails"));
+const JobPosting = React.lazy(() => import("../pages/private/Job/JobPosting"));
+const JobEditing = React.lazy(() => import("../pages/private/Job/JobEditing"));
 
 const routes = [
   {
     path: ROUTER.HOME,
     element: (
       <LazyLoadingComponent>
-        <div>Home Page</div>
+        <Link to={ROUTER.LOGIN}>Đăng nhập</Link>
+        <br />
+        <Link to={ROUTER.REGISTER}>Đăng ký</Link>
       </LazyLoadingComponent>
     ),
   },
-
-  // Login route
   {
     path: ROUTER.LOGIN,
     element: (
@@ -39,49 +41,47 @@ const routes = [
       </LazyLoadingComponent>
     ),
   },
-
-  // Admin routes - redirect to dashboard
   {
-    path: ROUTER.ADMIN,
-    element: <Navigate to={ROUTER.ADMIN_DASHBOARD} replace />,
-  },
-  {
-    path: ROUTER.ADMIN_DASHBOARD,
+    path: ROUTER.REGISTER,
     element: (
-      <AdminAuthGuard>
-        <AdminLayout>
-          <LazyLoadingComponent>
-            <AdminDashboard />
-          </LazyLoadingComponent>
-        </AdminLayout>
-      </AdminAuthGuard>
+      <LazyLoadingComponent>
+        <Register />
+      </LazyLoadingComponent>
+    ),
+  },
+  // Job routes
+  {
+    path: ROUTER.JOBS,
+    element: (
+      <LazyLoadingComponent>
+        <JobList />
+      </LazyLoadingComponent>
     ),
   },
   {
-    path: ROUTER.ADMIN_USERS,
+    path: ROUTER.JOB_DETAILS,
     element: (
-      <AdminAuthGuard>
-        <AdminLayout>
-          <LazyLoadingComponent>
-            <UserManagement />
-          </LazyLoadingComponent>
-        </AdminLayout>
-      </AdminAuthGuard>
+      <LazyLoadingComponent>
+        <JobDetails />
+      </LazyLoadingComponent>
     ),
   },
   {
-    path: ROUTER.ADMIN_ROLES,
+    path: ROUTER.JOB_POST,
     element: (
-      <AdminAuthGuard>
-        <AdminLayout>
-          <LazyLoadingComponent>
-            <RoleManagement />
-          </LazyLoadingComponent>
-        </AdminLayout>
-      </AdminAuthGuard>
+      <LazyLoadingComponent>
+        <JobPosting />
+      </LazyLoadingComponent>
     ),
   },
-
+  {
+    path: ROUTER.JOB_EDIT,
+    element: (
+      <LazyLoadingComponent>
+        <JobEditing />
+      </LazyLoadingComponent>
+    ),
+  },
   {
     path: "*",
     element: (
@@ -89,6 +89,28 @@ const routes = [
         <NotFound />
       </LazyLoadingComponent>
     ),
+  },
+  {
+    path: "/recruiter",
+    element: <DashboardLayout />,
+    children: [
+      {
+        path: "dashboard",
+        element: <DashboardRecruiter />,
+      },
+      {
+        path: "account-settings",
+        element: <AccountSettings />,
+      },
+      {
+        path: "company-info",
+        element: <CompanyInfo />,
+      },
+      {
+        path: "social-media",
+        element: <SocialMedia />,
+      },
+    ],
   },
 ];
 

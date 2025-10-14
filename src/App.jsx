@@ -4,6 +4,7 @@ import AuthHandle from "./components/Authentication";
 import ErrorBoundary from "./components/Error";
 import Providers from "./components/Providers";
 import AppRouter from "./router/AppRouter";
+import NotificationContainer from "./components/Notification/Container";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <AuthHandle>
             <AppRouter />
           </AuthHandle>
+          <NotificationContainer />
         </ErrorBoundary>
       </Providers>
     </BrowserRouter>

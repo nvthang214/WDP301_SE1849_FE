@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { JobService } from "../../../services/JobService";
 import { TagService } from "../../../services/TagService";
 import { CategoryService } from "../../../services/CategoryService";
@@ -31,13 +32,10 @@ const benefitsList = [
   "No whiteboard interview",
   "No politics at work",
   "We hire old (and young)",
-  "Bảo hiểm",
-  "Du lịch",
-  "Thưởng lễ tết",
-  "Làm việc từ xa",
 ];
 
-export default function JobPosting() {
+export default function JobEditing() {
+  const { id } = useParams();
   const [form, setForm] = useState({
     company: "",
     recruiter: "",
@@ -65,16 +63,15 @@ export default function JobPosting() {
     location: "",
     isActive: true,
   });
-
-  const [allTags, setAllTags] = useState([]);
-  const [allCategories, setAllCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Fetch all tags for selection
+  const [allTags, setAllTags] = useState([]);
   useEffect(() => {
     async function fetchTags() {
       try {
         const res = await TagService.getAllTags();
-        setAllTags(res.data || []);
+        setAllTags(res.data);
       } catch {
         setAllTags([]);
       }
@@ -82,18 +79,70 @@ export default function JobPosting() {
     fetchTags();
   }, []);
 
-  // Fetch all categories for selection
+  // Fetch categories (not used in form but could be useful)
+  const [allCategories, setAllCategories] = useState([]);
   useEffect(() => {
     async function fetchCategories() {
       try {
         const res = await CategoryService.getAllCategories();
-        setAllCategories(res.data || []);
+        setAllCategories(res.data);
       } catch {
         setAllCategories([]);
       }
     }
     fetchCategories();
   }, []);
+
+  // Fetch job details to edit
+  useEffect(() => {
+    async function fetchJob() {
+      try {
+        const res = await JobService.getJobById(id);
+        let tagIds = [];
+        if (Array.isArray(res.data.tags) && res.data.tags.length > 0) {
+          tagIds = res.data.tags.map((tagObj) => tagObj._id || tagObj);
+        }
+        setForm({
+          company: res.data.company?._id || res.data.company || "",
+          recruiter:
+            res.data.recruiter && res.data.recruiter._id
+              ? res.data.recruiter._id
+              : "68ebccd50612c5184b23abbe",
+          category: res.data.category?._id || res.data.category || "",
+          title: res.data.title || "",
+          tags: tagIds,
+          role: res.data.role || "",
+          minSalary: res.data.minSalary || "",
+          maxSalary: res.data.maxSalary || "",
+          salaryType: res.data.salaryType || "",
+          education: res.data.education || "",
+          experience: res.data.experience || "",
+          jobType: res.data.jobType || "",
+          vacancies: res.data.vacancies ? String(res.data.vacancies) : "",
+          expiration: res.data.expiration
+            ? res.data.expiration.slice(0, 10)
+            : "",
+          jobLevel: res.data.jobLevel || "",
+          country: res.data.country || "",
+          city: res.data.city || "",
+          remote: !!res.data.remote,
+          benefits: Array.isArray(res.data.benefits) ? res.data.benefits : [],
+          description: res.data.description || "",
+          requirements: res.data.requirements || "",
+          desirable: res.data.desirable || "",
+          applyType: res.data.applyType || "Jobpilot",
+          location: res.data.location || res.data.city || "",
+          isActive:
+            typeof res.data.isActive === "boolean" ? res.data.isActive : true,
+        });
+      } catch {
+        // handle error
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchJob();
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -121,10 +170,9 @@ export default function JobPosting() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Lấy đúng company, recruiter, category id từ context hoặc props nếu có
     const submitData = {
-      company: form.company || "68ebcd210612c5184b23abc5", // sửa lại id phù hợp với hệ thống của bạn
-      recruiter: form.recruiter || "68ebccd50612c5184b23abbe", // sửa lại id phù hợp với hệ thống của bạn
+      company: form.company,
+      recruiter: form.recruiter,
       category: form.category,
       title: form.title,
       description: form.description,
@@ -137,7 +185,9 @@ export default function JobPosting() {
       experience: form.experience,
       jobType: form.jobType,
       vacancies: Number(form.vacancies),
-      expiration: form.expiration ? new Date(form.expiration).toISOString() : "",
+      expiration: form.expiration
+        ? new Date(form.expiration).toISOString()
+        : "",
       jobLevel: form.jobLevel,
       country: form.country,
       city: form.city,
@@ -149,13 +199,16 @@ export default function JobPosting() {
       location: form.location || form.city,
       isActive: typeof form.isActive === "boolean" ? form.isActive : true,
     };
-    await JobService.postJob(submitData);
-    alert("Job posted successfully!");
+    await JobService.updateJob(id, submitData);
+    alert("Job updated!");
   };
+
+  if (loading)
+    return <div className="text-center py-10 text-gray-400">Loading...</div>;
 
   return (
     <form className="max-w-5xl mx-auto py-8" onSubmit={handleSubmit}>
-      <h2 className="text-2xl font-semibold mb-6">Post a job</h2>
+      <h2 className="text-2xl font-semibold mb-6">Edit Job</h2>
       {/* Job Title */}
       <div className="mb-4">
         <label className="block font-medium mb-1">Job Title</label>
@@ -196,9 +249,9 @@ export default function JobPosting() {
           />
         </div>
       </div>
-      {/* Salary, Salary Type, Category */}
+
+      {/* Salary */}
       <div className="mb-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-        {/* Min Salary */}
         <div>
           <label className="block font-medium mb-1">Min Salary</label>
           <div className="flex">
@@ -215,7 +268,6 @@ export default function JobPosting() {
             </span>
           </div>
         </div>
-        {/* Max Salary */}
         <div>
           <label className="block font-medium mb-1">Max Salary</label>
           <div className="flex">
@@ -232,34 +284,37 @@ export default function JobPosting() {
             </span>
           </div>
         </div>
+
         {/* Salary Type */}
-        <div>
-          <label className="block font-medium mb-1">Salary Type</label>
-          <Select
-            style={{ width: "100%" }}
-            value={form.salaryType || undefined}
-            onChange={(val) =>
-              setForm((prev) => ({ ...prev, salaryType: val }))
-            }
-            options={[
-              { label: "Monthly", value: "Monthly" },
-              { label: "Yearly", value: "Yearly" },
-              { label: "USD", value: "USD" },
-            ]}
-            placeholder="Select salary type"
-            allowClear
-            showSearch
-          />
+        <div className="">
+          <div>
+            <label className="block font-medium mb-1">Salary Type</label>
+            <Select
+              className="w-full border rounded-l px-3 py-2"
+              style={{ width: "100%" }}
+              value={form.salaryType ? [form.salaryType] : []}
+              onChange={(val) =>
+                setForm((prev) => ({ ...prev, salaryType: val[0] || "" }))
+              }
+              options={[
+                { label: "Monthly", value: "Monthly" },
+                { label: "Yearly", value: "Yearly" },
+                { label: "USD", value: "USD" },
+              ]}
+              mode="multiple"
+              maxTagCount={1}
+              placeholder="Select salary type"
+            />
+          </div>
         </div>
+
         {/* Category */}
         <div>
           <label className="block font-medium mb-1">Category</label>
           <Select
             style={{ width: "100%" }}
             value={form.category || undefined}
-            onChange={(val) =>
-              setForm((prev) => ({ ...prev, category: val }))
-            }
+            onChange={(val) => setForm((prev) => ({ ...prev, category: val }))}
             options={allCategories.map((cat) => ({
               label: cat.name,
               value: cat._id,
@@ -273,15 +328,12 @@ export default function JobPosting() {
       </div>
       {/* Advance Information */}
       <div className="mb-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-        {/* Education */}
         <div>
           <label className="block font-medium mb-1">Education</label>
           <Select
             style={{ width: "100%" }}
             value={form.education || undefined}
-            onChange={(val) =>
-              setForm((prev) => ({ ...prev, education: val }))
-            }
+            onChange={(val) => setForm((prev) => ({ ...prev, education: val }))}
             options={[
               { label: "Graduated", value: "Graduated" },
               { label: "Bachelor", value: "Bachelor" },
@@ -293,7 +345,6 @@ export default function JobPosting() {
             showSearch
           />
         </div>
-        {/* Experience */}
         <div>
           <label className="block font-medium mb-1">Experience</label>
           <input
@@ -304,22 +355,20 @@ export default function JobPosting() {
             onChange={handleChange}
           />
         </div>
-        {/* Job Type */}
         <div>
           <label className="block font-medium mb-1">Job Type</label>
           <Select
             style={{ width: "100%" }}
-            value={form.jobType || undefined}
+            value={form.jobType ? [form.jobType] : []}
             onChange={(val) =>
-              setForm((prev) => ({ ...prev, jobType: val }))
+              setForm((prev) => ({ ...prev, jobType: val[0] || "" }))
             }
             options={jobTypes.map((type) => ({ label: type, value: type }))}
+            mode="multiple"
+            maxTagCount={1}
             placeholder="Select job type"
-            allowClear
-            showSearch
           />
         </div>
-        {/* Vacancies */}
         <div>
           <label className="block font-medium mb-1">Vacancies</label>
           <input
@@ -332,7 +381,6 @@ export default function JobPosting() {
             min={1}
           />
         </div>
-        {/* Expiration Date */}
         <div>
           <label className="block font-medium mb-1">Expiration Date</label>
           <input
@@ -343,22 +391,18 @@ export default function JobPosting() {
             onChange={handleChange}
           />
         </div>
-        {/* Job Level */}
         <div>
           <label className="block font-medium mb-1">Job Level</label>
           <Select
             style={{ width: "100%" }}
-            value={form.jobLevel || undefined}
+            value={form.jobLevel ? [form.jobLevel] : []}
             onChange={(val) =>
-              setForm((prev) => ({ ...prev, jobLevel: val }))
+              setForm((prev) => ({ ...prev, jobLevel: val[0] || "" }))
             }
-            options={jobLevels.map((level) => ({
-              label: level,
-              value: level,
-            }))}
+            options={jobLevels.map((level) => ({ label: level, value: level }))}
+            mode="multiple"
+            maxTagCount={1}
             placeholder="Select job level"
-            allowClear
-            showSearch
           />
         </div>
       </div>
@@ -395,7 +439,8 @@ export default function JobPosting() {
             onChange={handleChange}
           />
           <span>
-            Fully Remote Position - <span className="font-semibold">Worldwide</span>
+            Fully Remote Position -{" "}
+            <span className="font-semibold">Worldwide</span>
           </span>
         </label>
       </div>
@@ -498,7 +543,7 @@ export default function JobPosting() {
         type="submit"
         className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 flex items-center gap-2"
       >
-        Post Job <span>→</span>
+        Update Job <span>→</span>
       </button>
     </form>
   );

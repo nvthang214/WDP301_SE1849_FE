@@ -99,15 +99,12 @@ export default function JobList() {
       if (filters.minSalary !== undefined) params.minSalary = filters.minSalary;
       if (filters.maxSalary !== undefined) params.maxSalary = filters.maxSalary;
       if (filters.isActive !== undefined) params.isActive = filters.isActive;
-      if (filters.remote !== undefined)
-        params.remote = filters.remote ? "true" : "false";
+      if (filters.remote !== undefined) params.remote = filters.remote ? "true" : "false";
 
       // Xóa các param undefined/null/rỗng
       Object.keys(params).forEach(
         (key) =>
-          (params[key] === undefined ||
-            params[key] === "" ||
-            params[key] === false) &&
+          (params[key] === undefined || params[key] === "" || params[key] === false) &&
           delete params[key]
       );
 
@@ -155,13 +152,7 @@ export default function JobList() {
       <form className="flex flex-col gap-2 mb-4" onSubmit={handleSearch}>
         <div className="flex items-center bg-white rounded-xl shadow-sm px-3 py-2 gap-2 border">
           <div className="flex items-center flex-1 gap-2">
-            <svg
-              width="20"
-              height="20"
-              fill="none"
-              stroke="currentColor"
-              className="text-gray-400"
-            >
+            <svg width="20" height="20" fill="none" stroke="currentColor" className="text-gray-400">
               <circle cx="9" cy="9" r="7" strokeWidth="2" />
               <path d="M16 16L13.5 13.5" strokeWidth="2" />
             </svg>
@@ -173,13 +164,7 @@ export default function JobList() {
             />
           </div>
           <div className="flex items-center flex-1 gap-2 border-l pl-2">
-            <svg
-              width="20"
-              height="20"
-              fill="none"
-              stroke="currentColor"
-              className="text-blue-600"
-            >
+            <svg width="20" height="20" fill="none" stroke="currentColor" className="text-blue-600">
               <path d="M10 2a8 8 0 1 1 0 16a8 8 0 0 1 0-16Z" strokeWidth="2" />
               <path d="M10 6v4l2 2" strokeWidth="2" />
             </svg>
@@ -195,13 +180,7 @@ export default function JobList() {
             className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 rounded px-3 py-2 ml-2"
             onClick={() => setShowFilter(true)}
           >
-            <svg
-              width="20"
-              height="20"
-              fill="none"
-              stroke="currentColor"
-              className="text-gray-600"
-            >
+            <svg width="20" height="20" fill="none" stroke="currentColor" className="text-gray-600">
               <path d="M3 6h14M5 12h10M7 18h6" strokeWidth="2" />
             </svg>
             Filters
@@ -263,9 +242,7 @@ export default function JobList() {
       {/* Job Cards Grid */}
       <div>
         {loading ? (
-          <div className="text-center w-full py-10 text-gray-400">
-            Loading...
-          </div>
+          <div className="text-center w-full py-10 text-gray-400">Loading...</div>
         ) : (
           <div className={`grid ${gridCols} gap-6`}>
             {jobs.map((job, idx) => (
@@ -282,41 +259,27 @@ export default function JobList() {
           onClick={() => handlePageChange(page - 1)}
           disabled={page === 1}
         >
-          <svg
-            width="20"
-            height="20"
-            fill="none"
-            stroke="currentColor"
-            className="text-gray-500"
-          >
+          <svg width="20" height="20" fill="none" stroke="currentColor" className="text-gray-500">
             <path d="M13 17l-5-5 5-5" strokeWidth="2" />
           </svg>
         </button>
-        {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(
-          (n) => (
-            <button
-              key={n}
-              className={`w-9 h-9 rounded-full ${
-                n === page ? "bg-blue-600 text-white" : "bg-white text-gray-700"
-              } font-semibold hover:bg-blue-100`}
-              onClick={() => handlePageChange(n)}
-            >
-              {n.toString().padStart(2, "0")}
-            </button>
-          )
-        )}
+        {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((n) => (
+          <button
+            key={n}
+            className={`w-9 h-9 rounded-full ${
+              n === page ? "bg-blue-600 text-white" : "bg-white text-gray-700"
+            } font-semibold hover:bg-blue-100`}
+            onClick={() => handlePageChange(n)}
+          >
+            {n.toString().padStart(2, "0")}
+          </button>
+        ))}
         <button
           className="p-2 rounded-full hover:bg-gray-200"
           onClick={() => handlePageChange(page + 1)}
           disabled={page === pagination.totalPages}
         >
-          <svg
-            width="20"
-            height="20"
-            fill="none"
-            stroke="currentColor"
-            className="text-gray-500"
-          >
+          <svg width="20" height="20" fill="none" stroke="currentColor" className="text-gray-500">
             <path d="M7 7l5 5-5 5" strokeWidth="2" />
           </svg>
         </button>

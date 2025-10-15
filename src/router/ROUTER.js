@@ -2,14 +2,20 @@ const ROUTER = {
   HOME: "/",
   LOGIN: "/login",
   REGISTER: "/register",
+  FORGOT_PASSWORD: "/forgot-password",
+  RESET_PASSWORD: "/reset-password",
 
   // Job routes
+  // Recruiter Job management
+
+  JOB_POST: "/recruiter/jobs/post",
+  JOB_EDIT: "/recruiter/jobs/edit/:id",
+  JOB_DEACTIVATE: "/recruiter/jobs/deactivate/:id",
+  // Candidate Job application
   JOBS: "/jobs",
   JOB_DETAILS: "/jobs/:id",
-  JOB_POST: "/jobs/post",
-  JOB_EDIT: "/jobs/edit/:id",
-  JOB_DEACTIVATE: "/jobs/deactivate/:id",
 
+  
   //dashboard recruiter
   DASHBOARD: "/recruiter/dashboard",
   // Account settings routes

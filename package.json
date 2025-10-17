@@ -21,6 +21,7 @@
     "lucide-react": "^0.545.0",
     "mma302_asm_web_fe": "file:",
     "react": "^19.1.0",
+    "react-countup": "^6.5.3",
     "react-dom": "^19.1.0",
     "react-hot-toast": "^2.6.0",
     "react-redux": "^9.2.0",

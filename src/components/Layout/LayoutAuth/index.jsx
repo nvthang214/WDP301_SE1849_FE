@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import logo from "../../../assets/images/Logo/logosvg.svg";
 import ROUTER from "../../../router/ROUTER";
+import CountUp from "react-countup";
 
 const LayoutAuth = ({
   children,
@@ -9,9 +10,9 @@ const LayoutAuth = ({
   heroTitle = "Over 175,324 candidates waiting for good employers.",
   heroSubtitle = "Xây dựng đội ngũ mơ ước của bạn bằng cách tiếp cận kho ứng viên chất lượng cao chỉ trong vài bước.",
   stats = [
-    { label: "Live Jobs", value: "175,324" },
-    { label: "Companies", value: "97,354" },
-    { label: "New Jobs", value: "7,532" },
+    { label: "Live Jobs", value: "175324" },
+    { label: "Companies", value: "97354" },
+    { label: "New Jobs", value: "7532" },
   ],
   backgroundImage = "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1340&q=80",
 }) => {
@@ -56,7 +57,9 @@ const LayoutAuth = ({
                 key={item.label}
                 className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur"
               >
-                <div className="text-2xl font-semibold">{item.value}</div>
+                <div className="text-2xl font-semibold">
+                  <CountUp end={item.value} separator="," />
+                </div>
                 <div className="mt-2 text-sm text-white/70">{item.label}</div>
               </div>
             ))}

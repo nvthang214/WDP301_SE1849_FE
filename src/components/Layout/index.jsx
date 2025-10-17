@@ -15,9 +15,9 @@ const LayoutCommon = ({ children }) => {
       heroSubtitle:
         "We help you connect with the right talent through a modern recruitment management system.",
       stats: [
-        { label: "Live Jobs", value: "175,324" },
-        { label: "Companies", value: "97,354" },
-        { label: "New Jobs", value: "7,532" },
+        { label: "Live Jobs", value: "175324" },
+        { label: "Companies", value: "97354" },
+        { label: "New Jobs", value: "7532" },
       ],
     },
     [ROUTER.REGISTER]: {

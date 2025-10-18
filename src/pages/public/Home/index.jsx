@@ -27,13 +27,6 @@ import HeroSection from "./components/HeroSection";
 import JobCard from "../../../components/Card/JobCard";
 import CompanyCard from "../../../components/Card/CompanyCard";
 
-const heroStats = [
-  { label: "Live Jobs", value: "1,75,324", icon: BriefcaseBusiness },
-  { label: "Companies", value: "97,354", icon: Building2 },
-  { label: "Candidates", value: "38,47,154", icon: Users2 },
-  { label: "New Jobs", value: "7,532", icon: CalendarDays },
-];
-
 const vacancyList = [
   { title: "Anesthesiologists", openings: "45,004" },
   { title: "Surgeons", openings: "50,364" },

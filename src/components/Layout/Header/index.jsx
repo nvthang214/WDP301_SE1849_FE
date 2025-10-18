@@ -1,21 +1,20 @@
-import { Mail, Menu, Phone, Search, X } from "lucide-react";
-import { useState } from "react";
+import { Input } from "antd";
+import { Mail, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "../../../assets/images/Logo/logosvg.svg";
-import ROUTER from "../../../router/ROUTER";
-import { Input } from "antd";
+import ROUTE_META from "../../../router/ROUTER_META.js";
+import ROUTER from "../../../router/ROUTER.js";
 
 const navItems = [
-  { label: "Home", path: ROUTER.HOME },
-  { label: "Find Job", path: ROUTER.JOBS },
-  { label: "Pricing Plans", path: "#" },
+  { label: ROUTE_META[ROUTER.HOME].breadcrumb, path: ROUTER.HOME },
+  { label: ROUTE_META[ROUTER.JOBS].breadcrumb, path: ROUTER.JOBS },
 ];
 
-const HeaderMain = () => {
+const HeaderMain = ({ className }) => {
   return (
-    <header className="sticky top-0 z-40 w-full shadow-md bg-white/95 backdrop-blur">
-      <div className="hidden border-b border-neutral-100 bg-neutral-50 text-xs text-neutral-600 lg:block">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2">
+    <header className="sticky top-0 z-40 w-full border-b border-neutral-200 bg-white/95 backdrop-blur">
+      <div className="hidden border-b border-neutral-100 bg-neutral-100 text-xs text-neutral-500 lg:block">
+        <div className={`flex items-center justify-between py-3 ${className}`}>
           <div className="flex items-center gap-6">
             {navItems.map((item) => (
               <Link key={item.label} to={item.path} className="transition hover:text-primary-600">
@@ -36,7 +35,7 @@ const HeaderMain = () => {
         </div>
       </div>
 
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
+      <div className={`flex items-center justify-between py-3 ${className}`}>
         <div className="flex items-center gap-10">
           <Link to={ROUTER.HOME} className="flex items-center gap-2">
             <img src={logo} alt="Jobpilot" className="h-9 w-auto" />

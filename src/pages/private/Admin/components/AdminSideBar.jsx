@@ -18,29 +18,16 @@ const AdminSideBar = () => {
       label: "Admin Dashboard",
       type: "group",
     },
+
+    //========================= Menu Items =========================
     {
-      key: ROUTER.ADMIN_DASHBOARD,
+      key: ROUTER.ADMIN_OVERVIEW,
       icon: <LayoutDashboard size={20} />,
-      label: ROUTE_META[ROUTER.ADMIN_DASHBOARD]?.breadcrumb,
-    },
-    {
-      key: "/admin/applied",
-      icon: <BriefcaseBusiness size={20} />,
-      label: "Applied Jobs",
+      label: ROUTE_META[ROUTER.ADMIN_OVERVIEW]?.breadcrumb,
       onClick: ({ key }) => navigate(key),
     },
-    {
-      key: "sub1",
-      icon: <Bookmark size={20} />,
-      label: "Post a Job",
-    },
-    {
-      key: "sub2",
-      icon: <BellRing size={20} />,
-      label: "My Jobs",
-    },
 
-    // phần phân cách
+    // ------------------------- Divider ------------------------
     {
       type: "divider",
     },
@@ -49,11 +36,7 @@ const AdminSideBar = () => {
       icon: <Settings size={20} />,
       label: "Settings",
     },
-    {
-      key: "sub4",
-      icon: <LogOut size={20} />,
-      label: "Logout",
-    },
+    // ======================= End Menu Items ========================
   ];
   return <MenuLeft items={menuItems} />;
 };

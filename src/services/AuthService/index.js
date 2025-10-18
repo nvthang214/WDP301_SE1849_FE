@@ -1,5 +1,11 @@
 import api from "../00-Axios";
-import { forgotPasswordurl, loginurl, registerurl, resetPasswordurl } from "./urls";
+import {
+  forgotPasswordurl,
+  loginurl,
+  loginWithGoogleUrl,
+  registerurl,
+  resetPasswordurl,
+} from "./urls";
 
 const login = async (payload) => {
   const res = await api.post(loginurl, payload);
@@ -20,9 +26,18 @@ const resetPassword = async (payload, token) => {
   return await api.post(resetPasswordurl + `/${token}`, payload);
 };
 
+const loginWithGoogle = async (token) => {
+  const res = await api.post(loginWithGoogleUrl, token);
+  if (res?.data?.token) {
+    localStorage.setItem("accessToken", res.data.token);
+  }
+  return res;
+};
+
 export const AuthService = {
   login,
   register,
   forgotPassword,
   resetPassword,
+  loginWithGoogle,
 };

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { JobService } from "../../../services/JobService";
-import { TagService } from "../../../services/TagService";
-import { CategoryService } from "../../../services/CategoryService";
+import { JobService } from "../../../../../services/JobService";
+import { TagService } from "../../../../../services/TagService";
+import { CategoryService } from "../../../../../services/CategoryService";
 import { Select } from "antd";
 
 const jobTypes = ["FULL-TIME", "PART-TIME", "INTERNSHIP", "TEMPORARY", "CONTRACT BASE"];
@@ -477,9 +477,80 @@ export default function JobEditing() {
               </div>
             </div>
           </section>
-
-          {/* Location, Benefits, Rich fields duplicated from JobPosting (ensure same styling) */}
-          {/* Copy identical sections for Location, Benefits, textareas, Apply, and Submit */}
+          <section className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-sm)]">
+            <div className="mb-4 flex items-center gap-3">
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-primary-100)] text-[var(--color-primary-500)]">
+                4
+              </span>
+              <h3 className="text-lg font-semibold text-[var(--color-neutral-900)]">Location</h3>
+            </div>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+                    Country
+                  </label>
+                  <input
+                    className="w-full rounded-xl border border-[var(--color-neutral-200)] px-4 py-3 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-100)]"
+                    name="country"
+                    placeholder="Country"
+                    value={form.country}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+                    City
+                  </label>
+                  <input
+                    className="w-full rounded-xl border border-[var(--color-neutral-200)] px-4 py-3 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-100)]"
+                    name="city"
+                    placeholder="City"
+                    value={form.city}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+              <label className="flex items-center gap-3 rounded-xl border border-[var(--color-neutral-200)] bg-[var(--color-neutral-100)] px-4 py-3">
+                <input
+                  type="checkbox"
+                  name="remote"
+                  checked={form.remote}
+                  onChange={handleChange}
+                />
+                <span className="text-sm text-[var(--color-neutral-700)]">
+                  Fully Remote Position – <span className="font-semibold">Worldwide</span>
+                </span>
+              </label>
+            </div>
+          </section>
+          <section className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-sm)]">
+            <div className="mb-4 flex items-center gap-3">
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-primary-100)] text-[var(--color-primary-500)]">
+                5
+              </span>
+              <h3 className="text-lg font-semibold text-[var(--color-neutral-900)]">Benefits</h3>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {benefitsList.map((benefit) => {
+                const active = form.benefits.includes(benefit);
+                return (
+                  <button
+                    type="button"
+                    key={benefit}
+                    className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
+                      active
+                        ? "border-[var(--color-primary-400)] bg-[var(--color-primary-100)] text-[var(--color-primary-600)] shadow-[var(--shadow-sm)]"
+                        : "border-[var(--color-neutral-200)] bg-[var(--color-neutral-100)] text-[var(--color-neutral-700)] hover:border-[var(--color-primary-200)] hover:bg-[var(--color-primary-50)]"
+                    }`}
+                    onClick={() => handleBenefitToggle(benefit)}
+                  >
+                    {benefit}
+                  </button>
+                );
+              })}
+            </div>
+          </section>
         </div>
 
         <div className="mt-8 flex justify-end">

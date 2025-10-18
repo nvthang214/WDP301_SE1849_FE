@@ -22,6 +22,8 @@ const Login = React.lazy(() => import("../pages/public/Authentication/Login"));
 const Register = React.lazy(() => import("../pages/public/Authentication/Register"));
 const ForgotPassword = React.lazy(() => import("../pages/public/Authentication/ForgotPassword"));
 const ResetPassword = React.lazy(() => import("../pages/public/Authentication/ResetPassword"));
+const JobList = React.lazy(() => import("../pages/public/Job/JobList"));
+const JobDetail = React.lazy(() => import("../pages/public/Job/JobDetail"));
 // ========================= End public pages ======================
 
 ////////////////////////////////////////////////////////////////////
@@ -35,6 +37,9 @@ const CandidateOverview = React.lazy(() => import("../pages/private/Candidate"))
 
 // ========================= Recruiter pages =======================
 const RecruiterOverview = React.lazy(() => import("../pages/private/Recruiter"));
+const RecruiterMyJobs = React.lazy(() => import("../pages/private/Recruiter/Job/MyJobs"));
+const RecruiterJobPosting = React.lazy(() => import("../pages/private/Recruiter/Job/JobPosting"));
+const RecruiterJobEditing = React.lazy(() => import("../pages/private/Recruiter/Job/JobEditing"));
 
 // ========================= End Recruiter pages ===================
 
@@ -109,6 +114,24 @@ const router = createBrowserRouter([
           </LazyLoad>
         ),
       },
+      {
+        index: true,
+        path: ROUTER.JOB_LIST,
+        element: (
+          <LazyLoad>
+            <JobList />
+          </LazyLoad>
+        ),
+      },
+      {
+        index: true,
+        path: ROUTER.JOB_DETAIL,
+        element: (
+          <LazyLoad>
+            <JobDetail />
+          </LazyLoad>
+        ),
+      },
     ],
   },
 
@@ -146,6 +169,33 @@ const router = createBrowserRouter([
           </LazyLoad>
         ),
         handle: ROUTE_META[ROUTER.RECRUITER_OVERVIEW],
+      },
+      {
+        path: ROUTER.RECRUITER_MY_JOBS,
+        element: (
+          <LazyLoad>
+            <RecruiterMyJobs />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.RECRUITER_MY_JOBS],
+      },
+      {
+        path: ROUTER.RECRUITER_JOB_POSTING,
+        element: (
+          <LazyLoad>
+            <RecruiterJobPosting />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.RECRUITER_JOB_POSTING],
+      },
+      {
+        path: ROUTER.RECRUITER_JOB_EDITING,
+        element: (
+          <LazyLoad>
+            <RecruiterJobEditing />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.RECRUITER_JOB_EDITING],
       },
     ],
   },

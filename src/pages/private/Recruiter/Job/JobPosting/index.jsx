@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { JobService } from "../../../services/JobService";
-import { TagService } from "../../../services/TagService";
-import { CategoryService } from "../../../services/CategoryService";
+import { JobService } from "../../../../../services/JobService";
+import { TagService } from "../../../../../services/TagService";
+import { CategoryService } from "../../../../../services/CategoryService";
 import { Select } from "antd";
 
 const jobTypes = ["FULL-TIME", "PART-TIME", "INTERNSHIP", "TEMPORARY", "CONTRACT BASE"];

@@ -17,6 +17,16 @@ const ROUTE_META = {
     breadcrumb: "Home",
     title: "Home",
   },
+
+  // Job routes
+  [ROUTER.JOB_LIST]: {
+    breadcrumb: "Find Jobs",
+    title: "Job Listings",
+  },
+  [ROUTER.JOB_DETAIL]: {
+    breadcrumb: "Job Detail",
+    title: "Job Detail",
+  },
   // ========================= End public routes =======================
 
   //////////////////////////////////////////////////////////////////////
@@ -26,6 +36,18 @@ const ROUTE_META = {
   [ROUTER.RECRUITER_OVERVIEW]: {
     breadcrumb: "Overview",
     title: "Recruiter Overview",
+  },
+  [ROUTER.RECRUITER_MY_JOBS]: {
+    breadcrumb: "My Jobs",
+    title: "My Jobs",
+  },
+  [ROUTER.RECRUITER_JOB_POSTING]: {
+    breadcrumb: "Job Posting",
+    title: "Job Posting",
+  },
+  [ROUTER.RECRUITER_JOB_EDITING]: {
+    breadcrumb: "Job Editing",
+    title: "Job Editing",
   },
 
   // --- Candidate routes ---

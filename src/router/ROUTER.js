@@ -14,12 +14,17 @@ const ROUTER = {
   // --- Other public routes ---
 
   // ========================= End public routes =======================
-
+  // Job routes
+  JOB_LIST: "/jobs",
+  JOB_DETAIL: "/jobs/:id",
   //////////////////////////////////////////////////////////////////////
 
   // ========================= Private routes ==========================
   // --- Recruiter routes ---
   RECRUITER_OVERVIEW: `${recruiter}/overview`,
+  RECRUITER_MY_JOBS: `${recruiter}/jobs/my-jobs`,
+  RECRUITER_JOB_POSTING: `${recruiter}/jobs/post`,
+  RECRUITER_JOB_EDITING: `${recruiter}/jobs/edit/:id`,
 
   // --- Candidate routes ---
   CANDIDATE_OVERVIEW: `${candidate}/overview`,

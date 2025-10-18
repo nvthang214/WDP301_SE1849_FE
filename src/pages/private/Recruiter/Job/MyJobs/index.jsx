@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, ChevronDown, Clock, MoreVertical } from "lucide-react";
 
-import { JobService } from "../../../services/JobService";
+import { JobService } from "../../../../../services/JobService";
 import { Link } from "react-router-dom";
 
 const statusOptions = [

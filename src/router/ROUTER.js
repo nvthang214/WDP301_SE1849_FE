@@ -11,6 +11,7 @@ const ROUTER = {
   JOB_POST: "/recruiter/jobs/post",
   JOB_EDIT: "/recruiter/jobs/edit/:id",
   JOB_DEACTIVATE: "/recruiter/jobs/deactivate/:id",
+  
   // Candidate Job application
   JOBS: "/jobs",
   JOB_DETAILS: "/jobs/:id",

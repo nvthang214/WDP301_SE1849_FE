@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { JobService } from "../../../services/JobService";
+import { JobService } from "../../../../services/JobService";
 import {
   Bookmark,
   DollarSign,
@@ -103,7 +103,7 @@ function ApplyModal({ open, onClose, jobTitle }) {
             Cancel
           </button>
           <button
-            className="px-6 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700"
+            className="inline-flex items-center gap-2 rounded-[var(--radius-lg)] bg-[var(--color-primary-500)] px-6 py-2 font-semibold text-white shadow-[var(--shadow-md)] transition hover:bg-[var(--color-primary-600)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-300)]"
             type="button"
             onClick={() => {
               alert("Applied!");
@@ -184,10 +184,10 @@ export default function JobDetails() {
             <Bookmark className="text-blue-500" size={22} />
           </button>
           <button
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 flex items-center gap-2"
+            className="inline-flex items-center gap-2 rounded-[var(--radius-lg)] bg-[var(--color-primary-500)] px-6 py-2 font-semibold text-white shadow-[var(--shadow-md)] transition hover:bg-[var(--color-primary-600)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-300)]"
             onClick={() => setShowApply(true)}
           >
-            Apply Now <span className="ml-1">→</span>
+            Apply Now
           </button>
         </div>
       </div>

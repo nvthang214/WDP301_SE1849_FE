@@ -1,22 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { JobService } from "../../../services/JobService";
-import { CategoryService } from "../../../services/CategoryService";
-import { useResponsive } from "../../../hook/useResponsive";
+import { JobService } from "../../../../services/JobService";
+import { CategoryService } from "../../../../services/CategoryService";
+import { useResponsive } from "../../../../hook/useResponsive";
 
-import JobCard from "../../../components/Job/JobCard";
-import FilterSidebar from "../../../components/Job/FilterSidebar";
-
-// ...typeColor, jobTypes, experienceLevels...
-
-const typeColor = {
-  "FULL-TIME": {
-    bg: "var(--color-primary-100)",
-    color: "var(--color-primary-700)",
-  },
-  "PART-TIME": { bg: "var(--color-secondary-500)", color: "#fff" },
-  INTERNSHIP: { bg: "var(--color-accent-500)", color: "#fff" },
-};
+import JobCard from "../../../../components/Card/JobCard";
+import FilterSidebar from "../JobList/components/FilterSidebar";
 
 const jobTypes = ["FULL-TIME", "PART-TIME", "INTERNSHIP", "TEMPORARY", "CONTRACT BASE"];
 
@@ -27,6 +16,16 @@ const salaryRanges = [
   { label: "$10,000 - $100,000", min: 10000, max: 100000 },
   { label: "$100,000 Up", min: 100000, max: 1000000 },
 ];
+
+const initialFilters = {
+  jobType: "",
+  experience: "",
+  categoryId: "",
+  minSalary: undefined,
+  maxSalary: undefined,
+  isActive: undefined,
+  remote: true,
+};
 
 // Main Job List Component
 export default function JobList() {
@@ -60,19 +59,17 @@ export default function JobList() {
 
   // Search & filter states
   const [search, setSearch] = useState("");
-  const [location, setLocation] = useState("");
-  const [filters, setFilters] = useState({
-    jobType: "",
-    experience: "",
-    categoryId: "",
-    minSalary: undefined,
-    maxSalary: undefined,
-    isActive: undefined,
-    remote: true,
-  });
+  const [searchInput, setSearchInput] = useState("");
+  const [filters, setFilters] = useState(() => ({ ...initialFilters }));
+  const [draftFilters, setDraftFilters] = useState(() => ({ ...initialFilters }));
 
   // Sidebar state
   const [showFilter, setShowFilter] = useState(false);
+  useEffect(() => {
+    if (showFilter) {
+      setDraftFilters({ ...filters });
+    }
+  }, [showFilter, filters]);
 
   // Responsive hook
   const { isMobile, isTablet, isDesktop } = useResponsive();
@@ -136,7 +133,7 @@ export default function JobList() {
   const handleSearch = (e) => {
     e.preventDefault();
     setPage(1);
-    fetchJobs();
+    setSearch(searchInput.trim());
   };
 
   // Xử lý chuyển trang
@@ -159,22 +156,11 @@ export default function JobList() {
             <input
               className="flex-1 outline-none bg-transparent text-base"
               placeholder="Search by: Job title, Position, Keyword..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
             />
           </div>
-          <div className="flex items-center flex-1 gap-2 border-l pl-2">
-            <svg width="20" height="20" fill="none" stroke="currentColor" className="text-blue-600">
-              <path d="M10 2a8 8 0 1 1 0 16a8 8 0 0 1 0-16Z" strokeWidth="2" />
-              <path d="M10 6v4l2 2" strokeWidth="2" />
-            </svg>
-            <input
-              className="flex-1 outline-none bg-transparent text-base"
-              placeholder="City Name"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-            />
-          </div>
+
           <button
             type="button"
             className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 rounded px-3 py-2 ml-2"
@@ -187,7 +173,7 @@ export default function JobList() {
           </button>
           <button
             type="submit"
-            className="ml-2 bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-700"
+            className="ml-2 inline-flex items-center gap-2 rounded-[var(--radius-lg)] bg-[var(--color-primary-500)] px-5 py-2 font-semibold text-white shadow-[var(--shadow-md)] transition hover:bg-[var(--color-primary-600)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-300)]"
           >
             Find Job
           </button>
@@ -213,6 +199,7 @@ export default function JobList() {
               key={tag}
               className="px-3 py-1 bg-gray-100 rounded-full cursor-pointer hover:bg-blue-100 hover:text-blue-600 font-medium"
               onClick={() => {
+                setSearchInput(tag);
                 setSearch(tag);
                 setPage(1);
               }}
@@ -227,12 +214,12 @@ export default function JobList() {
       <FilterSidebar
         open={showFilter}
         onClose={() => setShowFilter(false)}
-        filters={filters}
-        setFilters={setFilters}
+        filters={draftFilters}
+        setFilters={setDraftFilters}
         onApply={() => {
           setShowFilter(false);
           setPage(1);
-          fetchJobs();
+          setFilters({ ...draftFilters });
         }}
         categories={categories}
         jobTypes={jobTypes}
@@ -246,41 +233,63 @@ export default function JobList() {
         ) : (
           <div className={`grid ${gridCols} gap-6`}>
             {jobs.map((job, idx) => (
-              <JobCard key={job._id || idx} job={job} typeColor={typeColor} />
+              <Link to={`/jobs/${job._id}`} key={idx} className="block">
+                <JobCard
+                  key={job._id || idx}
+                  title={job.title}
+                  type={job.jobType}
+                  salary={`$${job.minSalary.toLocaleString()} - $${job.maxSalary.toLocaleString()}`}
+                  company={job.companyName}
+                  location={job.city}
+                  logo={job.companyLogo}
+                />
+              </Link>
             ))}
           </div>
         )}
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-center items-center gap-2 mt-10">
+      <div className="mt-10 flex items-center justify-center gap-3">
         <button
-          className="p-2 rounded-full hover:bg-gray-200"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--color-neutral-200)] text-[var(--color-neutral-500)] transition hover:border-[var(--color-primary-300)] hover:text-[var(--color-primary-600)] disabled:cursor-not-allowed disabled:opacity-30"
           onClick={() => handlePageChange(page - 1)}
           disabled={page === 1}
         >
-          <svg width="20" height="20" fill="none" stroke="currentColor" className="text-gray-500">
-            <path d="M13 17l-5-5 5-5" strokeWidth="2" />
+          <svg width="18" height="18" fill="none" stroke="currentColor">
+            <path
+              d="M11 15L7 11L11 7"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </button>
         {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((n) => (
           <button
             key={n}
-            className={`w-9 h-9 rounded-full ${
-              n === page ? "bg-blue-600 text-white" : "bg-white text-gray-700"
-            } font-semibold hover:bg-blue-100`}
+            className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition ${
+              n === page
+                ? "bg-[var(--color-primary-500)] text-white shadow-[var(--shadow-md)]"
+                : "border border-transparent bg-white text-[var(--color-neutral-600)] hover:border-[var(--color-primary-200)] hover:text-[var(--color-primary-600)]"
+            }`}
             onClick={() => handlePageChange(n)}
           >
             {n.toString().padStart(2, "0")}
           </button>
         ))}
         <button
-          className="p-2 rounded-full hover:bg-gray-200"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--color-neutral-200)] text-[var(--color-neutral-500)] transition hover:border-[var(--color-primary-300)] hover:text-[var(--color-primary-600)] disabled:cursor-not-allowed disabled:opacity-30"
           onClick={() => handlePageChange(page + 1)}
           disabled={page === pagination.totalPages}
         >
-          <svg width="20" height="20" fill="none" stroke="currentColor" className="text-gray-500">
-            <path d="M7 7l5 5-5 5" strokeWidth="2" />
+          <svg width="18" height="18" fill="none" stroke="currentColor">
+            <path
+              d="M7 7L11 11L7 15"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </button>
       </div>

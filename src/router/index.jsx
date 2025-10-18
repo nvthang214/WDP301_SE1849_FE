@@ -16,8 +16,8 @@ const CompanyInfo = React.lazy(() => import("../pages/private/Dashboard/CompanyI
 const SocialMedia = React.lazy(() => import("../pages/private/Dashboard/SocialMedia"));
 const LayoutDashboard = React.lazy(() => import("../components/Layout/RecruiterLayout"));
 
-const JobList = React.lazy(() => import("../pages/private/Job/JobList"));
-const JobDetails = React.lazy(() => import("../pages/private/Job/JobDetails"));
+const JobList = React.lazy(() => import("../pages/public/Job/JobList"));
+const JobDetails = React.lazy(() => import("../pages/public/Job/JobDetail"));
 const JobPosting = React.lazy(() => import("../pages/private/Job/JobPosting"));
 const JobEditing = React.lazy(() => import("../pages/private/Job/JobEditing"));
 
@@ -104,6 +104,15 @@ const router = createBrowserRouter([
           </LazyLoad>
         ),
         handle: ROUTE_META[ROUTER.JOBS],
+      },
+      {
+        path: ROUTER.JOB_DETAILS,
+        element: (
+          <LazyLoad>
+            <JobDetails />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.JOB_DETAILS],
       },
     ],
   },

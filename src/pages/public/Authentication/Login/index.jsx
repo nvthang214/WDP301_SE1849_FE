@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { notifyError, notifySuccess } from "../../../../components/Notification";
 import ROUTER from "../../../../router/ROUTER";
 import { AuthService } from "../../../../services/AuthService";
+import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 
 const LoginScreen = () => {
   const nav = useNavigate();
@@ -41,7 +42,23 @@ const LoginScreen = () => {
       setLoading(false);
     }
   };
+  // đăng nhập bằng gg
+  const handleSuccess = async (credentialResponse) => {
+    try {
+      const credential = credentialResponse?.credential;
+      if (!credential) throw new Error("Không nhận được token từ Google");
 
+      const res = await AuthService.loginWithGoogle({ token: credential });
+      notifySuccess(res?.msg || "Đăng nhập bằng Google thành công!");
+      nav(ROUTER.HOME);
+    } catch (err) {
+      console.error("Google login error:", err);
+      notifyError("Đăng nhập bằng Google thất bại, vui lòng thử lại!");
+    }
+  };
+  const handleError = () => {
+    notifyError("Đăng nhập bằng Google thất bại, vui lòng thử lại!");
+  };
   return (
     <form onSubmit={handleLogin} className="flex h-full flex-col justify-between gap-8">
       <div className="space-y-6">
@@ -88,18 +105,7 @@ const LoginScreen = () => {
           </div>
         </div>
 
-        <div className="flex items-center justify-between">
-          <label className="flex items-center gap-3 text-sm text-neutral-600">
-            <input
-              id="remember"
-              name="remember"
-              type="checkbox"
-              checked={formData.remember}
-              onChange={handleChange}
-              className="h-4 w-4 rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
-            />
-            <span>Remember me</span>
-          </label>
+        <div className="flex items-center justify-end">
           <Link
             to={ROUTER.FORGOT_PASSWORD}
             className="font-medium text-primary-600 hover:text-primary-500"
@@ -120,13 +126,9 @@ const LoginScreen = () => {
         <Divider>or</Divider>
 
         <div className="w-full">
-          <button
-            type="button"
-            className="flex items-center justify-center gap-3 rounded-xl border border-neutral-200 px-4 py-3 text-sm font-medium text-neutral-700 transition hover:border-neutral-300 hover:bg-neutral-50 w-full mb-3"
-          >
-            <Chrome className="h-4 w-4" />
-            <span>Sign in with Google</span>
-          </button>
+          <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+            <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
+          </GoogleOAuthProvider>
         </div>
       </div>
     </form>

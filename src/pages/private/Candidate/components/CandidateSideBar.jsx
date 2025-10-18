@@ -8,6 +8,8 @@ import {
 } from "lucide-react";
 import MenuLeft from "../../../../components/MenuLeft";
 import { useNavigate } from "react-router-dom";
+import ROUTER from "../../../../router/ROUTER";
+import ROUTE_META from "../../../../router/ROUTER_META";
 
 const CandidateSideBar = () => {
   const navigate = useNavigate();
@@ -16,27 +18,16 @@ const CandidateSideBar = () => {
       label: "Candidate Dashboard",
       type: "group",
     },
+
+    //========================= Menu Items =========================
     {
-      key: "/candidate/overview",
+      key: ROUTER.CANDIDATE_OVERVIEW,
       icon: <LayoutDashboard size={20} />,
-      label: "Overview",
-    },
-    {
-      key: "/candidate/applied",
-      icon: <BriefcaseBusiness size={20} />,
-      label: "Applied Jobs",
+      label: ROUTE_META[ROUTER.CANDIDATE_OVERVIEW]?.breadcrumb,
       onClick: ({ key }) => navigate(key),
     },
-    {
-      key: "sub1",
-      icon: <Bookmark size={20} />,
-      label: "Favorites Jobs",
-    },
-    {
-      key: "sub2",
-      icon: <BellRing size={20} />,
-      label: "Jobs Alerts",
-    },
+
+    // ------------------------- Divider ------------------------
     {
       type: "divider",
     },
@@ -44,14 +35,9 @@ const CandidateSideBar = () => {
       key: "sub3",
       icon: <Settings size={20} />,
       label: "Settings",
-      extra: "1",
+      onClick: ({ key }) => navigate(key),
     },
-    {
-      key: "sub4",
-      icon: <LogOut size={20} />,
-      label: "Logout",
-      extra: "1",
-    },
+    //======================= End Menu Items ========================
   ];
   return <MenuLeft items={menuItems} />;
 };

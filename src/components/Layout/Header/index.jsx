@@ -5,16 +5,13 @@ import logo from "../../../assets/images/Logo/logosvg.svg";
 import ROUTE_META from "../../../router/ROUTER_META.js";
 import ROUTER from "../../../router/ROUTER.js";
 
-const navItems = [
-  { label: ROUTE_META[ROUTER.HOME].breadcrumb, path: ROUTER.HOME },
-  { label: ROUTE_META[ROUTER.JOBS].breadcrumb, path: ROUTER.JOBS },
-];
+const navItems = [{ label: ROUTE_META[ROUTER.HOME].breadcrumb, path: ROUTER.HOME }];
 
 const HeaderMain = ({ className }) => {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-neutral-200 bg-white/95 backdrop-blur">
       <div className="hidden border-b border-neutral-100 bg-neutral-100 text-xs text-neutral-500 lg:block">
-        <div className={`flex items-center justify-between py-3 ${className}`}>
+        <div className={`flex items-center justify-between py-3 px-4 ${className}`}>
           <div className="flex items-center gap-6">
             {navItems.map((item) => (
               <Link key={item.label} to={item.path} className="transition hover:text-primary-600">
@@ -35,7 +32,7 @@ const HeaderMain = ({ className }) => {
         </div>
       </div>
 
-      <div className={`flex items-center justify-between py-3 ${className}`}>
+      <div className={`flex items-center justify-between py-3 px-4 ${className}`}>
         <div className="flex items-center gap-10">
           <Link to={ROUTER.HOME} className="flex items-center gap-2">
             <img src={logo} alt="Jobpilot" className="h-9 w-auto" />

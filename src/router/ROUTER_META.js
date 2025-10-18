@@ -1,52 +1,43 @@
 import ROUTER from "./ROUTER";
 
 const ROUTE_META = {
-  // Authentication routes
+  // ========================= Public routes =========================
+  // --- Authentication routes ---
   [ROUTER.LOGIN]: {
-    breadcrumb: "Đăng nhập",
+    breadcrumb: "Login",
     title: "Login",
   },
   [ROUTER.REGISTER]: {
-    breadcrumb: "Đăng ký",
+    breadcrumb: "Register",
     title: "Register",
   },
 
-  // Public routes
+  //--- Other public routes ---
   [ROUTER.HOME]: {
     breadcrumb: "Home",
     title: "Home",
   },
-  [ROUTER.JOBS]: {
-    breadcrumb: "Job List",
-    title: "Jobs",
-  },
+  // ========================= End public routes =======================
 
-  // Private routes
-  [ROUTER.DASHBOARD]: {
-    breadcrumb: "Bảng điều khiển",
-    title: "Dashboard",
-    requiresAuth: true,
-  },
-  [ROUTER.ACCOUNT_SETTINGS]: {
-    breadcrumb: "Cài đặt tài khoản",
-    title: "Account Settings",
-    requiresAuth: true,
-  },
+  //////////////////////////////////////////////////////////////////////
 
-  [ROUTER.JOB_DETAILS]: {
-    breadcrumb: "Chi tiết việc làm",
-    title: "Job Details",
-  },
-
-  [ROUTER.CANDIDATE_DASHBOARD]: {
-    breadcrumb: "Candidate Dashboard",
-    title: "Candidate Dashboard",
-    requiresAuth: true,
-  },
-  [ROUTER.ADMIN_DASHBOARD]: {
+  // ========================= Private routes ==========================
+  // --- Recruiter routes ---
+  [ROUTER.RECRUITER_OVERVIEW]: {
     breadcrumb: "Overview",
-    title: "Overview",
-    requiresAuth: true,
+    title: "Recruiter Overview",
+  },
+
+  // --- Candidate routes ---
+  [ROUTER.CANDIDATE_OVERVIEW]: {
+    breadcrumb: "Overview",
+    title: "Candidate Overview",
+  },
+
+  // --- Admin routes ---
+  [ROUTER.ADMIN_OVERVIEW]: {
+    breadcrumb: "Overview",
+    title: "Admin Overview",
   },
 };
 

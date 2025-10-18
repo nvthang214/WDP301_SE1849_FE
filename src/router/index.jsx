@@ -5,39 +5,52 @@ import NotFound from "../pages/public/NotFound";
 import ROUTER from "./ROUTER.js";
 import ROUTE_META from "./ROUTER_META.js";
 
-// react lazy imports
+/// === React lazy imports ===
+// =========================== Layouts =============================
+const LayoutAuth = React.lazy(() => import("../components/Layout/LayoutAuth"));
+const LayoutCommon = React.lazy(() => import("../components/Layout"));
+const LayoutCandidate = React.lazy(() => import("../components/Layout/LayoutCandidate"));
+const LayoutAdmin = React.lazy(() => import("../components/Layout/LayoutAdmin"));
+const LayoutRecruiter = React.lazy(() => import("../components/Layout/LayoutRecruiter"));
+// ========================== End layouts ==========================
+
+////////////////////////////////////////////////////////////////////
+
+// ========================== Public pages =========================
 const HomePage = React.lazy(() => import("../pages/public/Home"));
 const Login = React.lazy(() => import("../pages/public/Authentication/Login"));
 const Register = React.lazy(() => import("../pages/public/Authentication/Register"));
 const ForgotPassword = React.lazy(() => import("../pages/public/Authentication/ForgotPassword"));
 const ResetPassword = React.lazy(() => import("../pages/public/Authentication/ResetPassword"));
-const AccountSettings = React.lazy(() => import("../pages/private/Dashboard/AccountSetting"));
-const CompanyInfo = React.lazy(() => import("../pages/private/Dashboard/CompanyInfo"));
-const SocialMedia = React.lazy(() => import("../pages/private/Dashboard/SocialMedia"));
-const LayoutDashboard = React.lazy(() => import("../components/Layout/RecruiterLayout"));
+// ========================= End public pages ======================
 
-const JobList = React.lazy(() => import("../pages/public/Job/JobList"));
-const JobDetails = React.lazy(() => import("../pages/public/Job/JobDetail"));
-const JobPosting = React.lazy(() => import("../pages/private/Job/JobPosting"));
-const JobEditing = React.lazy(() => import("../pages/private/Job/JobEditing"));
+////////////////////////////////////////////////////////////////////
 
-const CompanyPosting = React.lazy(() => import("../pages/private/Company/CompanyPosting"));
-const CompanyList = React.lazy(() => import("../pages/private/Company/CompanyList"));
-const CompanyUpdate = React.lazy(() => import("../pages/private/Company/CompanyUpdate"));
-const CompanyInformation = React.lazy(() => import("../pages/private/Company/CompanyInformation"));
-
+// ========================= Candidate pages =======================
 const CandidateOverview = React.lazy(() => import("../pages/private/Candidate"));
 
-const LayoutAuth = React.lazy(() => import("../components/Layout/LayoutAuth"));
-const LayoutCommon = React.lazy(() => import("../components/Layout"));
-const LayoutCandidate = React.lazy(() => import("../components/Layout/LayoutCandidate"));
-const LayoutAdmin = React.lazy(() => import("../components/Layout/LayoutAdmin"));
+// ========================= End candidate pages ===================
+
+////////////////////////////////////////////////////////////////////
+
+// ========================= Recruiter pages =======================
+const RecruiterOverview = React.lazy(() => import("../pages/private/Recruiter"));
+
+// ========================= End Recruiter pages ===================
+
+////////////////////////////////////////////////////////////////////
+
+// ========================= Admin pages ===========================
+
+// ========================= End Admin pages =======================
+
 /**
  * --- Routes config ---
  * loader: kiểm tra điều kiện trước khi vào route
  * handle: meta data của route- yêu cầu auth, title, breadcrumb, ...
  */
 const router = createBrowserRouter([
+  //========================= Public Routes ==========================
   // --- Authentication routes ---
   {
     element: <LayoutAuth />,
@@ -82,7 +95,7 @@ const router = createBrowserRouter([
     ],
   },
 
-  // --- Public routes ---
+  // --- Other routes ---
   {
     element: <LayoutCommon />,
     handle: { breadcrumb: ROUTE_META[ROUTER.HOME]?.breadcrumb },
@@ -96,169 +109,66 @@ const router = createBrowserRouter([
           </LazyLoad>
         ),
       },
-      {
-        path: ROUTER.JOBS,
-        element: (
-          <LazyLoad>
-            <JobList />
-          </LazyLoad>
-        ),
-        handle: ROUTE_META[ROUTER.JOBS],
-      },
-      {
-        path: ROUTER.JOB_DETAILS,
-        element: (
-          <LazyLoad>
-            <JobDetails />
-          </LazyLoad>
-        ),
-        handle: ROUTE_META[ROUTER.JOB_DETAILS],
-      },
     ],
   },
 
-  // --- Candidate routes ---
+  //======================= End public Routes ========================
 
+  ////////////////////////////////////////////////////////////////////
+
+  // ========================= Private routes =======================
+
+  // --- Candidate routes ---
   {
     element: <LayoutCandidate />,
     children: [
       {
-        path: ROUTER.CANDIDATE_DASHBOARD,
+        path: ROUTER.CANDIDATE_OVERVIEW,
         element: (
           <LazyLoad>
             <CandidateOverview />
           </LazyLoad>
         ),
-        handle: ROUTE_META[ROUTER.CANDIDATE_DASHBOARD],
+        handle: ROUTE_META[ROUTER.CANDIDATE_OVERVIEW],
+      },
+    ],
+  },
+
+  // --- Recruiter routes ---
+  {
+    element: <LayoutRecruiter />,
+    children: [
+      {
+        path: ROUTER.RECRUITER_OVERVIEW,
+        element: (
+          <LazyLoad>
+            <RecruiterOverview />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.RECRUITER_OVERVIEW],
       },
     ],
   },
 
   // --- Admin routes ---
-
   {
     element: <LayoutAdmin />,
     children: [
       {
-        path: ROUTER.ADMIN_DASHBOARD,
+        path: ROUTER.ADMIN_OVERVIEW,
         element: (
           <LazyLoad>
             <div>Admin Dashboard</div>
           </LazyLoad>
         ),
-        handle: ROUTE_META[ROUTER.ADMIN_DASHBOARD],
+        handle: ROUTE_META[ROUTER.ADMIN_OVERVIEW],
       },
     ],
   },
 
-  // --- Job routes ---
+  //====================== End private routes =======================
 
-  {
-    path: ROUTER.JOB_DETAILS,
-    element: (
-      <LazyLoad>
-        <JobDetails />
-      </LazyLoad>
-    ),
-  },
-  {
-    path: ROUTER.JOB_POST,
-    element: (
-      <LazyLoad>
-        <LayoutDashboard>
-          <JobPosting />
-        </LayoutDashboard>
-      </LazyLoad>
-    ),
-  },
-  {
-    path: ROUTER.JOB_EDIT,
-    element: (
-      <LazyLoad>
-        <LayoutDashboard>
-          <JobEditing />
-        </LayoutDashboard>
-      </LazyLoad>
-    ),
-  },
-
-  // --- Company routes ---
-  {
-    path: ROUTER.COMPANIES,
-    element: (
-      <LazyLoad>
-        <CompanyList />
-      </LazyLoad>
-    ),
-  },
-  {
-    path: ROUTER.COMPANY_POST,
-    element: (
-      <LazyLoad>
-        <CompanyPosting />
-      </LazyLoad>
-    ),
-  },
-  {
-    path: ROUTER.COMPANY_EDIT,
-    element: (
-      <LazyLoad>
-        <CompanyUpdate />
-      </LazyLoad>
-    ),
-  },
-  {
-    path: ROUTER.COMPANY_INFORMATION,
-    element: (
-      <LazyLoad>
-        <CompanyInformation />
-      </LazyLoad>
-    ),
-  },
-
-  // --- Recruiter dashboard with layout ---
-  {
-    path: "/recruiter",
-    element: (
-      <LazyLoad>
-        <LayoutDashboard />
-      </LazyLoad>
-    ),
-    children: [
-      {
-        path: "dashboard",
-        element: (
-          <LazyLoad>
-            <div>Dashboard Recruiter</div>
-          </LazyLoad>
-        ),
-      },
-      {
-        path: "account-settings",
-        element: (
-          <LazyLoad>
-            <AccountSettings />
-          </LazyLoad>
-        ),
-      },
-      {
-        path: "company-info",
-        element: (
-          <LazyLoad>
-            <CompanyInfo />
-          </LazyLoad>
-        ),
-      },
-      {
-        path: "social-media",
-        element: (
-          <LazyLoad>
-            <SocialMedia />
-          </LazyLoad>
-        ),
-      },
-    ],
-  },
+  ////////////////////////////////////////////////////////////////////
 
   // --- 404 ---
   {

@@ -1,46 +1,32 @@
+const candidate = "/candidate";
+const admin = "/admin";
+const recruiter = "/recruiter";
+
 const ROUTER = {
+  // ========================= Public routes =========================
+  //--- Authentication routes ---
   HOME: "/",
   LOGIN: "/login",
   REGISTER: "/register",
   FORGOT_PASSWORD: "/forgot-password",
   RESET_PASSWORD: "/reset-password",
 
-  // Job routes
-  // Recruiter Job management
+  // --- Other public routes ---
 
-  JOB_POST: "/recruiter/jobs/post",
-  JOB_EDIT: "/recruiter/jobs/edit/:id",
-  JOB_DEACTIVATE: "/recruiter/jobs/deactivate/:id",
-  
-  // Candidate Job application
-  JOBS: "/jobs",
-  JOB_DETAILS: "/jobs/:id",
+  // ========================= End public routes =======================
 
-  //dashboard recruiter
-  DASHBOARD: "/recruiter/dashboard",
-  // Account settings routes
-  ACCOUNT_SETTINGS: "/recruiter/account-settings",
-  //company info
-  COMPANY_INFO: "/recruiter/company-info",
-  //social media
-  SOCIAL_MEDIA: "/recruiter/social-media",
+  //////////////////////////////////////////////////////////////////////
 
-  // Company routes
-  COMPANIES: "/recruiter/companies",
-  COMPANY_DETAILS: "/recruiter/companies/:id",
-  COMPANY_POST: "/recruiter/company/posting",
-  COMPANY_EDIT: "/recruiter/companies/edit/:id",
+  // ========================= Private routes ==========================
+  // --- Recruiter routes ---
+  RECRUITER_OVERVIEW: `${recruiter}/overview`,
 
-  // Recruiter routes
-  RECRUITER_DASHBOARD: "/recruiter/dashboard",
-  //company for candidate view
-  COMPANY_INFORMATION: "/company/:id",
+  // --- Candidate routes ---
+  CANDIDATE_OVERVIEW: `${candidate}/overview`,
 
-  // Candidate routes
-  CANDIDATE_DASHBOARD: "/candidate/overview",
-
-  // Admin routes
-  ADMIN_DASHBOARD: "/admin/overview",
+  // --- Admin routes ---
+  ADMIN_OVERVIEW: `${admin}/overview`,
+  // ========================= End private routes ======================
 };
 
 export default ROUTER;

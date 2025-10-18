@@ -1,13 +1,8 @@
-import {
-  BellRing,
-  Bookmark,
-  BriefcaseBusiness,
-  LayoutDashboard,
-  LogOut,
-  Settings,
-} from "lucide-react";
-import MenuLeft from "../../../../components/MenuLeft";
+import { LayoutDashboard, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import MenuLeft from "../../../../components/MenuLeft";
+import ROUTER from "../../../../router/ROUTER";
+import ROUTE_META from "../../../../router/ROUTER_META";
 
 const RecruiterSideBar = () => {
   const navigate = useNavigate();
@@ -16,27 +11,15 @@ const RecruiterSideBar = () => {
       label: "Recruiter Dashboard",
       type: "group",
     },
+    //========================= Menu Items =========================
     {
-      key: "/recruiter/overview",
+      key: ROUTER.RECRUITER_OVERVIEW,
       icon: <LayoutDashboard size={20} />,
-      label: "Overview",
-    },
-    {
-      key: "/recruiter/applied",
-      icon: <BriefcaseBusiness size={20} />,
-      label: "Applied Jobs",
+      label: ROUTE_META[ROUTER.RECRUITER_OVERVIEW]?.breadcrumb,
       onClick: ({ key }) => navigate(key),
     },
-    {
-      key: "sub1",
-      icon: <Bookmark size={20} />,
-      label: "Favorites Jobs",
-    },
-    {
-      key: "sub2",
-      icon: <BellRing size={20} />,
-      label: "Jobs Alerts",
-    },
+
+    // ------------------------- Divider ------------------------
     {
       type: "divider",
     },
@@ -46,12 +29,7 @@ const RecruiterSideBar = () => {
       label: "Settings",
       extra: "1",
     },
-    {
-      key: "sub4",
-      icon: <LogOut size={20} />,
-      label: "Logout",
-      extra: "1",
-    },
+    // ======================= End Menu Items ========================
   ];
   return <MenuLeft items={menuItems} />;
 };

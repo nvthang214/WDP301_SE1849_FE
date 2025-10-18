@@ -3,6 +3,7 @@ import icon1 from "../../../../assets/images/Home/hero_icon/Icon.svg";
 import icon2 from "../../../../assets/images/Home/hero_icon/Icon-1.svg";
 import icon3 from "../../../../assets/images/Home/hero_icon/Icon-2.svg";
 import icon4 from "../../../../assets/images/Home/hero_icon/Icon-3.svg";
+import CountUp from "react-countup";
 const HeroSection = () => {
   return (
     <section className="mb-20">
@@ -46,17 +47,19 @@ const HeroSection = () => {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-14 mt-16">
         {[
-          { label: "Live Job", value: "1,75,324", urlIcon: icon1 },
-          { label: "Companies", value: "97,354", urlIcon: icon2 },
-          { label: "Candidates", value: "3,847,154", urlIcon: icon3 },
-          { label: "New Jobs", value: "7,532", urlIcon: icon4 },
+          { label: "Live Job", value: "175324", urlIcon: icon1 },
+          { label: "Companies", value: "97354", urlIcon: icon2 },
+          { label: "Candidates", value: "3847154", urlIcon: icon3 },
+          { label: "New Jobs", value: "7532", urlIcon: icon4 },
         ].map((item, i) => (
           <div key={i} className="bg-white rounded-md shadow-md p-4 flex items-center gap-5">
             <div>
               <img src={item.urlIcon} alt="Icon" />
             </div>
             <div>
-              <div className="text-2xl text-gray-900">{item.value}</div>
+              <div className="text-2xl text-gray-900">
+                <CountUp end={item.value} separator="," />
+              </div>
               <div className="text-gray-500 text-sm mt-1">{item.label}</div>
             </div>
           </div>

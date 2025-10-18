@@ -1,24 +1,19 @@
 import { Spin } from "antd";
-import { BrowserRouter } from "react-router-dom";
-import AuthHandle from "./components/Authentication";
+import { RouterProvider } from "react-router-dom";
 import ErrorBoundary from "./components/Error";
-import Providers from "./components/Providers";
-import AppRouter from "./router/AppRouter";
 import NotificationContainer from "./components/Notification/Container";
+import Providers from "./components/Providers";
+import router from "./router";
 
 function App() {
   return (
-    <BrowserRouter>
+    <ErrorBoundary>
       <Providers>
-        <ErrorBoundary>
-          <Spin spinning={false} fullscreen />
-          <AuthHandle>
-            <AppRouter />
-          </AuthHandle>
-          <NotificationContainer />
-        </ErrorBoundary>
+        <Spin spinning={false} fullscreen />
+        <RouterProvider router={router} />
+        <NotificationContainer />
       </Providers>
-    </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 

@@ -23,6 +23,7 @@ const ROUTER = {
 
   // --- Candidate routes ---
   CANDIDATE_OVERVIEW: `${candidate}/overview`,
+  CANDIDATE_SOCIAL: `${candidate}/social`,
 
   // --- Admin routes ---
   ADMIN_OVERVIEW: `${admin}/overview`,

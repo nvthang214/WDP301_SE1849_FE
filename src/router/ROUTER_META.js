@@ -33,6 +33,10 @@ const ROUTE_META = {
     breadcrumb: "Overview",
     title: "Candidate Overview",
   },
+  [ROUTER.CANDIDATE_SOCIAL]: {
+    breadcrumb: "Social",
+    title: "Candidate Social",
+  },
 
   // --- Admin routes ---
   [ROUTER.ADMIN_OVERVIEW]: {

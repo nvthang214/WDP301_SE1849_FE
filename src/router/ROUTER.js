@@ -31,7 +31,7 @@ const ROUTER = {
   CANDIDATE_PROFILE: `${candidate}/profile`,
   CANDIDATE_SOCIAL: `${candidate}/social`,
   CANDIDATE_APPLY_JOB: `${candidate}/applied-jobs`,
-  CANDIDATE_JOB_DETAIL: `${candidate}/jobs/:id`,
+  CANDIDATE_JOB_DETAIL: `${candidate}/detail/:id`,
 
   // --- Admin routes ---
   ADMIN_OVERVIEW: `${admin}/overview`,

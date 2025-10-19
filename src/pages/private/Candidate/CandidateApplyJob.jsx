@@ -190,17 +190,15 @@ const CandidateApplyJob = () => {
     fetchAppliedJobs(userId, false);
   };
 
-  const renderHeader = () => (
-    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <Title level={4} className="!mb-1 text-neutral-900">
-          Applied Jobs
-        </Title>
-        <Text type="secondary">You have applied to {totalApplied} job{totalApplied !== 1 ? "s" : ""}</Text>
+    const renderHeader = () => (
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <Title level={4} className="!mb-0 text-neutral-900">
+            Applied Jobs <span className="text-sm font-semibold text-neutral-400">({totalApplied})</span>
+          </Title>
+        </div>
       </div>
-      
-    </div>
-  );
+    );
 
   const renderSkeletonRows = () => (
     <div className="flex flex-col gap-3 px-6 py-6">
@@ -234,10 +232,10 @@ const CandidateApplyJob = () => {
     return (
       <div
         key={recordId}
-        className="grid grid-cols-12 items-center gap-4 border-0 border-neutral-100 px-6 py-5 text-sm transition-colors hover:bg-neutral-50 first:border-t-0"
+        className="grid grid-cols-12 items-center gap-4 border-b border-neutral-100 px-6 py-6 text-sm transition-all hover:bg-blue-50/40"
       >
         <div className="col-span-12 flex flex-col gap-4 md:col-span-5 md:flex-row md:items-center">
-          <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl bg-neutral-100 text-base font-semibold text-neutral-600">
+          <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl border border-neutral-200 bg-white text-base font-semibold text-neutral-600 shadow-sm">
             {job.company?.logo ? (
               <img
                 src={job.company.logo}
@@ -253,22 +251,29 @@ const CandidateApplyJob = () => {
             <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-500">
               {job.company?.name && <span className="font-medium text-neutral-600">{job.company.name}</span>}
               <span className="flex items-center gap-1">
-                <EnvironmentOutlined className="text-neutral-400" />
+                <EnvironmentOutlined className="text-neutral-300" />
                 {locationLabel}
               </span>
               <span className="flex items-center gap-1">
-                <span className="text-neutral-400">$</span>
+                <span className="text-neutral-300">$</span>
                 {salaryLabel}
               </span>
             </div>
             <div className="flex flex-wrap gap-2 pt-1">
               {jobTypeLabel && (
-                <Tag color="blue" className="!m-0">
+                <Tag
+                  color="blue"
+                  className="!m-0 !rounded-full !border-blue-200 !bg-blue-50 !px-3 !py-[2px] !text-[11px] !font-semibold !text-blue-600"
+                >
                   {jobTypeLabel}
                 </Tag>
               )}
               {visibleTags.map((tag) => (
-                <Tag key={`${recordId}-${tag}`} color="default" className="!m-0">
+                <Tag
+                  key={`${recordId}-${tag}`}
+                  color="default"
+                  className="!m-0 !rounded-full !border-neutral-200 !bg-neutral-50 !px-3 !py-[2px] !text-[11px] !text-neutral-600"
+                >
                   {tag}
                 </Tag>
               ))}
@@ -276,13 +281,13 @@ const CandidateApplyJob = () => {
           </div>
         </div>
 
-        <div className="col-span-6 text-neutral-600 md:col-span-3 md:text-center">
+        <div className="col-span-6 text-neutral-500 md:col-span-3 md:text-center">
           {formatAppliedAt(application.appliedAt || application.appliedDate || application.createdAt)}
         </div>
 
         <div className="col-span-6 md:col-span-2 md:text-center">
           <span
-            className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${statusMeta.className}`}
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold shadow-sm ${statusMeta.className}`}
           >
             {statusMeta.icon}
             {statusMeta.label}
@@ -291,8 +296,8 @@ const CandidateApplyJob = () => {
 
         <div className="col-span-12 flex justify-start md:col-span-2 md:justify-end">
           <Button
-            type="primary"
-            ghost
+
+            className="rounded-full px-5 font-semibold hover:bg-primary-600 bg-primary-500"
             onClick={() => navigateToJobDetail(job._id)}
           >
             View Details
@@ -316,15 +321,15 @@ const CandidateApplyJob = () => {
       );
     }
 
-    return <div className="divide-y divide-transparent">{appliedJobs.map(renderJobRow)}</div>;
+    return <div className="divide-y divide-neutral-100">{appliedJobs.map(renderJobRow)}</div>;
   };
 
   return (
     <div className="flex flex-col gap-6">
-      <section className="flex flex-col gap-4 border-0">
+      <section className="flex flex-col gap-4">
         {renderHeader()}
-        <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
-          <div className="grid grid-cols-12 gap-4 border-b border-neutral-100 px-6 py-4 text-[13px] font-semibold uppercase tracking-wide text-neutral-500">
+        <div >
+          <div className="grid grid-cols-12 items-center gap-4 border-b border-neutral-100 bg-neutral-50 px-6 py-4 text-[12px] font-semibold uppercase tracking-[0.18em] text-neutral-500">
             <span className="col-span-5 hidden md:block">Jobs</span>
             <span className="col-span-12 md:col-span-3 md:text-center">Date Applied</span>
             <span className="col-span-12 md:col-span-2 md:text-center">Status</span>

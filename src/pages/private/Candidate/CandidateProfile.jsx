@@ -194,7 +194,7 @@ const CandidateProfile = () => {
 
   return (
     <div>
-      <SettingsHeader activeKey="profile" />
+      <SettingsHeader activeKey="profile"/>
       <div>
         
 
@@ -208,15 +208,16 @@ const CandidateProfile = () => {
             layout="vertical"
             initialValues={initialValues}
             onFinish={handleSubmit}
-            style={{ maxWidth: 860 }}
+            style={{ maxWidth: 1200 }}
           >
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2 ">
               <Form.Item
                 name="education"
                 label="Education"
                 rules={[{ max: 1000, message: "Tối đa 1000 ký tự." }]}
               >
                 <Select
+                  size="large"
                   allowClear
                   placeholder="Select..."
                   options={mergedEducationOptions}
@@ -231,6 +232,7 @@ const CandidateProfile = () => {
                 rules={[{ max: 1000, message: "Tối đa 1000 ký tự." }]}
               >
                 <Select
+                  size="large"
                   allowClear
                   placeholder="Select..."
                   options={mergedExperienceOptions}
@@ -244,15 +246,16 @@ const CandidateProfile = () => {
                 label="Location"
                 rules={[{ max: 100, message: "Tối đa 100 ký tự." }]}
               >
-                <Input placeholder="Where are you based?" allowClear />
+                <Input size="large" placeholder="Where are you based?" allowClear />
               </Form.Item>
 
               <Form.Item name="tags" label="Tags">
                 <Select
+                  size="large"
                   mode="multiple"
                   allowClear
                   loading={isTagsLoading}
-                  placeholder="Select or type skills"
+                  placeholder="Select or type tags"
                   options={tags.map((tag) => ({
                     label: tag.name,
                     value: tag._id,
@@ -268,6 +271,7 @@ const CandidateProfile = () => {
               rules={[{ max: 500, message: "Tối đa 500 ký tự." }]}
             >
               <TextArea
+                size="large"
                 rows={6}
                 placeholder="Write down your biography here. Let the employers know who you are..."
                 allowClear
@@ -276,7 +280,7 @@ const CandidateProfile = () => {
 
             <Form.Item>
               <div className="flex justify-end gap-3">
-                <Button type="primary" htmlType="submit" loading={isSubmitting}>
+                <Button type="primary" htmlType="submit" loading={isSubmitting} size="large">
                   Save changes 
                 </Button>
               </div>

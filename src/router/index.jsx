@@ -33,7 +33,7 @@ const CandidateOverview = React.lazy(() => import("../pages/private/Candidate"))
 const CandidateProfile = React.lazy(() => import("../pages/private/Candidate/CandidateProfile"));
 const CandidateSocial = React.lazy(() => import("../pages/private/Candidate/CandidateSocial"));
 const CandidateApplyJob = React.lazy(() => import("../pages/private/Candidate/CandidateApplyJob"));
-const CandidateJobDetail = React.lazy(() => import("../pages/private/Job/JobDetails"));
+const CandidateJobDetail = React.lazy(() => import("../pages/private/Candidate/CandidateJobDetail"));
 
 // ========================= End candidate pages ===================
 

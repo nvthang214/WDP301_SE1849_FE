@@ -10,6 +10,7 @@ import {
 } from "@ant-design/icons";
 import { notifyError, notifySuccess } from "../../../components/Notification";
 import { CandidateService } from "../../../services/CandidateService";
+import SettingsHeader from "./components/Header";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -249,6 +250,7 @@ const CandidateSocial = () => {
 
   return (
     <div >
+      <SettingsHeader />
       <Card >
         {isLoading ? (
           <div className="flex justify-center py-12">

@@ -47,6 +47,7 @@ api.interceptors.response.use(
       "/auth/forgot-password",
       "/auth/reset-password",
       "/auth/logout",
+      "/auth/oauth-google",
     ];
 
     // Nếu request là một trong các auth endpoints -> đẩy lỗi ra component (không redirect ở đây)
@@ -77,7 +78,7 @@ api.interceptors.response.use(
       try {
         // Gọi thẳng endpoint refresh (dùng axios để tránh loop với instance)
         const refreshRes = await axios.post(
-          `${import.meta.env.VITE_BASE_URL || "http://localhost:4000"}/auth/refresh`,
+          `${import.meta.env.VITE_BASE_URL || "http://localhost:4000/api"}/auth/refresh`,
           {},
           { withCredentials: true }
         );

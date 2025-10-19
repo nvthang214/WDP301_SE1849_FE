@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { JobService } from "../../../../services/JobService";
 import { Tag } from "antd";
+import DOMPurify from "dompurify";
 import {
   Bookmark,
   DollarSign,
@@ -207,22 +208,32 @@ export default function JobDetails() {
         {/* Left: Job Description (6 columns) */}
         <div className="col-span-1 lg:col-span-6 max-w-full">
           <div className="bg-white rounded-xl p-8 shadow-sm mb-6">
-            <h2 className="font-semibold text-lg mb-2 flex items-center gap-2">
-              <ListChevronsUpDown size={20} className="text-green-600" />
-              Job Description
-            </h2>
-            <div className="text-gray-700 whitespace-pre-line break-all">{job.description}</div>
+            {job.description && (
+              <>
+                <h2 className="font-semibold text-lg mb-2 flex items-center gap-2">
+                  <ListChevronsUpDown size={20} className="text-green-600" />
+                  Job Description
+                </h2>
+                <div
+                  className="break-words prose prose-sm max-w-none text-gray-700 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(job.description),
+                  }}
+                />
+              </>
+            )}
             {job.requirements && (
               <>
-                <h2 className="font-semibold text-lg mt-6 mb-2 flex items-center gap-2">
-                  <FileUp size={20} className="text-green-600" />
-                  Requirements
+                <h2 className="font-semibold text-lg mb-2 flex items-center gap-2">
+                  <ListChevronsUpDown size={20} className="text-green-600" />
+                  Job Requirements
                 </h2>
-                <ul className="list-disc list-inside text-gray-700 space-y-1 break-all">
-                  {job.requirements.split("\n").map((line, idx) => (
-                    <li key={idx}>{line}</li>
-                  ))}
-                </ul>
+                <div
+                  className="break-words prose prose-sm max-w-none text-gray-700 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(job.requirements),
+                  }}
+                />
               </>
             )}
             {job.desirable && (
@@ -231,11 +242,12 @@ export default function JobDetails() {
                   <HandCoins size={20} className="text-green-600" />
                   Desirable
                 </h2>
-                <ul className="list-disc list-inside text-gray-700 space-y-1 break-all">
-                  {job.desirable.split("\n").map((line, idx) => (
-                    <li key={idx}>{line}</li>
-                  ))}
-                </ul>
+                <div
+                  className="break-words prose prose-sm max-w-none text-gray-700 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(job.desirable),
+                  }}
+                />
               </>
             )}
             {job.benefits && (
@@ -243,9 +255,12 @@ export default function JobDetails() {
                 <h2 className="font-semibold text-lg mt-6 mb-2 flex items-center gap-2">
                   <Gift size={20} className="text-green-600" /> Benefits
                 </h2>
-                <ul className="list-disc list-inside text-gray-700 space-y-1 break-all">
-                  {job.benefits}
-                </ul>
+                <div
+                  className="break-words prose prose-sm max-w-none text-gray-700 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(job.benefits),
+                  }}
+                />
               </>
             )}
           </div>

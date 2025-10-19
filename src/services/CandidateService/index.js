@@ -7,6 +7,7 @@ import {
 	getCandidateProfile,
 	addCandidateProfile,
 	updateCandidateProfile,
+	getCandidateAppliedJobs
 } from "./urls";
 
 export const CandidateService = {
@@ -18,4 +19,6 @@ export const CandidateService = {
 	getCandidateProfile: async (userId) => await api.get(getCandidateProfile(userId)),
 	addCandidateProfile: async (userId, data) => await api.post(addCandidateProfile(userId), data),
 	updateCandidateProfile: async (userId, data) => await api.put(updateCandidateProfile(userId), data),
+
+	getCandidateAppliedJobs: async (userId) => await api.get(getCandidateAppliedJobs(userId)),
 };

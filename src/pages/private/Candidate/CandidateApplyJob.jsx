@@ -1,0 +1,340 @@
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Button, Empty, Skeleton, Tag, Typography } from "antd";
+import {
+  CalendarOutlined,
+  CheckCircleFilled,
+  ClockCircleFilled,
+  CloseCircleFilled,
+  EnvironmentOutlined,
+  FileSearchOutlined,
+} from "@ant-design/icons";
+import dayjs from "dayjs";
+import { CandidateService } from "../../../services/CandidateService";
+import { notifyError } from "../../../components/Notification";
+import { useNavigate } from "react-router-dom";
+import ROUTER from "../../../router/ROUTER";
+
+const { Title, Text } = Typography;
+
+const STATUS_META = {
+  pending: {
+    label: "Pending",
+    className: "border border-amber-200 bg-amber-50 text-amber-600",
+    icon: <ClockCircleFilled className="text-amber-500" />,
+  },
+  reviewing: {
+    label: "Reviewing",
+    className: "border border-blue-200 bg-blue-50 text-blue-600",
+    icon: <FileSearchOutlined className="text-blue-500" />,
+  },
+  interview: {
+    label: "Interview",
+    className: "border border-indigo-200 bg-indigo-50 text-indigo-600",
+    icon: <CalendarOutlined className="text-indigo-500" />,
+  },
+  active: {
+    label: "Active",
+    className: "border border-green-200 bg-green-50 text-green-600",
+    icon: <CheckCircleFilled className="text-green-500" />,
+  },
+  shortlisted: {
+    label: "Shortlisted",
+    className: "border border-teal-200 bg-teal-50 text-teal-600",
+    icon: <CheckCircleFilled className="text-teal-500" />,
+  },
+  hired: {
+    label: "Hired",
+    className: "border border-emerald-200 bg-emerald-50 text-emerald-600",
+    icon: <CheckCircleFilled className="text-emerald-500" />,
+  },
+  rejected: {
+    label: "Rejected",
+    className: "border border-red-200 bg-red-50 text-red-500",
+    icon: <CloseCircleFilled className="text-red-500" />,
+  },
+};
+
+const decodeAccessToken = (token) => {
+  if (!token) return null;
+  try {
+    const [, payload = ""] = token.split(".");
+    if (!payload) return null;
+    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
+    const jsonPayload = decodeURIComponent(
+      atob(padded)
+        .split("")
+        .map((char) => `%${(`00${char.charCodeAt(0).toString(16)}`).slice(-2)}`)
+        .join("")
+    );
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error("Failed to decode access token", error);
+    return null;
+  }
+};
+
+const toTitleCase = (value = "") =>
+  value
+    .toString()
+    .replace(/[_-]/g, " ")
+    .toLowerCase()
+    .replace(/\b\w/g, (match) => match.toUpperCase());
+
+const formatSalaryRange = (job) => {
+  const { minSalary, maxSalary, salaryType } = job;
+  const suffix = salaryType ? `/${salaryType.toString().toLowerCase()}` : "";
+
+  if (minSalary && maxSalary) {
+    return `$${Number(minSalary).toLocaleString()} - $${Number(maxSalary).toLocaleString()}${suffix}`;
+  }
+
+  if (minSalary) return `$${Number(minSalary).toLocaleString()}+${suffix}`;
+  if (maxSalary) return `Up to $${Number(maxSalary).toLocaleString()}${suffix}`;
+  return "Negotiable";
+};
+
+const formatLocation = (job) => {
+  const { location, city, country } = job;
+  if (location) return location;
+  return [city, country].filter(Boolean).join(", ") || "Location not specified";
+};
+
+const deriveStatusMeta = (application) => {
+  const fallback = application.job?.isActive ? "active" : "pending";
+  const rawStatus = (application.status || fallback || "pending").toString().toLowerCase();
+  const meta = STATUS_META[rawStatus];
+  if (meta) return meta;
+  return {
+    label: toTitleCase(rawStatus),
+    className: "bg-neutral-100 text-neutral-700",
+    icon: <ClockCircleFilled className="text-neutral-500" />,
+  };
+};
+
+const formatAppliedAt = (date) => {
+  if (!date) return "--";
+  return dayjs(date).format("MMM D, YYYY HH:mm");
+};
+
+const getCompanyInitials = (job) => {
+  const name = job.company?.name || job.title || "?";
+  return name
+    .split(" ")
+    .slice(0, 2)
+    .map((part) => part.charAt(0).toUpperCase())
+    .join("")
+    .slice(0, 2);
+};
+
+const getVisibleTags = (job) => {
+  if (!Array.isArray(job.tags)) return [];
+  return job.tags
+    .map((tag) => (typeof tag === "string" ? tag : tag?.name))
+    .filter(Boolean)
+    .slice(0, 3);
+};
+
+const CandidateApplyJob = () => {
+  const navigate = useNavigate();
+  const [userId, setUserId] = useState(null);
+  const [appliedJobs, setAppliedJobs] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const totalApplied = useMemo(
+    () => appliedJobs.filter((item) => item && item.job).length,
+    [appliedJobs]
+  );
+
+  const fetchAppliedJobs = useCallback(async (id, showFullLoader = true) => {
+    if (!id) return;
+
+    if (showFullLoader) setIsLoading(true);
+    else setIsRefreshing(true);
+
+    try {
+      const response = await CandidateService.getCandidateAppliedJobs(id);
+      if (response?.isError) {
+        throw new Error(response?.msg || "Không thể tải danh sách công việc đã ứng tuyển.");
+      }
+
+      const data = Array.isArray(response?.data) ? response.data : [];
+      setAppliedJobs(data);
+    } catch (error) {
+      console.error(error);
+      notifyError(error.message || "Không thể tải danh sách công việc đã ứng tuyển.");
+      setAppliedJobs([]);
+    } finally {
+      if (showFullLoader) setIsLoading(false);
+      else setIsRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    const payload = decodeAccessToken(token);
+
+    if (!payload?.userId) {
+      notifyError("Không tìm thấy thông tin ứng viên, vui lòng đăng nhập lại.");
+      setIsLoading(false);
+      return;
+    }
+
+    setUserId(payload.userId);
+    fetchAppliedJobs(payload.userId, true);
+  }, [fetchAppliedJobs]);
+
+  const handleRefresh = () => {
+    if (!userId || isRefreshing) return;
+    fetchAppliedJobs(userId, false);
+  };
+
+  const renderHeader = () => (
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <Title level={4} className="!mb-1 text-neutral-900">
+          Applied Jobs
+        </Title>
+        <Text type="secondary">You have applied to {totalApplied} job{totalApplied !== 1 ? "s" : ""}</Text>
+      </div>
+      
+    </div>
+  );
+
+  const renderSkeletonRows = () => (
+    <div className="flex flex-col gap-3 px-6 py-6">
+      {Array.from({ length: 4 }).map((_, index) => (
+        <Skeleton
+          key={index}
+          active
+          avatar
+          paragraph={{ rows: 2, width: ["60%", "40%"] }}
+          className="!rounded-2xl border border-neutral-100 px-4 py-4"
+        />
+      ))}
+    </div>
+  );
+
+  const navigateToJobDetail = (jobId) => {
+    navigate(ROUTER.CANDIDATE_JOB_DETAIL.replace(":id", jobId));
+  };
+
+  const renderJobRow = (application) => {
+  const { job, applicationId, _id } = application;
+    if (!job) return null;
+
+    const recordId = applicationId || _id || job._id;
+    const statusMeta = deriveStatusMeta(application);
+    const locationLabel = formatLocation(job);
+    const salaryLabel = formatSalaryRange(job);
+    const jobTypeLabel = job.jobType ? toTitleCase(job.jobType) : null;
+    const visibleTags = getVisibleTags(job);
+
+    return (
+      <div
+        key={recordId}
+        className="grid grid-cols-12 items-center gap-4 border-0 border-neutral-100 px-6 py-5 text-sm transition-colors hover:bg-neutral-50 first:border-t-0"
+      >
+        <div className="col-span-12 flex flex-col gap-4 md:col-span-5 md:flex-row md:items-center">
+          <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl bg-neutral-100 text-base font-semibold text-neutral-600">
+            {job.company?.logo ? (
+              <img
+                src={job.company.logo}
+                alt={job.company?.name || job.title}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <span>{getCompanyInitials(job)}</span>
+            )}
+          </div>
+          <div className="flex flex-1 flex-col gap-1">
+            <span className="text-base font-semibold text-neutral-900">{job.title || "Untitled Job"}</span>
+            <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-500">
+              {job.company?.name && <span className="font-medium text-neutral-600">{job.company.name}</span>}
+              <span className="flex items-center gap-1">
+                <EnvironmentOutlined className="text-neutral-400" />
+                {locationLabel}
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="text-neutral-400">$</span>
+                {salaryLabel}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2 pt-1">
+              {jobTypeLabel && (
+                <Tag color="blue" className="!m-0">
+                  {jobTypeLabel}
+                </Tag>
+              )}
+              {visibleTags.map((tag) => (
+                <Tag key={`${recordId}-${tag}`} color="default" className="!m-0">
+                  {tag}
+                </Tag>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="col-span-6 text-neutral-600 md:col-span-3 md:text-center">
+          {formatAppliedAt(application.appliedAt || application.appliedDate || application.createdAt)}
+        </div>
+
+        <div className="col-span-6 md:col-span-2 md:text-center">
+          <span
+            className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${statusMeta.className}`}
+          >
+            {statusMeta.icon}
+            {statusMeta.label}
+          </span>
+        </div>
+
+        <div className="col-span-12 flex justify-start md:col-span-2 md:justify-end">
+          <Button
+            type="primary"
+            ghost
+            onClick={() => navigateToJobDetail(job._id)}
+          >
+            View Details
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderContent = () => {
+    if (isLoading) return renderSkeletonRows();
+
+    if (!appliedJobs.length) {
+      return (
+        <div className="flex flex-col items-center justify-center gap-3 px-6 py-12">
+          <Empty description="You haven't applied to any jobs yet." image={Empty.PRESENTED_IMAGE_SIMPLE} />
+          <Button type="primary" ghost onClick={handleRefresh} disabled={isRefreshing}>
+            Refresh List
+          </Button>
+        </div>
+      );
+    }
+
+    return <div className="divide-y divide-transparent">{appliedJobs.map(renderJobRow)}</div>;
+  };
+
+  return (
+    <div className="flex flex-col gap-6">
+      <section className="flex flex-col gap-4 border-0">
+        {renderHeader()}
+        <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+          <div className="grid grid-cols-12 gap-4 border-b border-neutral-100 px-6 py-4 text-[13px] font-semibold uppercase tracking-wide text-neutral-500">
+            <span className="col-span-5 hidden md:block">Jobs</span>
+            <span className="col-span-12 md:col-span-3 md:text-center">Date Applied</span>
+            <span className="col-span-12 md:col-span-2 md:text-center">Status</span>
+            <span className="col-span-12 md:col-span-2 md:text-right">Action</span>
+          </div>
+          {renderContent()}
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default CandidateApplyJob;

@@ -4,7 +4,7 @@ import axios from "axios";
 import { notifyError } from "../../components/Notification";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL || 'http://localhost:4000',
+  baseURL: import.meta.env.VITE_BASE_URL,
   withCredentials: true,
   timeout: 15000,
   headers: { "Content-Type": "application/json" },
@@ -40,12 +40,19 @@ api.interceptors.response.use(
     }
 
     // DANH SÁCH các endpoint auth — không xử lý refresh/redirect cho chúng
-    const authPaths = ["/auth/login", "/auth/register", "/auth/refresh"];
+    const authPaths = [
+      "/auth/login",
+      "/auth/register",
+      "/auth/refresh",
+      "/auth/forgot-password",
+      "/auth/reset-password",
+      "/auth/logout",
+    ];
 
     // Nếu request là một trong các auth endpoints -> đẩy lỗi ra component (không redirect ở đây)
     if (authPaths.some((p) => originalRequest.url?.includes(p))) {
       // thông báo lỗi tuỳ backend (interceptor chung có thể vẫn notify)
-      const msg = error.response?.data?.msg || "Đã xảy ra lỗi";
+      const msg = error.response?.data?.msg || "Đã xảy ra lỗi vui lòng thử lại.";
       notifyError(msg);
       return Promise.reject(error);
     }
@@ -70,7 +77,7 @@ api.interceptors.response.use(
       try {
         // Gọi thẳng endpoint refresh (dùng axios để tránh loop với instance)
         const refreshRes = await axios.post(
-          `${import.meta.env.VITE_BASE_URL || 'http://localhost:4000'}/auth/refresh`,
+          `${import.meta.env.VITE_BASE_URL || "http://localhost:4000"}/auth/refresh`,
           {},
           { withCredentials: true }
         );

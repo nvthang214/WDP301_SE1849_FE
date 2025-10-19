@@ -37,7 +37,7 @@ const CompanyUpdate = () => {
     { id: 0, name: "Company Info", icon: "🔍" },
     { id: 1, name: "Founding Info", icon: "👤" },
     { id: 2, name: "Social Media Profile", icon: "🌐" },
-    { id: 3, name: "Contact", icon: "@" }
+    { id: 3, name: "Contact", icon: "@" },
   ];
 
   useEffect(() => {
@@ -51,7 +51,7 @@ const CompanyUpdate = () => {
       setLoading(true);
       const response = await CompanyService.getCompanyById(id);
       const company = response.data;
-      
+
       // Format data để hiển thị trong form
       setFormData({
         name: company.name || "",
@@ -71,7 +71,9 @@ const CompanyUpdate = () => {
           phone: company.contact?.phone || "",
           website: company.contact?.website || "",
         },
-        foundedDate: company.foundedDate ? new Date(company.foundedDate).toISOString().split('T')[0] : "",
+        foundedDate: company.foundedDate
+          ? new Date(company.foundedDate).toISOString().split("T")[0]
+          : "",
         teamSize: company.teamSize || "",
         address: company.address || "",
         industry: company.industry || "",
@@ -79,7 +81,7 @@ const CompanyUpdate = () => {
     } catch (error) {
       console.error("Error fetching company:", error);
       alert("Không thể tải thông tin công ty");
-      navigate(ROUTER.COMPANIES);
+      navigate(ROUTER.RECRUITER_MY_COMPANY);
     } finally {
       setLoading(false);
     }
@@ -87,19 +89,19 @@ const CompanyUpdate = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name.includes('.')) {
-      const [parent, child] = name.split('.');
-      setFormData(prev => ({
+    if (name.includes(".")) {
+      const [parent, child] = name.split(".");
+      setFormData((prev) => ({
         ...prev,
         [parent]: {
           ...prev[parent],
-          [child]: value
-        }
+          [child]: value,
+        },
       }));
     } else {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        [name]: value
+        [name]: value,
       }));
     }
   };
@@ -124,12 +126,12 @@ const CompanyUpdate = () => {
       const submitData = {
         ...formData,
         teamSize: parseInt(formData.teamSize),
-        foundedDate: formData.foundedDate ? new Date(formData.foundedDate) : null
+        foundedDate: formData.foundedDate ? new Date(formData.foundedDate) : null,
       };
-      
+
       await CompanyService.updateCompany(id, submitData);
       alert("Cập nhật công ty thành công!");
-      navigate(ROUTER.COMPANIES);
+      navigate(ROUTER.RECRUITER_OVERVIEW);
     } catch (error) {
       console.error("Error updating company:", error);
       alert("Có lỗi xảy ra khi cập nhật công ty");
@@ -148,15 +150,29 @@ const CompanyUpdate = () => {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Logo & Banner Image</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Upload Logo</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Upload Logo
+                  </label>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
                     <div className="text-gray-400 mb-2">
-                      <svg className="mx-auto h-12 w-12" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      <svg
+                        className="mx-auto h-12 w-12"
+                        stroke="currentColor"
+                        fill="none"
+                        viewBox="0 0 48 48"
+                      >
+                        <path
+                          d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
                       </svg>
                     </div>
                     <p className="text-sm text-gray-600 mb-1">Browse photo or drop here</p>
-                    <p className="text-xs text-gray-500">A photo larger than 400 pixels work best. Max photo size 5 MB.</p>
+                    <p className="text-xs text-gray-500">
+                      A photo larger than 400 pixels work best. Max photo size 5 MB.
+                    </p>
                   </div>
                   <input
                     type="url"
@@ -168,15 +184,30 @@ const CompanyUpdate = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Banner Image</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Banner Image
+                  </label>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
                     <div className="text-gray-400 mb-2">
-                      <svg className="mx-auto h-12 w-12" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      <svg
+                        className="mx-auto h-12 w-12"
+                        stroke="currentColor"
+                        fill="none"
+                        viewBox="0 0 48 48"
+                      >
+                        <path
+                          d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
                       </svg>
                     </div>
                     <p className="text-sm text-gray-600 mb-1">Browse photo or drop here</p>
-                    <p className="text-xs text-gray-500">Banner images optical dimension 1520x400. Supported format JPEG, PNG. Max photo size 5 MB.</p>
+                    <p className="text-xs text-gray-500">
+                      Banner images optical dimension 1520x400. Supported format JPEG, PNG. Max
+                      photo size 5 MB.
+                    </p>
                   </div>
                   <input
                     type="url"
@@ -225,7 +256,9 @@ const CompanyUpdate = () => {
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Industry Types</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Industry Types
+                </label>
                 <input
                   type="text"
                   name="industry"
@@ -250,7 +283,9 @@ const CompanyUpdate = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Year of Establishment</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Year of Establishment
+                </label>
                 <div className="relative">
                   <input
                     type="date"
@@ -261,18 +296,40 @@ const CompanyUpdate = () => {
                     placeholder="dd/mm/yyyy"
                   />
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    <svg
+                      className="h-5 w-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
                     </svg>
                   </div>
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Company Website</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Company Website
+                </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                    <svg
+                      className="h-5 w-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                      />
                     </svg>
                   </div>
                   <input
@@ -305,7 +362,7 @@ const CompanyUpdate = () => {
         return (
           <div className="space-y-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Social Link</h3>
-            
+
             <div className="space-y-4">
               {/* Facebook */}
               <div className="flex items-center space-x-4">
@@ -413,8 +470,18 @@ const CompanyUpdate = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  <svg
+                    className="h-5 w-5 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    />
                   </svg>
                 </div>
                 <input
@@ -477,7 +544,7 @@ const CompanyUpdate = () => {
               <p className="text-gray-600 mt-1">Chỉnh sửa thông tin công ty của bạn</p>
             </div>
             <button
-              onClick={() => navigate(ROUTER.COMPANIES)}
+              onClick={() => navigate(ROUTER.RECRUITER_MY_JOBS)}
               className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
             >
               ← Quay lại danh sách
@@ -490,32 +557,43 @@ const CompanyUpdate = () => {
           <div className="flex items-center justify-between">
             {steps.map((step, index) => (
               <div key={step.id} className="flex items-center">
-                <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
-                  currentStep === step.id 
-                    ? 'bg-blue-600 border-blue-600 text-white' 
-                    : currentStep > step.id 
-                    ? 'bg-green-500 border-green-500 text-white'
-                    : 'bg-gray-100 border-gray-300 text-gray-500'
-                }`}>
+                <div
+                  className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
+                    currentStep === step.id
+                      ? "bg-blue-600 border-blue-600 text-white"
+                      : currentStep > step.id
+                        ? "bg-green-500 border-green-500 text-white"
+                        : "bg-gray-100 border-gray-300 text-gray-500"
+                  }`}
+                >
                   {currentStep > step.id ? (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
                   ) : (
                     <span className="text-sm font-medium">{step.icon}</span>
                   )}
                 </div>
                 <div className="ml-3">
-                  <p className={`text-sm font-medium ${
-                    currentStep === step.id ? 'text-blue-600' : 'text-gray-500'
-                  }`}>
+                  <p
+                    className={`text-sm font-medium ${
+                      currentStep === step.id ? "text-blue-600" : "text-gray-500"
+                    }`}
+                  >
                     {step.name}
                   </p>
                 </div>
                 {index < steps.length - 1 && (
-                  <div className={`ml-8 w-16 h-0.5 ${
-                    currentStep > step.id ? 'bg-green-500' : 'bg-gray-300'
-                  }`} />
+                  <div
+                    className={`ml-8 w-16 h-0.5 ${
+                      currentStep > step.id ? "bg-green-500" : "bg-gray-300"
+                    }`}
+                  />
                 )}
               </div>
             ))}
@@ -526,7 +604,7 @@ const CompanyUpdate = () => {
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div>
             {renderStepContent()}
-            
+
             {/* Navigation Buttons */}
             <div className="flex justify-between mt-8 pt-6 border-t">
               <button
@@ -534,14 +612,14 @@ const CompanyUpdate = () => {
                 onClick={handlePrevious}
                 disabled={currentStep === 0}
                 className={`px-6 py-2 rounded-md ${
-                  currentStep === 0 
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  currentStep === 0
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 } transition-colors`}
               >
                 Previous
               </button>
-              
+
               {currentStep < steps.length - 1 ? (
                 <button
                   type="button"
@@ -550,7 +628,12 @@ const CompanyUpdate = () => {
                 >
                   <span>Save & Next</span>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                 </button>
               ) : (
@@ -562,7 +645,12 @@ const CompanyUpdate = () => {
                 >
                   <span>{isSubmitting ? "Đang cập nhật..." : "Cập Nhật Công Ty"}</span>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
                 </button>
               )}

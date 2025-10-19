@@ -1,29 +1,45 @@
+const candidate = "/candidate";
+const admin = "/admin";
+const recruiter = "/recruiter";
+
 const ROUTER = {
+  // ========================= Public routes =========================
+  //--- Authentication routes ---
   HOME: "/",
   LOGIN: "/login",
   REGISTER: "/register",
+  FORGOT_PASSWORD: "/forgot-password",
+  RESET_PASSWORD: "/reset-password",
 
-  // Job routes
-  JOBS: "/jobs",
-  JOB_DETAILS: "/jobs/:id",
-  JOB_POST: "/jobs/post",
-  JOB_EDIT: "/jobs/edit/:id",
-  JOB_DEACTIVATE: "/jobs/deactivate/:id",
-
-  //dashboard recruiter
-  DASHBOARD: "/recruiter/dashboard",
-  // Account settings routes
-  ACCOUNT_SETTINGS: "/recruiter/account-settings",
-  //company info
-  COMPANY_INFO: "/recruiter/company-info",
-  //social media
-  SOCIAL_MEDIA: "/recruiter/social-media",
-
-  // Company routes
+  // --- Other public routes ---
   COMPANIES: "/companies",
-  COMPANY_DETAILS: "/companies/:id",
-  COMPANY_POST: "/company/posting",
-  COMPANY_EDIT: "/companies/edit/:id"
+  COMPANY_EDIT: "/companies/edit/:id",
+  COMPANY_POST: "/companies/post",
+  DASHBOARD: "/recruiter/overview",
+  MY_JOBS: "/recruiter/jobs/my-jobs",
+
+  // ========================= End public routes =======================
+  // Job routes
+  JOB_LIST: "/jobs",
+  JOB_DETAIL: "/jobs/:id",
+  //////////////////////////////////////////////////////////////////////
+
+  // ========================= Private routes ==========================
+  // --- Recruiter routes ---
+  RECRUITER_OVERVIEW: `${recruiter}/overview`,
+  RECRUITER_MY_JOBS: `${recruiter}/jobs/my-jobs`,
+  RECRUITER_MY_COMPANY: `${recruiter}/company/my-company`,
+  RECRUITER_COMPANY_CREATE: `${recruiter}/company/create`,
+  RECRUITER_COMPANY_EDIT: `${recruiter}/company/edit/:id`,
+  RECRUITER_JOB_POSTING: `${recruiter}/jobs/post`,
+  RECRUITER_JOB_EDITING: `${recruiter}/jobs/edit/:id`,
+
+  // --- Candidate routes ---
+  CANDIDATE_OVERVIEW: `${candidate}/overview`,
+
+  // --- Admin routes ---
+  ADMIN_OVERVIEW: `${admin}/overview`,
+  // ========================= End private routes ======================
 };
 
 export default ROUTER;

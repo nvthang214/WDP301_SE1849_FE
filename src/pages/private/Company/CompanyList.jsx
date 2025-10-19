@@ -9,6 +9,40 @@ const CompanyList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const fetchCompanies = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      console.log("Fetching recruiter companies...");
+      const recruiterId = JSON.parse(localStorage.getItem("recruiterInfo") || "{}")?._id;
+      
+      if (!recruiterId) {
+        setError("Không tìm thấy thông tin recruiter");
+        setCompanies([]);
+        return;
+      }
+      
+      const response = await CompanyService.getCompanyByRecruiter(recruiterId);
+      console.log("Recruiter company response:", response);
+      
+      // Xử lý response từ backend - response đã là data từ axios interceptor
+      if (response && response.data) {
+        // Nếu có company, đặt vào array
+        setCompanies(response.data ? [response.data] : []);
+      } else {
+        console.log("No company found for recruiter, setting empty array");
+        setCompanies([]);
+      }
+    } catch (error) {
+      console.error("Error fetching recruiter company:", error);
+      console.error("Error details:", error.response?.data || error.message);
+      setError(`Không thể tải thông tin công ty: ${error.response?.data?.msg || error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Error boundary cho component
   if (error && !loading) {
     return (
@@ -40,41 +74,12 @@ const CompanyList = () => {
     fetchCompanies();
   }, []);
 
-  const fetchCompanies = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      console.log("Fetching companies...");
-      const response = await CompanyService.getCompanies();
-      console.log("Companies response:", response);
-      
-      // Xử lý response từ backend - response đã là data từ axios interceptor
-      if (response && response.data && response.data.companies) {
-        setCompanies(response.data.companies);
-      } else if (response && response.companies) {
-        setCompanies(response.companies);
-      } else if (Array.isArray(response)) {
-        setCompanies(response);
-      } else {
-        console.log("No companies found, setting empty array");
-        setCompanies([]);
-      }
-    } catch (error) {
-      console.error("Error fetching companies:", error);
-      console.error("Error details:", error.response?.data || error.message);
-      setError(`Không thể tải danh sách công ty: ${error.response?.data?.msg || error.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleUpdate = (companyId) => {
-    navigate(`${ROUTER.COMPANY_EDIT.replace(':id', companyId)}`);
+    navigate(`${ROUTER.RECRUITER_COMPANY_EDIT.replace(':id', companyId)}`);
   };
 
   const handleCreateNew = () => {
-    navigate(ROUTER.COMPANY_POST);
+    navigate(ROUTER.RECRUITER_COMPANY_CREATE);
   };
 
   if (loading) {
@@ -103,8 +108,8 @@ const CompanyList = () => {
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Quản Lý Công Ty</h1>
-              <p className="text-gray-600 mt-1">Danh sách các công ty bạn đã tạo</p>
+              <h1 className="text-2xl font-bold text-gray-900">My Company</h1>
+              <p className="text-gray-600 mt-1">Quản lý thông tin công ty của bạn</p>
             </div>
             <button
               onClick={handleCreateNew}
@@ -113,7 +118,7 @@ const CompanyList = () => {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
-              <span>Tạo Công Ty Mới</span>
+              <span>Create Company</span>
             </button>
           </div>
         </div>
@@ -127,13 +132,13 @@ const CompanyList = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Chưa có công ty nào</h3>
-              <p className="text-gray-600 mb-4">Bạn chưa tạo công ty nào. Hãy tạo công ty đầu tiên của bạn!</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No Company Found</h3>
+              <p className="text-gray-600 mb-4">You haven't created a company yet. Create one to start posting jobs!</p>
               <button
                 onClick={handleCreateNew}
                 className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
               >
-                Tạo Công Ty Đầu Tiên
+                Create Your First Company
               </button>
             </div>
           ) : (
@@ -180,7 +185,7 @@ const CompanyList = () => {
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
-                      <span>Cập Nhật</span>
+                      <span>Edit Company</span>
                     </button>
                   </div>
                 </div>

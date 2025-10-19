@@ -41,6 +41,18 @@ const ROUTE_META = {
     breadcrumb: "My Jobs",
     title: "My Jobs",
   },
+  [ROUTER.RECRUITER_MY_COMPANY]: {
+    breadcrumb: "My Company",
+    title: "My Company",
+  },
+  [ROUTER.RECRUITER_COMPANY_CREATE]: {
+    breadcrumb: "Create Company",
+    title: "Create Company",
+  },
+  [ROUTER.RECRUITER_COMPANY_EDIT]: {
+    breadcrumb: "Edit Company",
+    title: "Edit Company",
+  },
   [ROUTER.RECRUITER_JOB_POSTING]: {
     breadcrumb: "Job Posting",
     title: "Job Posting",
@@ -54,6 +66,22 @@ const ROUTE_META = {
   [ROUTER.CANDIDATE_OVERVIEW]: {
     breadcrumb: "Overview",
     title: "Candidate Overview",
+  },
+  [ROUTER.CANDIDATE_PROFILE]: {
+    breadcrumb: "Profile",
+    title: "Candidate Profile",
+  },
+  [ROUTER.CANDIDATE_SOCIAL]: {
+    breadcrumb: "Social",
+    title: "Candidate Social",
+  },
+  [ROUTER.CANDIDATE_APPLY_JOB]: {
+    breadcrumb: "Applied Jobs",
+    title: "Candidate Applied Jobs",
+  },
+  [ROUTER.CANDIDATE_JOB_DETAIL]: {
+    breadcrumb: "Job Detail",
+    title: "Job Detail",
   },
 
   // --- Admin routes ---

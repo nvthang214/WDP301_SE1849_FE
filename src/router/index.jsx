@@ -30,6 +30,10 @@ const JobDetail = React.lazy(() => import("../pages/public/Job/JobDetail"));
 
 // ========================= Candidate pages =======================
 const CandidateOverview = React.lazy(() => import("../pages/private/Candidate"));
+const CandidateProfile = React.lazy(() => import("../pages/private/Candidate/CandidateProfile"));
+const CandidateSocial = React.lazy(() => import("../pages/private/Candidate/CandidateSocial"));
+const CandidateApplyJob = React.lazy(() => import("../pages/private/Candidate/CandidateApplyJob"));
+const CandidateJobDetail = React.lazy(() => import("../pages/private/Candidate/CandidateJobDetail"));
 
 // ========================= End candidate pages ===================
 
@@ -38,6 +42,9 @@ const CandidateOverview = React.lazy(() => import("../pages/private/Candidate"))
 // ========================= Recruiter pages =======================
 const RecruiterOverview = React.lazy(() => import("../pages/private/Recruiter"));
 const RecruiterMyJobs = React.lazy(() => import("../pages/private/Recruiter/Job/MyJobs"));
+const RecruiterMyCompany = React.lazy(() => import("../pages/private/Recruiter/Company/MyCompany"));
+const RecruiterCompanyCreate = React.lazy(() => import("../pages/private/Recruiter/Company/CompanyCreate"));
+const RecruiterCompanyEdit = React.lazy(() => import("../pages/private/Recruiter/Company/CompanyEdit"));
 const RecruiterJobPosting = React.lazy(() => import("../pages/private/Recruiter/Job/JobPosting"));
 const RecruiterJobEditing = React.lazy(() => import("../pages/private/Recruiter/Job/JobEditing"));
 
@@ -154,6 +161,42 @@ const router = createBrowserRouter([
         ),
         handle: ROUTE_META[ROUTER.CANDIDATE_OVERVIEW],
       },
+      {
+        path: ROUTER.CANDIDATE_PROFILE,
+        element: (
+          <LazyLoad>
+            <CandidateProfile />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.CANDIDATE_PROFILE],
+      },
+      {
+        path: ROUTER.CANDIDATE_SOCIAL,
+        element: (
+          <LazyLoad>
+            <CandidateSocial />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.CANDIDATE_SOCIAL],
+      },
+      {
+        path: ROUTER.CANDIDATE_APPLY_JOB,
+        element: (
+          <LazyLoad>
+            <CandidateApplyJob />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.CANDIDATE_APPLY_JOB],
+      },
+      {
+        path: ROUTER.CANDIDATE_JOB_DETAIL,
+        element: (
+          <LazyLoad>
+            <CandidateJobDetail />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.CANDIDATE_JOB_DETAIL],
+      },
     ],
   },
 
@@ -178,6 +221,33 @@ const router = createBrowserRouter([
           </LazyLoad>
         ),
         handle: ROUTE_META[ROUTER.RECRUITER_MY_JOBS],
+      },
+      {
+        path: ROUTER.RECRUITER_MY_COMPANY,
+        element: (
+          <LazyLoad>
+            <RecruiterMyCompany />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.RECRUITER_MY_COMPANY],
+      },
+      {
+        path: ROUTER.RECRUITER_COMPANY_CREATE,
+        element: (
+          <LazyLoad>
+            <RecruiterCompanyCreate />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.RECRUITER_COMPANY_CREATE],
+      },
+      {
+        path: ROUTER.RECRUITER_COMPANY_EDIT,
+        element: (
+          <LazyLoad>
+            <RecruiterCompanyEdit />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.RECRUITER_COMPANY_EDIT],
       },
       {
         path: ROUTER.RECRUITER_JOB_POSTING,

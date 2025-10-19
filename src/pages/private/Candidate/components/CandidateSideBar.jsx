@@ -32,7 +32,13 @@ const CandidateSideBar = () => {
       type: "divider",
     },
     {
-      key: "sub3",
+      key: ROUTER.CANDIDATE_APPLY_JOB,
+      icon: <BriefcaseBusiness size={20} />,
+      label: "Applied Jobs",
+      onClick: ({ key }) => navigate(key),
+    },
+    {
+      key: ROUTER.CANDIDATE_PROFILE,
       icon: <Settings size={20} />,
       label: "Settings",
       onClick: ({ key }) => navigate(key),

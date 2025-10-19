@@ -42,6 +42,9 @@ const CandidateJobDetail = React.lazy(() => import("../pages/private/Candidate/C
 // ========================= Recruiter pages =======================
 const RecruiterOverview = React.lazy(() => import("../pages/private/Recruiter"));
 const RecruiterMyJobs = React.lazy(() => import("../pages/private/Recruiter/Job/MyJobs"));
+const RecruiterMyCompany = React.lazy(() => import("../pages/private/Recruiter/Company/MyCompany"));
+const RecruiterCompanyCreate = React.lazy(() => import("../pages/private/Recruiter/Company/CompanyCreate"));
+const RecruiterCompanyEdit = React.lazy(() => import("../pages/private/Recruiter/Company/CompanyEdit"));
 const RecruiterJobPosting = React.lazy(() => import("../pages/private/Recruiter/Job/JobPosting"));
 const RecruiterJobEditing = React.lazy(() => import("../pages/private/Recruiter/Job/JobEditing"));
 
@@ -218,6 +221,33 @@ const router = createBrowserRouter([
           </LazyLoad>
         ),
         handle: ROUTE_META[ROUTER.RECRUITER_MY_JOBS],
+      },
+      {
+        path: ROUTER.RECRUITER_MY_COMPANY,
+        element: (
+          <LazyLoad>
+            <RecruiterMyCompany />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.RECRUITER_MY_COMPANY],
+      },
+      {
+        path: ROUTER.RECRUITER_COMPANY_CREATE,
+        element: (
+          <LazyLoad>
+            <RecruiterCompanyCreate />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.RECRUITER_COMPANY_CREATE],
+      },
+      {
+        path: ROUTER.RECRUITER_COMPANY_EDIT,
+        element: (
+          <LazyLoad>
+            <RecruiterCompanyEdit />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.RECRUITER_COMPANY_EDIT],
       },
       {
         path: ROUTER.RECRUITER_JOB_POSTING,

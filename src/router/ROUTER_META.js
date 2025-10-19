@@ -41,6 +41,18 @@ const ROUTE_META = {
     breadcrumb: "My Jobs",
     title: "My Jobs",
   },
+  [ROUTER.RECRUITER_MY_COMPANY]: {
+    breadcrumb: "My Company",
+    title: "My Company",
+  },
+  [ROUTER.RECRUITER_COMPANY_CREATE]: {
+    breadcrumb: "Create Company",
+    title: "Create Company",
+  },
+  [ROUTER.RECRUITER_COMPANY_EDIT]: {
+    breadcrumb: "Edit Company",
+    title: "Edit Company",
+  },
   [ROUTER.RECRUITER_JOB_POSTING]: {
     breadcrumb: "Job Posting",
     title: "Job Posting",

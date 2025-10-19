@@ -81,7 +81,7 @@ const CompanyUpdate = () => {
     } catch (error) {
       console.error("Error fetching company:", error);
       alert("Không thể tải thông tin công ty");
-      navigate(ROUTER.COMPANIES);
+      navigate(ROUTER.RECRUITER_MY_COMPANY);
     } finally {
       setLoading(false);
     }
@@ -131,7 +131,7 @@ const CompanyUpdate = () => {
 
       await CompanyService.updateCompany(id, submitData);
       alert("Cập nhật công ty thành công!");
-      navigate(ROUTER.DASHBOARD);
+      navigate(ROUTER.RECRUITER_OVERVIEW);
     } catch (error) {
       console.error("Error updating company:", error);
       alert("Có lỗi xảy ra khi cập nhật công ty");
@@ -544,7 +544,7 @@ const CompanyUpdate = () => {
               <p className="text-gray-600 mt-1">Chỉnh sửa thông tin công ty của bạn</p>
             </div>
             <button
-              onClick={() => navigate(ROUTER.MY_JOBS)}
+              onClick={() => navigate(ROUTER.RECRUITER_MY_JOBS)}
               className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
             >
               ← Quay lại danh sách

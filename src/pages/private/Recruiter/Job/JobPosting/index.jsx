@@ -3,7 +3,6 @@ import { JobService } from "../../../../../services/JobService";
 import { TagService } from "../../../../../services/TagService";
 import { CategoryService } from "../../../../../services/CategoryService";
 import { Select } from "antd";
-import { Editor } from "@tinymce/tinymce-react";
 
 const jobTypes = ["FULL-TIME", "PART-TIME", "INTERNSHIP", "TEMPORARY", "CONTRACT BASE"];
 const jobLevels = ["Intern", "Fresher", "Junior", "Middle", "Senior", "Lead"];

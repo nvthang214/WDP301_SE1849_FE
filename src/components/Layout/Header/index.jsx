@@ -5,7 +5,10 @@ import logo from "../../../assets/images/Logo/logosvg.svg";
 import ROUTE_META from "../../../router/ROUTER_META.js";
 import ROUTER from "../../../router/ROUTER.js";
 
-const navItems = [{ label: ROUTE_META[ROUTER.HOME].breadcrumb, path: ROUTER.HOME }];
+const navItems = [
+  { label: ROUTE_META[ROUTER.HOME].breadcrumb, path: ROUTER.HOME },
+  { label: ROUTE_META[ROUTER.JOB_LIST].breadcrumb, path: ROUTER.JOB_LIST },
+];
 
 const HeaderMain = ({ className }) => {
   return (

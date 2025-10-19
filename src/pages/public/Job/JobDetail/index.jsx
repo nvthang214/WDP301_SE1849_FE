@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { JobService } from "../../../../services/JobService";
+import { Tag } from "antd";
 import {
   Bookmark,
   DollarSign,
   MapPin,
   Gift,
+  ListChevronsUpDown,
   Calendar,
   Clock,
   Layers,
@@ -19,6 +21,8 @@ import {
   Mail,
   Tag as TagIcon,
   User,
+  HandCoins,
+  FileUp,
 } from "lucide-react";
 
 const typeColor = {
@@ -29,13 +33,19 @@ const typeColor = {
   "CONTRACT BASE": { bg: "#f472b6", color: "#fff" },
 };
 
-function Tag({ children }) {
-  return (
-    <span className="inline-block bg-gray-100 text-gray-700 rounded px-2 py-1 text-xs mr-2 mb-2">
-      {children}
-    </span>
-  );
-}
+const presetTagColors = [
+  "magenta",
+  "red",
+  "volcano",
+  "orange",
+  "gold",
+  "lime",
+  "green",
+  "cyan",
+  "blue",
+  "geekblue",
+  "purple",
+];
 
 // Apply Modal Component
 function ApplyModal({ open, onClose, jobTitle }) {
@@ -197,11 +207,17 @@ export default function JobDetails() {
         {/* Left: Job Description (6 columns) */}
         <div className="col-span-1 lg:col-span-6 max-w-full">
           <div className="bg-white rounded-xl p-8 shadow-sm mb-6">
-            <h2 className="font-semibold text-lg mb-2">Job Description</h2>
+            <h2 className="font-semibold text-lg mb-2 flex items-center gap-2">
+              <ListChevronsUpDown size={20} className="text-green-600" />
+              Job Description
+            </h2>
             <div className="text-gray-700 whitespace-pre-line break-all">{job.description}</div>
             {job.requirements && (
               <>
-                <h2 className="font-semibold text-lg mt-6 mb-2">Requirements</h2>
+                <h2 className="font-semibold text-lg mt-6 mb-2 flex items-center gap-2">
+                  <FileUp size={20} className="text-green-600" />
+                  Requirements
+                </h2>
                 <ul className="list-disc list-inside text-gray-700 space-y-1 break-all">
                   {job.requirements.split("\n").map((line, idx) => (
                     <li key={idx}>{line}</li>
@@ -211,7 +227,10 @@ export default function JobDetails() {
             )}
             {job.desirable && (
               <>
-                <h2 className="font-semibold text-lg mt-6 mb-2">Desirable</h2>
+                <h2 className="font-semibold text-lg mt-6 mb-2 flex items-center gap-2">
+                  <HandCoins size={20} className="text-green-600" />
+                  Desirable
+                </h2>
                 <ul className="list-disc list-inside text-gray-700 space-y-1 break-all">
                   {job.desirable.split("\n").map((line, idx) => (
                     <li key={idx}>{line}</li>
@@ -219,15 +238,13 @@ export default function JobDetails() {
                 </ul>
               </>
             )}
-            {job.benefits && job.benefits.length > 0 && (
+            {job.benefits && (
               <>
                 <h2 className="font-semibold text-lg mt-6 mb-2 flex items-center gap-2">
-                  <Gift size={18} className="text-green-600" /> Benefits
+                  <Gift size={20} className="text-green-600" /> Benefits
                 </h2>
                 <ul className="list-disc list-inside text-gray-700 space-y-1 break-all">
-                  {Array.isArray(job.benefits)
-                    ? job.benefits.map((b, idx) => <li key={idx}>{b}</li>)
-                    : job.benefits.split("\n").map((line, idx) => <li key={idx}>{line}</li>)}
+                  {job.benefits}
                 </ul>
               </>
             )}
@@ -236,7 +253,7 @@ export default function JobDetails() {
         {/* Right: Sidebar (4 columns) */}
         <div className="col-span-1 lg:col-span-4 flex-shrink-0 flex flex-col gap-6">
           {/* Salary & Location */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row gap-4">
             <div className="bg-white rounded-xl p-5 shadow-sm flex-1 flex flex-col gap-2">
               <div className="text-xs text-gray-400 flex items-center gap-1">
                 <DollarSign size={16} className="text-green-600" />
@@ -266,24 +283,7 @@ export default function JobDetails() {
               </div>
             </div>
           </div>
-          {/* Job Benefits */}
-          <div className="bg-white rounded-xl p-5 shadow-sm">
-            <div className="font-semibold mb-2 flex items-center gap-2">
-              <Gift size={16} className="text-green-600" /> Job Benefits
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {Array.isArray(job.benefits)
-                ? job.benefits.map((b, i) => (
-                    <span
-                      key={i}
-                      className="bg-green-50 text-green-700 px-2 py-1 rounded text-xs font-medium"
-                    >
-                      {b}
-                    </span>
-                  ))
-                : null}
-            </div>
-          </div>
+
           {/* Job Overview */}
           <div className="bg-white rounded-xl p-5 shadow-sm">
             <div className="font-semibold mb-2 flex items-center gap-2">
@@ -361,7 +361,15 @@ export default function JobDetails() {
             </div>
             <div className="flex flex-wrap gap-2">
               {Array.isArray(job.tags) && job.tags.length > 0
-                ? job.tags.map((tag, i) => <Tag key={tag._id || i}>{tag.name}</Tag>)
+                ? job.tags.map((tag, i) => (
+                    <Tag
+                      key={tag._id || i}
+                      color={presetTagColors[i % presetTagColors.length]}
+                      className="px-3 py-1 text-[var(--color-neutral-900)] font-semibold capitalize"
+                    >
+                      {tag.name}
+                    </Tag>
+                  ))
                 : null}
             </div>
           </div>

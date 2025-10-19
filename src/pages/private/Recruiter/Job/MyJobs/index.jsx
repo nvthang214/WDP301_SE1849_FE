@@ -133,7 +133,7 @@ export default function MyJob() {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-[var(--color-neutral-200)] bg-white shadow-[var(--shadow-md)]">
+      <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-white shadow-[var(--shadow-md)]">
         <div className="grid grid-cols-[1.6fr_0.5fr_0.5fr_auto] items-center gap-4 border-b border-[var(--color-neutral-200)] bg-[var(--color-neutral-100)] px-6 py-4 text-xs font-semibold uppercase tracking-wide text-[var(--color-neutral-500)]">
           <span>Jobs</span>
           <span>Status</span>

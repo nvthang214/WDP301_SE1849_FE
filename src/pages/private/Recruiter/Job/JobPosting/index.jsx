@@ -3,29 +3,10 @@ import { JobService } from "../../../../../services/JobService";
 import { TagService } from "../../../../../services/TagService";
 import { CategoryService } from "../../../../../services/CategoryService";
 import { Select } from "antd";
+import { Editor } from "@tinymce/tinymce-react";
 
 const jobTypes = ["FULL-TIME", "PART-TIME", "INTERNSHIP", "TEMPORARY", "CONTRACT BASE"];
 const jobLevels = ["Intern", "Fresher", "Junior", "Middle", "Senior", "Lead"];
-const benefitsList = [
-  "401k Salary",
-  "Distributed Team",
-  "Async",
-  "Vision Insurance",
-  "Dental Insurance",
-  "Medical Insurance",
-  "Unlimited vacation",
-  "4 day workweek",
-  "401k matching",
-  "company retreats",
-  "Learning budget",
-  "Free gym membership",
-  "Pay in crypto",
-  "Profit Sharing",
-  "Equity Compensation",
-  "No whiteboard interview",
-  "No politics at work",
-  "We hire old (and young)",
-];
 
 export default function JobPosting() {
   const [form, setForm] = useState({
@@ -47,7 +28,7 @@ export default function JobPosting() {
     country: "",
     city: "",
     remote: false,
-    benefits: [],
+    benefits: "",
     description: "",
     requirements: "",
     desirable: "",
@@ -98,6 +79,7 @@ export default function JobPosting() {
     fetchCompany();
   }, []);
 
+  // Handle input changes
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({
@@ -106,6 +88,7 @@ export default function JobPosting() {
     }));
   };
 
+  // Handle tags change
   const handleTagsChange = (values) => {
     setForm((prev) => ({
       ...prev,
@@ -113,15 +96,7 @@ export default function JobPosting() {
     }));
   };
 
-  const handleBenefitToggle = (benefit) => {
-    setForm((prev) => ({
-      ...prev,
-      benefits: prev.benefits.includes(benefit)
-        ? prev.benefits.filter((b) => b !== benefit)
-        : [...prev.benefits, benefit],
-    }));
-  };
-
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     const submitData = {
@@ -155,7 +130,6 @@ export default function JobPosting() {
     alert("Job posted!");
   };
 
-  // ...existing code...
   return (
     <div className="min-h-screen bg-[var(--color-neutral-50)]">
       <form
@@ -478,61 +452,36 @@ export default function JobPosting() {
           </section>
 
           <section className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-sm)]">
-            <div className="mb-4 flex items-center gap-3">
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-primary-100)] text-[var(--color-primary-500)]">
-                5
-              </span>
-              <h3 className="text-lg font-semibold text-[var(--color-neutral-900)]">Benefits</h3>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              {benefitsList.map((benefit) => {
-                const active = form.benefits.includes(benefit);
-                return (
-                  <button
-                    type="button"
-                    key={benefit}
-                    className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
-                      active
-                        ? "border-[var(--color-primary-400)] bg-[var(--color-primary-100)] text-[var(--color-primary-600)] shadow-[var(--shadow-sm)]"
-                        : "border-[var(--color-neutral-200)] bg-[var(--color-neutral-100)] text-[var(--color-neutral-700)] hover:border-[var(--color-primary-200)] hover:bg-[var(--color-primary-50)]"
-                    }`}
-                    onClick={() => handleBenefitToggle(benefit)}
-                  >
-                    {benefit}
-                  </button>
-                );
-              })}
+            <div>
+              <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+                Job Description
+              </label>
+              <textarea
+                className="min-h-[160px] w-full rounded-xl border border-[var(--color-neutral-200)] px-4 py-3 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-100)]"
+                name="description"
+                placeholder="Share job responsibilities, requirements..."
+                value={form.description}
+                onChange={handleChange}
+              />
             </div>
           </section>
 
           <section className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-sm)]">
-            <div className="mb-6 grid gap-6 md:grid-cols-2">
-              {[
-                {
-                  label: "Job Description",
-                  name: "description",
-                  placeholder: "Describe responsibilities, tasks, tools...",
-                },
-                {
-                  label: "Job Requirements",
-                  name: "requirements",
-                  placeholder: "List required skills, experience, qualifications...",
-                },
-              ].map(({ label, name, placeholder }) => (
-                <div key={name}>
-                  <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
-                    {label}
-                  </label>
-                  <textarea
-                    className="min-h-[160px] w-full rounded-xl border border-[var(--color-neutral-200)] px-4 py-3 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-100)]"
-                    name={name}
-                    placeholder={placeholder}
-                    value={form[name]}
-                    onChange={handleChange}
-                  />
-                </div>
-              ))}
+            <div>
+              <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+                Job Requirements
+              </label>
+              <textarea
+                className="min-h-[160px] w-full rounded-xl border border-[var(--color-neutral-200)] px-4 py-3 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-100)]"
+                name="requirements"
+                placeholder="Share must-have skills, qualifications..."
+                value={form.requirements}
+                onChange={handleChange}
+              />
             </div>
+          </section>
+
+          <section className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-sm)]">
             <div>
               <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
                 Job Desirable
@@ -542,6 +491,21 @@ export default function JobPosting() {
                 name="desirable"
                 placeholder="Share bonus points, nice-to-have experience..."
                 value={form.desirable}
+                onChange={handleChange}
+              />
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-sm)]">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+                Job Benefits
+              </label>
+              <textarea
+                className="min-h-[160px] w-full rounded-xl border border-[var(--color-neutral-200)] px-4 py-3 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-100)]"
+                name="benefits"
+                placeholder="Share benefits, perks, and incentives..."
+                value={form.benefits}
                 onChange={handleChange}
               />
             </div>

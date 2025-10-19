@@ -7,26 +7,6 @@ import { Select } from "antd";
 
 const jobTypes = ["FULL-TIME", "PART-TIME", "INTERNSHIP", "TEMPORARY", "CONTRACT BASE"];
 const jobLevels = ["Intern", "Fresher", "Junior", "Middle", "Senior", "Lead"];
-const benefitsList = [
-  "401k Salary",
-  "Distributed Team",
-  "Async",
-  "Vision Insurance",
-  "Dental Insurance",
-  "Medical Insurance",
-  "Unlimited vacation",
-  "4 day workweek",
-  "401k matching",
-  "company retreats",
-  "Learning budget",
-  "Free gym membership",
-  "Pay in crypto",
-  "Profit Sharing",
-  "Equity Compensation",
-  "No whiteboard interview",
-  "No politics at work",
-  "We hire old (and young)",
-];
 
 export default function JobEditing() {
   const { id } = useParams();
@@ -49,7 +29,7 @@ export default function JobEditing() {
     country: "",
     city: "",
     remote: false,
-    benefits: [],
+    benefits: "",
     description: "",
     requirements: "",
     desirable: "",
@@ -127,7 +107,7 @@ export default function JobEditing() {
           country: res.data.country || "",
           city: res.data.city || "",
           remote: !!res.data.remote,
-          benefits: Array.isArray(res.data.benefits) ? res.data.benefits : [],
+          benefits: res.data.benefits || "",
           description: res.data.description || "",
           requirements: res.data.requirements || "",
           desirable: res.data.desirable || "",
@@ -156,15 +136,6 @@ export default function JobEditing() {
     setForm((prev) => ({
       ...prev,
       tags: values,
-    }));
-  };
-
-  const handleBenefitToggle = (benefit) => {
-    setForm((prev) => ({
-      ...prev,
-      benefits: prev.benefits.includes(benefit)
-        ? prev.benefits.filter((b) => b !== benefit)
-        : [...prev.benefits, benefit],
     }));
   };
 
@@ -524,29 +495,108 @@ export default function JobEditing() {
               </label>
             </div>
           </section>
+
           <section className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-sm)]">
-            <div className="mb-4 flex items-center gap-3">
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-primary-100)] text-[var(--color-primary-500)]">
-                5
-              </span>
-              <h3 className="text-lg font-semibold text-[var(--color-neutral-900)]">Benefits</h3>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+                Job Description
+              </label>
+              <textarea
+                className="min-h-[160px] w-full rounded-xl border border-[var(--color-neutral-200)] px-4 py-3 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-100)]"
+                name="description"
+                placeholder="Share job responsibilities, requirements..."
+                value={form.description}
+                onChange={handleChange}
+              />
             </div>
-            <div className="flex flex-wrap gap-3">
-              {benefitsList.map((benefit) => {
-                const active = form.benefits.includes(benefit);
+          </section>
+
+          <section className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-sm)]">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+                Job Requirements
+              </label>
+              <textarea
+                className="min-h-[160px] w-full rounded-xl border border-[var(--color-neutral-200)] px-4 py-3 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-100)]"
+                name="requirements"
+                placeholder="Share must-have skills, qualifications..."
+                value={form.requirements}
+                onChange={handleChange}
+              />
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-sm)]">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+                Job Desirable
+              </label>
+              <textarea
+                className="min-h-[160px] w-full rounded-xl border border-[var(--color-neutral-200)] px-4 py-3 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-100)]"
+                name="desirable"
+                placeholder="Share bonus points, nice-to-have experience..."
+                value={form.desirable}
+                onChange={handleChange}
+              />
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-sm)]">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+                Job Benefits
+              </label>
+              <textarea
+                className="min-h-[160px] w-full rounded-xl border border-[var(--color-neutral-200)] px-4 py-3 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-100)]"
+                name="benefits"
+                placeholder="Share benefits, perks, and incentives..."
+                value={form.benefits}
+                onChange={handleChange}
+              />
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-[var(--color-neutral-200)] bg-[var(--color-neutral-100)] p-6 shadow-[var(--shadow-sm)]">
+            <h3 className="mb-4 text-lg font-semibold text-[var(--color-neutral-900)]">
+              Apply Job on:
+            </h3>
+            <div className="flex flex-col gap-4 md:flex-row">
+              {["Jobpilot", "external", "email"].map((type) => {
+                const active = form.applyType === type;
                 return (
-                  <button
-                    type="button"
-                    key={benefit}
-                    className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
+                  <label
+                    key={type}
+                    className={`flex flex-1 items-start gap-3 rounded-xl border bg-white p-4 transition ${
                       active
-                        ? "border-[var(--color-primary-400)] bg-[var(--color-primary-100)] text-[var(--color-primary-600)] shadow-[var(--shadow-sm)]"
-                        : "border-[var(--color-neutral-200)] bg-[var(--color-neutral-100)] text-[var(--color-neutral-700)] hover:border-[var(--color-primary-200)] hover:bg-[var(--color-primary-50)]"
+                        ? "border-[var(--color-primary-400)] shadow-[var(--shadow-md)]"
+                        : "border-transparent hover:border-[var(--color-primary-200)]"
                     }`}
-                    onClick={() => handleBenefitToggle(benefit)}
                   >
-                    {benefit}
-                  </button>
+                    <input
+                      type="radio"
+                      name="applyType"
+                      value={type}
+                      checked={active}
+                      onChange={handleChange}
+                      className="mt-1"
+                    />
+                    <div>
+                      <div className="text-sm font-semibold text-[var(--color-neutral-900)]">
+                        {type === "Jobpilot"
+                          ? "On Jobpilot"
+                          : type === "external"
+                            ? "External Platform"
+                            : "On Your Email"}
+                      </div>
+                      <p className="mt-1 text-xs text-[var(--color-neutral-500)]">
+                        {type === "Jobpilot"
+                          ? "Candidates apply via Jobpilot and appear in your dashboard."
+                          : type === "external"
+                            ? "Redirect candidates to your site and manage applications yourself."
+                            : "Receive applications directly in your inbox."}
+                      </p>
+                    </div>
+                  </label>
                 );
               })}
             </div>

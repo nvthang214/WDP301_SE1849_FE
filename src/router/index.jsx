@@ -28,6 +28,7 @@ const ResetPassword = React.lazy(() => import("../pages/public/Authentication/Re
 
 // ========================= Candidate pages =======================
 const CandidateOverview = React.lazy(() => import("../pages/private/Candidate"));
+const CandidateProfile = React.lazy(() => import("../pages/private/Candidate/CandidateProfile"));
 const CandidateSocial = React.lazy(() => import("../pages/private/Candidate/CandidateSocial"));
 
 // ========================= End candidate pages ===================
@@ -131,6 +132,15 @@ const router = createBrowserRouter([
           </LazyLoad>
         ),
         handle: ROUTE_META[ROUTER.CANDIDATE_OVERVIEW],
+      },
+      {
+        path: ROUTER.CANDIDATE_PROFILE,
+        element: (
+          <LazyLoad>
+            <CandidateProfile />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.CANDIDATE_PROFILE],
       },
       {
         path: ROUTER.CANDIDATE_SOCIAL,

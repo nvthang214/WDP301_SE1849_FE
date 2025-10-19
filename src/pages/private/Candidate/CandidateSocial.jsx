@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Button, Card, Input, Select, Space, Spin, Typography } from "antd";
+import { Button, Input, Select, Space, Spin, Typography } from "antd";
 import {
   FacebookOutlined,
   TwitterOutlined,
@@ -250,8 +250,8 @@ const CandidateSocial = () => {
 
   return (
     <div >
-      <SettingsHeader />
-      <Card >
+      <SettingsHeader activeKey="social"/>
+      <div >
         {isLoading ? (
           <div className="flex justify-center py-12">
             <Spin size="large" />
@@ -301,7 +301,7 @@ const CandidateSocial = () => {
             </Button>
           </div>
         )}
-      </Card>
+      </div>
 
       <div className="flex justify-end">
         <Button

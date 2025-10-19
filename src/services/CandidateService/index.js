@@ -4,22 +4,18 @@ import {
 	addCandidateSocial,
 	updateCandidateSocial,
 	deleteCandidateSocial,
+	getCandidateProfile,
+	addCandidateProfile,
+	updateCandidateProfile,
 } from "./urls";
 
-const getSocial = async (userId) => await api.get(getCandidateSocial(userId));
-
-const addSocial = async (userId, social) =>
-	await api.post(addCandidateSocial(userId), { social });
-
-const updateSocial = async (userId, payload) =>
-	await api.put(updateCandidateSocial(userId), payload);
-
-const removeSocial = async (userId, platform) =>
-	await api.delete(deleteCandidateSocial(userId), { data: { platform } });
-
 export const CandidateService = {
-	getCandidateSocial: getSocial,
-	addCandidateSocial: addSocial,
-	updateCandidateSocial: updateSocial,
-	deleteCandidateSocial: removeSocial,
+	getCandidateSocial: async (userId) => await api.get(getCandidateSocial(userId)),
+	addCandidateSocial: async (userId, social) => await api.post(addCandidateSocial(userId), { social }),
+	updateCandidateSocial: async (userId, data) => await api.put(updateCandidateSocial(userId), data),
+	deleteCandidateSocial: async (userId, platform) =>await api.delete(deleteCandidateSocial(userId), { data: { platform } }),
+
+	getCandidateProfile: async (userId) => await api.get(getCandidateProfile(userId)),
+	addCandidateProfile: async (userId, data) => await api.post(addCandidateProfile(userId), data),
+	updateCandidateProfile: async (userId, data) => await api.put(updateCandidateProfile(userId), data),
 };

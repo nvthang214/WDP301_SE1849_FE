@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Input, Upload, Typography, Space, Card, Divider } from "antd";
+import { Button, Input, Upload, Typography, Space, Card, Divider, Select, DatePicker, Form } from "antd";
 import {
   UploadOutlined,
   EditOutlined,
@@ -8,14 +8,19 @@ import {
   UnderlineOutlined,
   PictureOutlined,
   ShopOutlined,
-  InfoCircleOutlined
+  InfoCircleOutlined,
+  CalendarOutlined,
+  TeamOutlined,
+  GlobalOutlined
 } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
+const { Option } = Select;
 
 export default function CompanyInfoPage() {
   const [logo, setLogo] = useState(null);
   const [banner, setBanner] = useState(null);
+  const [form] = Form.useForm();
 
   return (
     <div style={{ maxWidth: 800, padding: '24px' }}>
@@ -163,13 +168,138 @@ export default function CompanyInfoPage() {
         </div>
       </Card>
 
-      <Button
-        type="primary"
-        size="large"
-        style={{ background: '#3b82f6', borderColor: '#3b82f6', fontWeight: 500 }}
-      >
-        Save Changes
-      </Button>
+      <div style={{ padding: '24px 0' }}>
+        {/* Organization Type, Industry Types, Team Size */}
+        <div style={{ marginBottom: '32px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px' }}>
+            <Form.Item label={<span style={{ fontWeight: 500, color: '#374151' }}>Organization Type</span>}>
+              <Select 
+                placeholder="Select..." 
+                size="large"
+                style={{ width: '100%' }}
+              >
+                <Option value="startup">Startup</Option>
+                <Option value="corporation">Corporation</Option>
+                <Option value="nonprofit">Non-profit</Option>
+                <Option value="government">Government</Option>
+              </Select>
+            </Form.Item>
+  
+            <Form.Item label={<span style={{ fontWeight: 500, color: '#374151' }}>Industry Types</span>}>
+              <Select 
+                placeholder="Select..." 
+                size="large"
+                style={{ width: '100%' }}
+              >
+                <Option value="technology">Technology</Option>
+                <Option value="finance">Finance</Option>
+                <Option value="healthcare">Healthcare</Option>
+                <Option value="education">Education</Option>
+              </Select>
+            </Form.Item>
+  
+            <Form.Item label={<span style={{ fontWeight: 500, color: '#374151' }}>Team Size</span>}>
+              <Select 
+                placeholder="Select..." 
+                size="large"
+                style={{ width: '100%' }}
+              >
+                <Option value="1-10">1-10</Option>
+                <Option value="11-50">11-50</Option>
+                <Option value="51-200">51-200</Option>
+                <Option value="200+">200+</Option>
+              </Select>
+            </Form.Item>
+          </div>
+        </div>
+  
+        {/* Year of Establishment and Company Website */}
+        <div style={{ marginBottom: '32px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+            <Form.Item label={<span style={{ fontWeight: 500, color: '#374151' }}>Year of Establishment</span>}>
+              <DatePicker 
+                placeholder="dd/mm/yyyy"
+                size="large"
+                style={{ width: '100%' }}
+                prefix={<CalendarOutlined style={{ color: '#9ca3af' }} />}
+              />
+            </Form.Item>
+  
+            <Form.Item label={<span style={{ fontWeight: 500, color: '#374151' }}>Company Website</span>}>
+              <Input
+                placeholder="Website url..."
+                size="large"
+                prefix={<GlobalOutlined style={{ color: '#9ca3af' }} />}
+              />
+            </Form.Item>
+          </div>
+        </div>
+  
+        {/* Company Vision */}
+        <div style={{ marginBottom: '32px' }}>
+          <Text strong style={{ display: 'block', marginBottom: '8px', color: '#374151', fontWeight: 500 }}>
+            Company Vision
+          </Text>
+          <div style={{ border: "1px solid #d1d5db", borderRadius: "8px", overflow: 'hidden' }}>
+            {/* Toolbar */}
+            <div style={{ padding: "12px", borderBottom: "1px solid #e5e7eb", background: '#f9fafb' }}>
+              <Space>
+                <Button
+                  icon={<BoldOutlined />}
+                  type="text"
+                  size="small"
+                />
+                <Button
+                  icon={<ItalicOutlined />}
+                  type="text"
+                  size="small"
+                />
+                <Button
+                  icon={<UnderlineOutlined />}
+                  type="text"
+                  size="small"
+                />
+                <Divider type="vertical" />
+                <Button
+                  icon={<EditOutlined />}
+                  type="text"
+                  size="small"
+                >
+                  Insert Link
+                </Button>
+              </Space>
+            </div>
+  
+            {/* Textarea */}
+            <textarea
+              placeholder="Tell us about your company..."
+              style={{
+                width: "100%",
+                minHeight: "120px",
+                padding: "16px",
+                border: "none",
+                outline: "none",
+                resize: "vertical",
+                fontSize: '14px',
+                lineHeight: '1.5',
+              }}
+            />
+          </div>
+        </div>
+  
+        {/* Save Button */}
+        <Button
+          type="primary"
+          size="large"
+          style={{ 
+            background: '#3b82f6', 
+            borderColor: '#3b82f6', 
+            fontWeight: 500 
+          }}
+        >
+          Save Changes
+        </Button>
+      </div>
     </div>
   );
 }

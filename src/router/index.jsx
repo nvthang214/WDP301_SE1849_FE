@@ -11,10 +11,11 @@ const Login = React.lazy(() => import("../pages/public/Authentication/Login"));
 const Register = React.lazy(() => import("../pages/public/Authentication/Register"));
 const ForgotPassword = React.lazy(() => import("../pages/public/Authentication/ForgotPassword"));
 const ResetPassword = React.lazy(() => import("../pages/public/Authentication/ResetPassword"));
-const AccountSettings = React.lazy(() => import("../pages/private/Dashboard/AccountSetting"));
-const CompanyInfo = React.lazy(() => import("../pages/private/Dashboard/CompanyInfo"));
-const SocialMedia = React.lazy(() => import("../pages/private/Dashboard/SocialMedia"));
-const LayoutDashboard = React.lazy(() => import("../components/Layout/RecruiterLayout"));
+const AccountSettings = React.lazy(() => import("../pages/private/Recruiter/RecruiterSetting/AccountSetting"));
+const CompanyInfo = React.lazy(() => import("../pages/private/Recruiter/RecruiterSetting/CompanyInfo"));
+const SocialMedia = React.lazy(() => import("../pages/private/Recruiter/RecruiterSetting/SocialMedia"));
+const LayoutDashboard = React.lazy(() => import("../components/Layout/LayoutRecruiter"));
+const RecruiterOverview = React.lazy(() => import("../pages/private/Recruiter"));
 
 const JobList = React.lazy(() => import("../pages/private/Job/JobList"));
 const JobDetails = React.lazy(() => import("../pages/private/Job/JobDetails"));
@@ -30,6 +31,7 @@ const CandidateOverview = React.lazy(() => import("../pages/private/Candidate"))
 
 const LayoutAuth = React.lazy(() => import("../components/Layout/LayoutAuth"));
 const LayoutCommon = React.lazy(() => import("../components/Layout"));
+const LayoutRecruiter = React.lazy(() => import("../components/Layout/LayoutRecruiter"));
 const LayoutCandidate = React.lazy(() => import("../components/Layout/LayoutCandidate"));
 const LayoutAdmin = React.lazy(() => import("../components/Layout/LayoutAdmin"));
 /**
@@ -207,46 +209,64 @@ const router = createBrowserRouter([
     ),
   },
 
-  // --- Recruiter dashboard with layout ---
+  // --- Recruiter routes---
   {
-    path: "/recruiter",
-    element: (
-      <LazyLoad>
-        <LayoutDashboard />
-      </LazyLoad>
-    ),
+    element: <LayoutRecruiter />,
+    handle: {breadcrumb: ROUTE_META[ROUTER.RECRUITER_DASHBOARD]?.breadcrumb},
     children: [
       {
-        path: "dashboard",
+        path: ROUTER.RECRUITER_DASHBOARD,
         element: (
           <LazyLoad>
-            <div>Dashboard Recruiter</div>
+            <RecruiterOverview />
           </LazyLoad>
         ),
+        handle: ROUTE_META[ROUTER.RECRUITER_DASHBOARD],
       },
+    ],
+  },
+  {
+    element: <LayoutRecruiter />,
+    handle: {breadcrumb: ROUTE_META[ROUTER.ACCOUNT_SETTINGS]?.breadcrumb},
+    children: [
       {
-        path: "account-settings",
+        path: ROUTER.ACCOUNT_SETTINGS,
         element: (
           <LazyLoad>
             <AccountSettings />
           </LazyLoad>
         ),
+        handle: ROUTE_META[ROUTER.ACCOUNT_SETTINGS],
       },
+    ],
+  },
+  {
+    element: <LayoutRecruiter />,
+    handle: {breadcrumb: ROUTE_META[ROUTER.COMPANY_INFO]?.breadcrumb},
+    children: [
       {
-        path: "company-info",
+        path: ROUTER.COMPANY_INFO,
         element: (
           <LazyLoad>
             <CompanyInfo />
           </LazyLoad>
         ),
+        handle: ROUTE_META[ROUTER.COMPANY_INFO],
       },
+    ],
+  },
+  {
+    element: <LayoutRecruiter />,
+    handle: {breadcrumb: ROUTE_META[ROUTER.SOCIAL_MEDIA]?.breadcrumb},
+    children: [
       {
-        path: "social-media",
+        path: ROUTER.SOCIAL_MEDIA,
         element: (
           <LazyLoad>
             <SocialMedia />
           </LazyLoad>
         ),
+        handle: ROUTE_META[ROUTER.SOCIAL_MEDIA],
       },
     ],
   },

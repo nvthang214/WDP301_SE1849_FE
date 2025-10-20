@@ -1,12 +1,9 @@
 import { get } from "lodash";
 import api from "../00-Axios";
-import { dashboard, accountSettings, companyInfo, socialMedia } from "./urls";
+import { getProfile, updateProfile } from "./urls";
 
-const getDashboardData = async () => await api.get(dashboard, {params: {}});
 
 export const RecruiterService = {
-  getDashboardData,
-  getAccountSettings: async () => await api.get(accountSettings, {params: {}}),
-  getCompanyInfo: async () => await api.get(companyInfo, {params: {}}),
-  getSocialMedia: async () => await api.get(socialMedia, {params: {}})
+  getProfile: async (id) => await api.get(getProfile(id)),
+  updateProfile: async (id, data) => await api.put(updateProfile(id), data),
 };

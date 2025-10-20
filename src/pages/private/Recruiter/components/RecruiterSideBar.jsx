@@ -7,10 +7,8 @@ import {
   Settings,
 } from "lucide-react";
 import MenuLeft from "../../../../components/MenuLeft";
-import { useNavigate } from "react-router-dom";
 
 const RecruiterSideBar = () => {
-  const navigate = useNavigate();
   const menuItems = [
     {
       label: "Recruiter Dashboard",
@@ -25,7 +23,6 @@ const RecruiterSideBar = () => {
       key: "/recruiter/applied",
       icon: <BriefcaseBusiness size={20} />,
       label: "Applied Jobs",
-      onClick: ({ key }) => navigate(key),
     },
     {
       key: "sub1",
@@ -41,10 +38,9 @@ const RecruiterSideBar = () => {
       type: "divider",
     },
     {
-      key: "sub3",
+      key: "/recruiter/account",
       icon: <Settings size={20} />,
       label: "Settings",
-      extra: "1",
     },
     {
       key: "sub4",

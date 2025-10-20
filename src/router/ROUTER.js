@@ -15,14 +15,6 @@ const ROUTER = {
   JOBS: "/jobs",
   JOB_DETAILS: "/jobs/:id",
 
-  //dashboard recruiter
-  DASHBOARD: "/recruiter/dashboard",
-  // Account settings routes
-  ACCOUNT_SETTINGS: "/recruiter/account-settings",
-  //company info
-  COMPANY_INFO: "/recruiter/company-info",
-  //social media
-  SOCIAL_MEDIA: "/recruiter/social-media",
 
   // Company routes
   COMPANIES: "/recruiter/companies",
@@ -31,7 +23,11 @@ const ROUTER = {
   COMPANY_EDIT: "/recruiter/companies/edit/:id",
 
   // Recruiter routes
-  RECRUITER_DASHBOARD: "/recruiter/dashboard",
+  RECRUITER_DASHBOARD: "/recruiter/overview",
+  ACCOUNT_SETTINGS: "/recruiter/account",
+  COMPANY_INFO: "/recruiter/companyinfo",
+  SOCIAL_MEDIA: "/recruiter/socialmedia",
+
   //company for candidate view
   COMPANY_INFORMATION: "/company/:id",
 
@@ -39,7 +35,7 @@ const ROUTER = {
   CANDIDATE_DASHBOARD: "/candidate/overview",
 
   // Admin routes
-  ADMIN_DASHBOARD: "/admin/overview",
+  ADMIN_DASHBOARD: "/admin/dashboard",
 };
 
 export default ROUTER;

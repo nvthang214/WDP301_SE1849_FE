@@ -27,17 +27,35 @@ const ROUTE_META = {
     title: "Dashboard",
     requiresAuth: true,
   },
-  [ROUTER.ACCOUNT_SETTINGS]: {
-    breadcrumb: "Cài đặt tài khoản",
-    title: "Account Settings",
-    requiresAuth: true,
-  },
 
   [ROUTER.JOB_DETAILS]: {
     breadcrumb: "Chi tiết việc làm",
     title: "Job Details",
   },
 
+  // Recruiter routes
+  [ROUTER.RECRUITER_DASHBOARD]: {
+    breadcrumb: "Recruiter Overview",
+    title: "Recruiter Overview",
+    requiresAuth: true,
+  },
+  [ROUTER.ACCOUNT_SETTINGS]: {
+    breadcrumb: "Account Settings",
+    title: "Account Settings",
+    requiresAuth: true,
+  },
+  [ROUTER.COMPANY_INFO]: {
+    breadcrumb: "Company Info",
+    title: "Company Info",
+    requiresAuth: true,
+  },
+  [ROUTER.SOCIAL_MEDIA]: {
+    breadcrumb: "Social Media",
+    title: "Social Media",
+    requiresAuth: true,
+  },
+  
+  // Candidate routes
   [ROUTER.CANDIDATE_DASHBOARD]: {
     breadcrumb: "Candidate Dashboard",
     title: "Candidate Dashboard",

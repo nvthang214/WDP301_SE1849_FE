@@ -1,5 +1,7 @@
 import { PieChartOutlined, UserOutlined } from "@ant-design/icons";
 import { Layout, Menu } from "antd";
+import { LogOut } from "lucide-react";
+import { useLocation } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router-dom";
 const { Sider } = Layout;
 
@@ -36,12 +38,17 @@ const MenuLeft = ({
 
   return (
     <Sider width={200} className="!bg-transparent">
-      <Menu 
-        mode="inline" 
-        defaultSelectedKeys={[path]} 
-        selectedKeys={[path]}
-        items={items} 
-        onClick={handleMenuClick}
+      <Menu
+        mode="inline"
+        defaultSelectedKeys={[path]}
+        items={[
+          ...items,
+          {
+            key: "logout",
+            icon: <LogOut size={20} />,
+            label: "Logout",
+          },
+        ]}
       />
     </Sider>
   );

@@ -1,12 +1,8 @@
-import {
-  BellRing,
-  Bookmark,
-  BriefcaseBusiness,
-  LayoutDashboard,
-  LogOut,
-  Settings,
-} from "lucide-react";
+import { LayoutDashboard, Settings, BriefcaseBusiness, Building2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import MenuLeft from "../../../../components/MenuLeft";
+import ROUTER from "../../../../router/ROUTER";
+import ROUTE_META from "../../../../router/ROUTER_META";
 
 const RecruiterSideBar = () => {
   const menuItems = [
@@ -14,26 +10,29 @@ const RecruiterSideBar = () => {
       label: "Recruiter Dashboard",
       type: "group",
     },
+    //========================= Menu Items =========================
     {
-      key: "/recruiter/overview",
+      key: ROUTER.RECRUITER_OVERVIEW,
       icon: <LayoutDashboard size={20} />,
-      label: "Overview",
+      label: ROUTE_META[ROUTER.RECRUITER_OVERVIEW]?.breadcrumb,
+      onClick: ({ key }) => navigate(key),
     },
+
     {
-      key: "/recruiter/applied",
+      key: ROUTER.RECRUITER_MY_JOBS,
       icon: <BriefcaseBusiness size={20} />,
-      label: "Applied Jobs",
+      label: ROUTE_META[ROUTER.RECRUITER_MY_JOBS]?.breadcrumb,
+      onClick: ({ key }) => navigate(key),
     },
+
     {
-      key: "sub1",
-      icon: <Bookmark size={20} />,
-      label: "Favorites Jobs",
+      key: ROUTER.RECRUITER_MY_COMPANY,
+      icon: <Building2 size={20} />,
+      label: ROUTE_META[ROUTER.RECRUITER_MY_COMPANY]?.breadcrumb,
+      onClick: ({ key }) => navigate(key),
     },
-    {
-      key: "sub2",
-      icon: <BellRing size={20} />,
-      label: "Jobs Alerts",
-    },
+
+    // ------------------------- Divider ------------------------
     {
       type: "divider",
     },
@@ -41,6 +40,7 @@ const RecruiterSideBar = () => {
       key: "/recruiter/account",
       icon: <Settings size={20} />,
       label: "Settings",
+      extra: "1",
     },
     {
       key: "sub4",

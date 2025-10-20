@@ -53,6 +53,7 @@ const RecruiterJobEditing = React.lazy(() => import("../pages/private/Recruiter/
 ////////////////////////////////////////////////////////////////////
 
 // ========================= Admin pages ===========================
+const AdminUserManagement = React.lazy(() => import("../pages/private/Admin/UserManagement"));
 
 // ========================= End Admin pages =======================
 
@@ -282,6 +283,15 @@ const router = createBrowserRouter([
           </LazyLoad>
         ),
         handle: ROUTE_META[ROUTER.ADMIN_OVERVIEW],
+      },
+      {
+        path: ROUTER.ADMIN_USER_MANAGEMENT,
+        element: (
+          <LazyLoad>
+            <AdminUserManagement />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.ADMIN_USER_MANAGEMENT],
       },
     ],
   },

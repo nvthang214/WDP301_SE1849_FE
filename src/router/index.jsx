@@ -5,7 +5,6 @@ import NotFound from "../pages/public/NotFound";
 import ROUTER from "./ROUTER.js";
 import ROUTE_META from "./ROUTER_META.js";
 
-/// === React lazy imports ===
 // =========================== Layouts =============================
 const LayoutAuth = React.lazy(() => import("../components/Layout/LayoutAuth"));
 const LayoutCommon = React.lazy(() => import("../components/Layout"));
@@ -29,22 +28,6 @@ const JobDetail = React.lazy(() => import("../pages/public/Job/JobDetail"));
 ////////////////////////////////////////////////////////////////////
 
 // ========================= Candidate pages =======================
-const AccountSettings = React.lazy(() => import("../pages/private/Recruiter/RecruiterSetting/AccountSetting"));
-const CompanyInfo = React.lazy(() => import("../pages/private/Recruiter/RecruiterSetting/CompanyInfo"));
-const SocialMedia = React.lazy(() => import("../pages/private/Recruiter/RecruiterSetting/SocialMedia"));
-const LayoutDashboard = React.lazy(() => import("../components/Layout/LayoutRecruiter"));
-const RecruiterOverview = React.lazy(() => import("../pages/private/Recruiter"));
-
-const JobList = React.lazy(() => import("../pages/private/Job/JobList"));
-const JobDetails = React.lazy(() => import("../pages/private/Job/JobDetails"));
-const JobPosting = React.lazy(() => import("../pages/private/Job/JobPosting"));
-const JobEditing = React.lazy(() => import("../pages/private/Job/JobEditing"));
-
-const CompanyPosting = React.lazy(() => import("../pages/private/Company/CompanyPosting"));
-const CompanyList = React.lazy(() => import("../pages/private/Company/CompanyList"));
-const CompanyUpdate = React.lazy(() => import("../pages/private/Company/CompanyUpdate"));
-const CompanyInformation = React.lazy(() => import("../pages/private/Company/CompanyInformation"));
-
 const CandidateOverview = React.lazy(() => import("../pages/private/Candidate"));
 const CandidateProfile = React.lazy(() => import("../pages/private/Candidate/CandidateProfile"));
 const CandidateSocial = React.lazy(() => import("../pages/private/Candidate/CandidateSocial"));
@@ -63,20 +46,9 @@ const RecruiterCompanyCreate = React.lazy(() => import("../pages/private/Recruit
 const RecruiterCompanyEdit = React.lazy(() => import("../pages/private/Recruiter/Company/CompanyEdit"));
 const RecruiterJobPosting = React.lazy(() => import("../pages/private/Recruiter/Job/JobPosting"));
 const RecruiterJobEditing = React.lazy(() => import("../pages/private/Recruiter/Job/JobEditing"));
-
-// ========================= End Recruiter pages ===================
-
-////////////////////////////////////////////////////////////////////
-
-// ========================= Admin pages ===========================
-
-// ========================= End Admin pages =======================
-
-/**
- * --- Routes config ---
- * loader: kiểm tra điều kiện trước khi vào route
- * handle: meta data của route- yêu cầu auth, title, breadcrumb, ...
- */
+const AccountSetting = React.lazy(() => import("../pages/private/Recruiter/RecruiterSetting/AccountSetting"));
+const CompanyInfo = React.lazy(() => import("../pages/private/Recruiter/RecruiterSetting/CompanyInfo"));
+const SocialMedia = React.lazy(() => import("../pages/private/Recruiter/RecruiterSetting/SocialMedia"));
 const router = createBrowserRouter([
   //========================= Public Routes ==========================
   // --- Authentication routes ---
@@ -257,76 +229,74 @@ const router = createBrowserRouter([
         handle: ROUTE_META[ROUTER.RECRUITER_COMPANY_CREATE],
       },
       {
-        path: ROUTER.RECRUITER_DASHBOARD,
         path: ROUTER.RECRUITER_COMPANY_EDIT,
         element: (
           <LazyLoad>
-            <RecruiterOverview />
             <RecruiterCompanyEdit />
           </LazyLoad>
         ),
-        handle: ROUTE_META[ROUTER.RECRUITER_DASHBOARD],
-      },
-    ],
-  },
-  {
-    element: <LayoutRecruiter />,
-    handle: {breadcrumb: ROUTE_META[ROUTER.ACCOUNT_SETTINGS]?.breadcrumb},
-    children: [
         handle: ROUTE_META[ROUTER.RECRUITER_COMPANY_EDIT],
       },
       {
         path: ROUTER.RECRUITER_JOB_POSTING,
-        path: ROUTER.ACCOUNT_SETTINGS,
         element: (
           <LazyLoad>
             <RecruiterJobPosting />
           </LazyLoad>
         ),
-        handle: ROUTE_META[ROUTER.ACCOUNT_SETTINGS],
-      },
-    ],
-  },
-  {
-    element: <LayoutRecruiter />,
-    handle: {breadcrumb: ROUTE_META[ROUTER.COMPANY_INFO]?.breadcrumb},
-    children: [
         handle: ROUTE_META[ROUTER.RECRUITER_JOB_POSTING],
       },
       {
-        path: ROUTER.COMPANY_INFO,
         path: ROUTER.RECRUITER_JOB_EDITING,
         element: (
           <LazyLoad>
             <RecruiterJobEditing />
           </LazyLoad>
         ),
-        handle: ROUTE_META[ROUTER.COMPANY_INFO],
-      },
-    ],
-  },
-  {
-    element: <LayoutRecruiter />,
-    handle: {breadcrumb: ROUTE_META[ROUTER.SOCIAL_MEDIA]?.breadcrumb},
-    children: [
         handle: ROUTE_META[ROUTER.RECRUITER_JOB_EDITING],
       },
+      {
+        path: ROUTER.ACCOUNT_SETTINGS,
+        element: (
+          <LazyLoad>
+            <AccountSetting />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.ACCOUNT_SETTINGS],
+      },
+      {
+        path: ROUTER.COMPANY_INFO,
+        element: (
+          <LazyLoad>
+            <CompanyInfo />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.COMPANY_INFO],
+      },
+      {
+        path: ROUTER.SOCIAL_MEDIA,
+        element: (
+          <LazyLoad>
+            <SocialMedia />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.SOCIAL_MEDIA],
+      },
     ],
   },
+  
 
   // --- Admin routes ---
-  {
+{
     element: <LayoutAdmin />,
     children: [
       {
-        path: ROUTER.SOCIAL_MEDIA,
         path: ROUTER.ADMIN_OVERVIEW,
         element: (
           <LazyLoad>
             <div>Admin Dashboard</div>
           </LazyLoad>
         ),
-        handle: ROUTE_META[ROUTER.SOCIAL_MEDIA],
         handle: ROUTE_META[ROUTER.ADMIN_OVERVIEW],
       },
     ],

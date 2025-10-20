@@ -1,5 +1,5 @@
-import React from "react";
-import { Button, Input, Select, Space, Typography } from "antd";
+import React, { useState, useEffect } from "react";
+import { Button, Input, Select, Space, Typography, Form, message, Spin } from "antd";
 import {
   FacebookOutlined,
   TwitterOutlined,
@@ -9,6 +9,7 @@ import {
   CloseOutlined,
   LinkOutlined
 } from "@ant-design/icons";
+import { CompanyService } from "../../../../services/CompanyService";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -21,18 +22,175 @@ const LinkedInOutlined = () => (
 );
 
 export default function SocialMediaPage() {
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [companyData, setCompanyData] = useState(null);
+  const [socialLinks, setSocialLinks] = useState([
+    { id: 1, platform: 'facebook', url: '' }
+  ]);
+
+  // Get user ID from localStorage
+  const getUserId = () => {
+    try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user && user.id) {
+        return user.id;
+      }
+      
+      const accessToken = localStorage.getItem('accessToken');
+      if (accessToken) {
+        const payload = JSON.parse(atob(accessToken.split('.')[1]));
+        return payload.id;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error getting user ID:', error);
+      return null;
+    }
+  };
+
+  // Load company data
+  const loadCompanyData = async () => {
+    try {
+      setLoading(true);
+      const userId = getUserId();
+      if (!userId) {
+        message.error('Không thể lấy thông tin người dùng');
+        return;
+      }
+
+      const response = await CompanyService.getCompanyByRecruiter(userId);
+      if (response.success && response.data) {
+        setCompanyData(response.data);
+        
+        // Convert social media object to array format
+        const social = response.data.social || {};
+        const socialArray = [];
+        
+        Object.keys(social).forEach((platform, index) => {
+          if (social[platform]) {
+            socialArray.push({
+              id: index + 1,
+              platform: platform,
+              url: social[platform]
+            });
+          }
+        });
+        
+        // If no social links, add one empty link
+        if (socialArray.length === 0) {
+          socialArray.push({ id: 1, platform: 'facebook', url: '' });
+        }
+        
+        setSocialLinks(socialArray);
+      }
+    } catch (error) {
+      console.error('Error loading company data:', error);
+      if (error.response?.status !== 404) {
+        message.error('Không thể tải thông tin mạng xã hội');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle save social media
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      const userId = getUserId();
+      if (!userId) {
+        message.error('Không thể lấy thông tin người dùng');
+        return;
+      }
+
+      // Convert social links array to object format
+      const socialObject = {};
+      socialLinks.forEach(link => {
+        if (link.url && link.url.trim()) {
+          socialObject[link.platform] = link.url.trim();
+        }
+      });
+
+      const payload = {
+        social: socialObject
+      };
+
+      let response;
+      if (companyData && companyData._id) {
+        // Update existing company
+        response = await CompanyService.updateCompany(companyData._id, payload);
+      } else {
+        // Create new company with social media
+        const companyPayload = {
+          name: 'Tên công ty',
+          description: '',
+          social: socialObject
+        };
+        response = await CompanyService.createCompany(companyPayload);
+      }
+
+      if (response.success) {
+        message.success('Thông tin mạng xã hội đã được lưu thành công!');
+        setCompanyData(response.data);
+      } else {
+        message.error('Có lỗi xảy ra khi lưu thông tin mạng xã hội');
+      }
+    } catch (error) {
+      console.error('Error saving social media:', error);
+      message.error('Có lỗi xảy ra khi lưu thông tin mạng xã hội');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Add new social link
+  const addSocialLink = () => {
+    const newId = Math.max(...socialLinks.map(link => link.id)) + 1;
+    setSocialLinks([...socialLinks, { id: newId, platform: 'facebook', url: '' }]);
+  };
+
+  // Remove social link
+  const removeSocialLink = (id) => {
+    if (socialLinks.length > 1) {
+      setSocialLinks(socialLinks.filter(link => link.id !== id));
+    }
+  };
+
+  // Update social link
+  const updateSocialLink = (id, field, value) => {
+    setSocialLinks(socialLinks.map(link => 
+      link.id === id ? { ...link, [field]: value } : link
+    ));
+  };
+
+  useEffect(() => {
+    loadCompanyData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
+
   return (
     <div style={{ padding: '24px 0' }}>
       {/* Social Links */}
       <div style={{ marginBottom: '32px' }}>
-        {[1, 2, 3].map((i) => (
-          <div key={i} style={{ marginBottom: '24px' }}>
+        {socialLinks.map((link) => (
+          <div key={link.id} style={{ marginBottom: '24px' }}>
             <Text strong style={{ display: 'block', marginBottom: '8px', color: '#374151', fontWeight: 500 }}>
-              Social Link {i}
+              Liên kết mạng xã hội {link.id}
             </Text>
             <Space.Compact style={{ width: '100%' }} size="large">
               <Select
-                defaultValue="facebook"
+                value={link.platform}
+                onChange={(value) => updateSocialLink(link.id, 'platform', value)}
                 style={{ width: '200px' }}
               >
                 <Option value="facebook">
@@ -68,11 +226,15 @@ export default function SocialMediaPage() {
               </Select>
               <Input
                 placeholder="https://..."
+                value={link.url}
+                onChange={(e) => updateSocialLink(link.id, 'url', e.target.value)}
                 prefix={<LinkOutlined style={{ color: '#9ca3af' }} />}
                 style={{ flex: 1 }}
               />
               <Button
                 icon={<CloseOutlined />}
+                onClick={() => removeSocialLink(link.id)}
+                disabled={socialLinks.length === 1}
                 danger
                 style={{ 
                   background: '#fef2f2', 
@@ -88,6 +250,7 @@ export default function SocialMediaPage() {
         <Button
           type="dashed"
           icon={<PlusCircleOutlined />}
+          onClick={addSocialLink}
           style={{
             width: "100%",
             height: '48px',
@@ -97,7 +260,7 @@ export default function SocialMediaPage() {
             marginBottom: '24px'
           }}
         >
-          Add New Social Link
+          Thêm liên kết mạng xã hội
         </Button>
       </div>
 
@@ -105,13 +268,15 @@ export default function SocialMediaPage() {
       <Button
         type="primary"
         size="large"
+        loading={saving}
+        onClick={handleSave}
         style={{ 
           background: '#3b82f6', 
           borderColor: '#3b82f6', 
           fontWeight: 500 
         }}
       >
-        Save Changes
+        {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
       </Button>
     </div>
   );

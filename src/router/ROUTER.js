@@ -11,19 +11,6 @@ const ROUTER = {
   FORGOT_PASSWORD: "/forgot-password",
   RESET_PASSWORD: "/reset-password",
 
-  // --- Other public routes ---
-  COMPANIES: "/companies",
-  COMPANY_EDIT: "/companies/edit/:id",
-  COMPANY_POST: "/companies/post",
-  DASHBOARD: "/recruiter/overview",
-  MY_JOBS: "/recruiter/jobs/my-jobs",
-
-  // ========================= End public routes =======================
-  // Job routes
-  JOB_LIST: "/jobs",
-  JOB_DETAIL: "/jobs/:id",
-  //////////////////////////////////////////////////////////////////////
-
   // ========================= Private routes ==========================
   // --- Recruiter routes ---
   RECRUITER_OVERVIEW: `${recruiter}/overview`,
@@ -46,11 +33,11 @@ const ROUTER = {
   COMPANY_INFO: "/recruiter/companyinfo",
   SOCIAL_MEDIA: "/recruiter/socialmedia",
 
-  //company for candidate view
-  COMPANY_INFORMATION: "/company/:id",
+  // //company for candidate view
+  // COMPANY_INFORMATION: "/company/:id",
 
-  // Candidate routes
-  CANDIDATE_DASHBOARD: "/candidate/overview",
+  // // Candidate routes
+  // CANDIDATE_DASHBOARD: "/candidate/overview",
 
   // --- Admin routes ---
   ADMIN_OVERVIEW: `${admin}/overview`,

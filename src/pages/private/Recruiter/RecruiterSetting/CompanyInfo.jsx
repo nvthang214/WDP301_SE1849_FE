@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Button, Input, Upload, Typography, Space, Card, Divider, Select, DatePicker, Form } from "antd";
+import React, { useState, useEffect } from "react";
+import { Button, Input, Upload, Typography, Space, Card, Divider, Select, DatePicker, Form, message, Spin } from "antd";
 import {
   UploadOutlined,
   EditOutlined,
@@ -13,6 +13,8 @@ import {
   TeamOutlined,
   GlobalOutlined
 } from "@ant-design/icons";
+import { CompanyService } from "../../../../services/CompanyService";
+import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -21,16 +23,141 @@ export default function CompanyInfoPage() {
   const [logo, setLogo] = useState(null);
   const [banner, setBanner] = useState(null);
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [companyData, setCompanyData] = useState(null);
+
+  // Get user ID from localStorage
+  const getUserId = () => {
+    try {
+      const user = localStorage.getItem('user');
+      if (user) {
+        const userData = JSON.parse(user);
+        return userData.id || userData._id;
+      }
+      
+      const token = localStorage.getItem('accessToken');
+      if (token) {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.userId || payload.id;
+      }
+    } catch (error) {
+      console.error('Error getting user ID:', error);
+    }
+    return null;
+  };
+
+  // Load company data
+  const loadCompanyData = async () => {
+    try {
+      setLoading(true);
+      const userId = getUserId();
+      if (!userId) {
+        message.error('Không thể lấy thông tin người dùng');
+        return;
+      }
+
+      const response = await CompanyService.getCompanyByRecruiter(userId);
+      if (response.success && response.data) {
+        setCompanyData(response.data);
+        // Populate form with company data
+        form.setFieldsValue({
+          name: response.data.name,
+          description: response.data.description,
+          industry: response.data.industry,
+          teamSize: response.data.teamSize,
+          foundedDate: response.data.foundedDate ? dayjs(response.data.foundedDate) : null,
+          website: response.data.contact?.website,
+          vision: response.data.vision,
+          email: response.data.contact?.email,
+          phone: response.data.contact?.phone,
+          address: response.data.address,
+        });
+      }
+    } catch (error) {
+      console.error('Error loading company data:', error);
+      // If no company exists yet, that's okay - user can create one
+      if (error.response?.status !== 404) {
+        message.error('Không thể tải thông tin công ty');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle form submission
+  const handleSave = async (values) => {
+    try {
+      setSaving(true);
+      const userId = getUserId();
+      if (!userId) {
+        message.error('Không thể lấy thông tin người dùng');
+        return;
+      }
+
+      const companyPayload = {
+        name: values.name,
+        description: values.description,
+        industry: values.industry,
+        teamSize: parseInt(values.teamSize) || 1,
+        foundedDate: values.foundedDate ? values.foundedDate.format('YYYY-MM-DD') : null,
+        vision: values.vision,
+        contact: {
+          website: values.website,
+          email: values.email,
+          phone: values.phone,
+        },
+        address: values.address,
+      };
+
+      let response;
+      if (companyData && companyData._id) {
+        // Update existing company
+        response = await CompanyService.updateCompany(companyData._id, companyPayload);
+      } else {
+        // Create new company
+        response = await CompanyService.createCompany(companyPayload);
+      }
+
+      if (response.success) {
+        message.success('Thông tin công ty đã được lưu thành công!');
+        setCompanyData(response.data);
+        // Reload data to get the latest information
+        await loadCompanyData();
+      } else {
+        message.error('Có lỗi xảy ra khi lưu thông tin công ty');
+      }
+    } catch (error) {
+      console.error('Error saving company data:', error);
+      message.error('Có lỗi xảy ra khi lưu thông tin công ty');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  useEffect(() => {
+    loadCompanyData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
     <div style={{ maxWidth: 800, padding: '24px' }}>
       {/* Page Header */}
       <div className="mb-6">
-        <Title level={2} style={{ margin: 0, color: '#1f2937' }}>Company Information</Title>
+        <Title level={2} style={{ margin: 0, color: '#1f2937' }}>Thông tin công ty</Title>
         <Text type="secondary" style={{ fontSize: '14px' }}>
-          Manage your company profile and branding
+          Quản lý hồ sơ và thương hiệu công ty của bạn
         </Text>
       </div>
+
+      <Form form={form} onFinish={handleSave} layout="vertical">
 
       {/* Logo & Banner Card */}
       <Card
@@ -104,111 +231,61 @@ export default function CompanyInfoPage() {
         className="mb-6 shadow-sm border border-gray-200"
       >
         <div className="space-y-6">
-          <div>
-            <Text strong className="block mb-2 text-gray-700">Company Name</Text>
+          <Form.Item
+            name="name"
+            label={<Text strong className="text-gray-700">Tên công ty</Text>}
+            rules={[{ required: true, message: 'Vui lòng nhập tên công ty' }]}
+          >
             <Input
-              placeholder="Enter company name"
+              placeholder="Nhập tên công ty"
               size="large"
               style={{ maxWidth: '400px' }}
               prefix={<ShopOutlined className="text-gray-400" />}
             />
-          </div>
+          </Form.Item>
 
-          <div>
-            <Text strong className="block mb-2 text-gray-700">About Us</Text>
-            <div style={{ border: "1px solid #d1d5db", borderRadius: "8px", overflow: 'hidden' }}>
-              {/* Toolbar */}
-              <div style={{ padding: "12px", borderBottom: "1px solid #e5e7eb", background: '#f9fafb' }}>
-                <Space>
-                  <Button
-                    icon={<BoldOutlined />}
-                    type="text"
-                    className="hover:bg-gray-200"
-                  />
-                  <Button
-                    icon={<ItalicOutlined />}
-                    type="text"
-                    className="hover:bg-gray-200"
-                  />
-                  <Button
-                    icon={<UnderlineOutlined />}
-                    type="text"
-                    className="hover:bg-gray-200"
-                  />
-                  <Divider type="vertical" />
-                  <Button
-                    icon={<EditOutlined />}
-                    type="text"
-                    className="hover:bg-gray-200"
-                  >
-                    Insert Link
-                  </Button>
-                </Space>
-              </div>
-
-              {/* Textarea */}
-              <textarea
-                placeholder="Tell us about your company..."
-                style={{
-                  width: "100%",
-                  minHeight: "200px",
-                  padding: "16px",
-                  border: "none",
-                  outline: "none",
-                  resize: "vertical",
-                  fontSize: '14px',
-                  lineHeight: '1.5',
-                }}
-              />
-            </div>
-            <Text type="secondary" style={{ fontSize: '12px', marginTop: '4px' }}>
-              Describe your company culture, mission, and values
-            </Text>
-          </div>
+          <Form.Item
+            name="description"
+            label={<Text strong className="text-gray-700">Giới thiệu về chúng tôi</Text>}
+          >
+            <Input.TextArea
+              placeholder="Hãy kể cho chúng tôi về công ty của bạn..."
+              rows={8}
+              style={{ fontSize: '14px', lineHeight: '1.5' }}
+            />
+          </Form.Item>
+          <Text type="secondary" style={{ fontSize: '12px', marginTop: '-16px', display: 'block' }}>
+            Mô tả văn hóa, sứ mệnh và giá trị của công ty bạn
+          </Text>
         </div>
       </Card>
 
       <div style={{ padding: '24px 0' }}>
-        {/* Organization Type, Industry Types, Team Size */}
+        {/* Industry Types, Team Size */}
         <div style={{ marginBottom: '32px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px' }}>
-            <Form.Item label={<span style={{ fontWeight: 500, color: '#374151' }}>Organization Type</span>}>
-              <Select 
-                placeholder="Select..." 
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+            <Form.Item 
+              name="industry"
+              label={<span style={{ fontWeight: 500, color: '#374151' }}>Loại ngành nghề</span>}
+            >
+              <Input
+                placeholder="Nhập ngành nghề..."
                 size="large"
                 style={{ width: '100%' }}
-              >
-                <Option value="startup">Startup</Option>
-                <Option value="corporation">Corporation</Option>
-                <Option value="nonprofit">Non-profit</Option>
-                <Option value="government">Government</Option>
-              </Select>
+              />
             </Form.Item>
   
-            <Form.Item label={<span style={{ fontWeight: 500, color: '#374151' }}>Industry Types</span>}>
-              <Select 
-                placeholder="Select..." 
+            <Form.Item 
+              name="teamSize"
+              label={<span style={{ fontWeight: 500, color: '#374151' }}>Quy mô nhân sự</span>}
+            >
+              <Input
+                type="number"
+                placeholder="Nhập số lượng nhân viên..."
                 size="large"
                 style={{ width: '100%' }}
-              >
-                <Option value="technology">Technology</Option>
-                <Option value="finance">Finance</Option>
-                <Option value="healthcare">Healthcare</Option>
-                <Option value="education">Education</Option>
-              </Select>
-            </Form.Item>
-  
-            <Form.Item label={<span style={{ fontWeight: 500, color: '#374151' }}>Team Size</span>}>
-              <Select 
-                placeholder="Select..." 
-                size="large"
-                style={{ width: '100%' }}
-              >
-                <Option value="1-10">1-10</Option>
-                <Option value="11-50">11-50</Option>
-                <Option value="51-200">51-200</Option>
-                <Option value="200+">200+</Option>
-              </Select>
+                min={1}
+              />
             </Form.Item>
           </div>
         </div>
@@ -216,18 +293,24 @@ export default function CompanyInfoPage() {
         {/* Year of Establishment and Company Website */}
         <div style={{ marginBottom: '32px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-            <Form.Item label={<span style={{ fontWeight: 500, color: '#374151' }}>Year of Establishment</span>}>
+            <Form.Item 
+              name="foundedDate"
+              label={<span style={{ fontWeight: 500, color: '#374151' }}>Năm thành lập</span>}
+            >
               <DatePicker 
                 placeholder="dd/mm/yyyy"
                 size="large"
                 style={{ width: '100%' }}
-                prefix={<CalendarOutlined style={{ color: '#9ca3af' }} />}
+                format="DD/MM/YYYY"
               />
             </Form.Item>
   
-            <Form.Item label={<span style={{ fontWeight: 500, color: '#374151' }}>Company Website</span>}>
+            <Form.Item 
+              name="website"
+              label={<span style={{ fontWeight: 500, color: '#374151' }}>Website công ty</span>}
+            >
               <Input
-                placeholder="Website url..."
+                placeholder="https://example.com"
                 size="large"
                 prefix={<GlobalOutlined style={{ color: '#9ca3af' }} />}
               />
@@ -236,70 +319,74 @@ export default function CompanyInfoPage() {
         </div>
   
         {/* Company Vision */}
-        <div style={{ marginBottom: '32px' }}>
-          <Text strong style={{ display: 'block', marginBottom: '8px', color: '#374151', fontWeight: 500 }}>
-            Company Vision
-          </Text>
-          <div style={{ border: "1px solid #d1d5db", borderRadius: "8px", overflow: 'hidden' }}>
-            {/* Toolbar */}
-            <div style={{ padding: "12px", borderBottom: "1px solid #e5e7eb", background: '#f9fafb' }}>
-              <Space>
-                <Button
-                  icon={<BoldOutlined />}
-                  type="text"
-                  size="small"
-                />
-                <Button
-                  icon={<ItalicOutlined />}
-                  type="text"
-                  size="small"
-                />
-                <Button
-                  icon={<UnderlineOutlined />}
-                  type="text"
-                  size="small"
-                />
-                <Divider type="vertical" />
-                <Button
-                  icon={<EditOutlined />}
-                  type="text"
-                  size="small"
-                >
-                  Insert Link
-                </Button>
-              </Space>
-            </div>
-  
-            {/* Textarea */}
-            <textarea
-              placeholder="Tell us about your company..."
-              style={{
-                width: "100%",
-                minHeight: "120px",
-                padding: "16px",
-                border: "none",
-                outline: "none",
-                resize: "vertical",
-                fontSize: '14px',
-                lineHeight: '1.5',
-              }}
-            />
-          </div>
-        </div>
+        <Form.Item
+          name="vision"
+          label={<Text strong style={{ color: '#374151', fontWeight: 500 }}>Tầm nhìn công ty</Text>}
+          style={{ marginBottom: '32px' }}
+        >
+          <Input.TextArea
+            placeholder="Hãy chia sẻ tầm nhìn của công ty bạn..."
+            rows={5}
+            style={{ fontSize: '14px', lineHeight: '1.5' }}
+          />
+        </Form.Item>
   
         {/* Save Button */}
-        <Button
-          type="primary"
-          size="large"
-          style={{ 
-            background: '#3b82f6', 
-            borderColor: '#3b82f6', 
-            fontWeight: 500 
-          }}
-        >
-          Save Changes
-        </Button>
-      </div>
-    </div>
-  );
-}
+        <Form.Item>
+          <Button
+            type="primary"
+            htmlType="submit"
+            size="large"
+            loading={saving}
+            style={{ 
+              background: '#3b82f6', 
+              borderColor: '#3b82f6', 
+              fontWeight: 500 
+            }}
+          >
+            {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
+          </Button>
+        </Form.Item>
+
+         {/* Additional Contact Information */}
+         <div style={{ marginBottom: '32px' }}>
+           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+             <Form.Item 
+               name="email"
+               label={<span style={{ fontWeight: 500, color: '#374151' }}>Email liên hệ</span>}
+             >
+               <Input
+                 placeholder="contact@company.com"
+                 size="large"
+                 type="email"
+               />
+             </Form.Item>
+   
+             <Form.Item 
+               name="phone"
+               label={<span style={{ fontWeight: 500, color: '#374151' }}>Số điện thoại</span>}
+             >
+               <Input
+                 placeholder="+84 123 456 789"
+                 size="large"
+               />
+             </Form.Item>
+           </div>
+         </div>
+
+         {/* Address */}
+         <Form.Item
+           name="address"
+           label={<span style={{ fontWeight: 500, color: '#374151' }}>Địa chỉ công ty</span>}
+           style={{ marginBottom: '32px' }}
+         >
+           <Input.TextArea
+             placeholder="Nhập địa chỉ chi tiết của công ty..."
+             rows={3}
+           />
+         </Form.Item>
+       </div>
+       </Form>
+     </div>
+   );
+ }

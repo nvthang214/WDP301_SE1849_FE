@@ -5,6 +5,7 @@ import ROUTER from "../../../../router/ROUTER";
 import ROUTE_META from "../../../../router/ROUTER_META";
 
 const RecruiterSideBar = () => {
+  const navigate = useNavigate();
   const menuItems = [
     {
       label: "Recruiter Dashboard",
@@ -37,17 +38,12 @@ const RecruiterSideBar = () => {
       type: "divider",
     },
     {
-      key: "/recruiter/account",
+      key: ROUTER.ACCOUNT_SETTINGS,
       icon: <Settings size={20} />,
       label: "Settings",
-      extra: "1",
+      onClick: ({ key }) => navigate(key),
     },
-    {
-      key: "sub4",
-      icon: <LogOut size={20} />,
-      label: "Logout",
-      extra: "1",
-    },
+    // ======================= End Menu Items ========================
   ];
   return <MenuLeft items={menuItems} />;
 };

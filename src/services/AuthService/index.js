@@ -5,6 +5,7 @@ import {
   loginWithGoogleUrl,
   registerurl,
   resetPasswordurl,
+  changePasswordUrl,
 } from "./urls";
 
 const login = async (payload) => {
@@ -34,10 +35,15 @@ const loginWithGoogle = async (token) => {
   return res;
 };
 
+const changePassword = async (payload) => {
+  return await api.put(changePasswordUrl, payload);
+};
+
 export const AuthService = {
   login,
   register,
   forgotPassword,
   resetPassword,
   loginWithGoogle,
+  changePassword,
 };

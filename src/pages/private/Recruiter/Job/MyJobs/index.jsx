@@ -43,13 +43,10 @@ export default function MyJob() {
   const pageSize = 8;
 
   useEffect(() => {
-    const recruiterId = JSON.parse(localStorage.getItem("recruiterInfo") || "{}")?._id;
     const fetchJobs = async () => {
       try {
         setLoading(true);
-        const res = recruiterId
-          ? await JobService.getJobsByRecruiterId(recruiterId)
-          : await JobService.getJobs({ limit: 100 });
+        const res = await JobService.getJobsOfRecruiter();
         const list = res?.data?.jobs || res?.data || [];
         setJobs(list);
       } catch (error) {

@@ -34,6 +34,7 @@ const CandidateProfile = React.lazy(() => import("../pages/private/Candidate/Can
 const CandidateSocial = React.lazy(() => import("../pages/private/Candidate/CandidateSocial"));
 const CandidateApplyJob = React.lazy(() => import("../pages/private/Candidate/CandidateApplyJob"));
 const CandidateJobDetail = React.lazy(() => import("../pages/private/Candidate/CandidateJobDetail"));
+const CandidateRequestUpgrade = React.lazy(() => import("../pages/private/Candidate/RequestUpgrade"));
 
 // ========================= End candidate pages ===================
 
@@ -54,6 +55,7 @@ const RecruiterJobEditing = React.lazy(() => import("../pages/private/Recruiter/
 
 // ========================= Admin pages ===========================
 const AdminUserManagement = React.lazy(() => import("../pages/private/Admin/UserManagement"));
+const AdminUpgradeRequests = React.lazy(() => import("../pages/private/Admin/UpgradeRequests"));
 
 // ========================= End Admin pages =======================
 
@@ -198,6 +200,15 @@ const router = createBrowserRouter([
         ),
         handle: ROUTE_META[ROUTER.CANDIDATE_JOB_DETAIL],
       },
+      {
+        path: ROUTER.CANDIDATE_REQUEST_UPGRADE,
+        element: (
+          <LazyLoad>
+            <CandidateRequestUpgrade />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.CANDIDATE_REQUEST_UPGRADE],
+      },
     ],
   },
 
@@ -292,6 +303,15 @@ const router = createBrowserRouter([
           </LazyLoad>
         ),
         handle: ROUTE_META[ROUTER.ADMIN_USER_MANAGEMENT],
+      },
+      {
+        path: ROUTER.ADMIN_UPGRADE_REQUESTS,
+        element: (
+          <LazyLoad>
+            <AdminUpgradeRequests />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.ADMIN_UPGRADE_REQUESTS],
       },
     ],
   },

@@ -6,36 +6,27 @@ import { CompanyService } from "../../../../../services/CompanyService";
 export default function MyCompany() {
   const [company, setCompany] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [recruiterId, setRecruiterId] = useState(null);
 
   const fetchCompany = async () => {
     try {
       setLoading(true);
 
-      // Get user data from localStorage
-      const user = localStorage.getItem("user");
+      // Get token from localStorage
+      const token = localStorage.getItem("accessToken");
       let recruiterId = null;
 
-      if (user) {
+      // Get userId from token
+      if (token) {
         try {
-          const userData = JSON.parse(user);
-          recruiterId = userData?._id || userData?.id;
-
-          // If no id in user data, try to get from token
-          if (!recruiterId) {
-            const token = localStorage.getItem("accessToken");
-            if (token) {
-              try {
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                recruiterId = payload.userId;
-              } catch (e) {
-                console.error("Error decoding token:", e);
-              }
-            }
-          }
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          recruiterId = payload.userId;
         } catch (e) {
-          console.error("Error parsing user data:", e);
+          console.error("Error decoding token:", e);
         }
       }
+      
+      setRecruiterId(recruiterId);
 
       if (recruiterId) {
         try {
@@ -44,14 +35,12 @@ export default function MyCompany() {
           // Handle API response
           let companyData = null;
           
-          if (res?.data && (res.data.name || res.data._id)) {
+          if (res?.data) {
             companyData = res.data;
+          } else if (res?.companies) {
+            companyData = res.companies;
           } else if (res && (res.name || res._id)) {
             companyData = res;
-          } else if (res?.companies && Array.isArray(res.companies)) {
-            companyData = res.companies[0] || null;
-          } else if (res?.company) {
-            companyData = res.company;
           }
 
           if (companyData && (companyData.name || companyData._id)) {
@@ -111,42 +100,59 @@ export default function MyCompany() {
     );
   }
 
-  if (!company) {
+  if (loading) {
     return (
       <div className="space-y-6">
         <div className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-[var(--shadow-md)]">
-          <div>
-            <h1 className="text-2xl font-semibold text-[var(--color-neutral-900)]">
-              My Company
-            </h1>
-            <p className="mt-1 text-sm text-[var(--color-neutral-500)]">
-              Manage your company information and settings.
-            </p>
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-1/3 mb-2"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
           </div>
         </div>
-
-        <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-white shadow-[var(--shadow-md)] p-12 text-center">
-          <Building2 className="mx-auto h-16 w-16 text-[var(--color-neutral-300)] mb-4" />
-          <h3 className="text-lg font-semibold text-[var(--color-neutral-900)] mb-2">
-            No Company Found
-          </h3>
-          <p className="text-[var(--color-neutral-500)] mb-6">
-            You haven't created a company yet. Create one to start posting jobs.
-          </p>
-          
-          <Link
-            to="/recruiter/company/create"
-            className="inline-flex items-center gap-2 rounded-xl bg-[var(--color-primary-500)] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--color-primary-600)]"
-          >
-            <Plus size={20} />
-            Create Company
-          </Link>
+        <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-white shadow-[var(--shadow-md)] p-6">
+          <div className="animate-pulse">
+            <div className="h-32 bg-gray-200 rounded"></div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
+    <div className="space-y-6">
+
+      {!company ? (
+        <>
+          <div className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-[var(--shadow-md)]">
+            <div>
+              <h1 className="text-2xl font-semibold text-[var(--color-neutral-900)]">
+                My Company
+              </h1>
+              <p className="mt-1 text-sm text-[var(--color-neutral-500)]">
+                Manage your company information and settings.
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-white shadow-[var(--shadow-md)] p-12 text-center">
+            <Building2 className="mx-auto h-16 w-16 text-[var(--color-neutral-300)] mb-4" />
+            <h3 className="text-lg font-semibold text-[var(--color-neutral-900)] mb-2">
+              No Company Found
+            </h3>
+            <p className="text-[var(--color-neutral-500)] mb-6">
+              You haven't created a company yet. Create one to start posting jobs.
+            </p>
+            
+            <Link
+              to="/recruiter/company/create"
+              className="inline-flex items-center gap-2 rounded-xl bg-[var(--color-primary-500)] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--color-primary-600)]"
+            >
+              <Plus size={20} />
+              Create Company
+            </Link>
+          </div>
+        </>
+      ) : (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-[var(--shadow-md)] md:flex-row md:items-center md:justify-between">
         <div>
@@ -371,6 +377,8 @@ export default function MyCompany() {
           </div>
         )}
       </div>
+    </div>
+      )}
     </div>
   );
 }

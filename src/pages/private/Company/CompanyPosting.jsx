@@ -148,7 +148,7 @@ const CompanyPosting = () => {
       
       if (response && response.isOk !== false) {
         alert("Tạo công ty thành công!");
-        navigate(ROUTER.COMPANIES);
+        navigate(ROUTER.RECRUITER_MY_COMPANY);
       } else {
         alert("Tạo công ty thất bại");
       }

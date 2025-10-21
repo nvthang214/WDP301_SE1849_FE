@@ -8,7 +8,10 @@ import { useState } from "react";
 import Account from "./components/Account.jsx";
 import Logo from "./components/Logo.jsx";
 
-const navItems = [{ label: ROUTE_META[ROUTER.HOME].breadcrumb, path: ROUTER.HOME }];
+const navItems = [
+  { label: ROUTE_META[ROUTER.HOME].breadcrumb, path: ROUTER.HOME },
+  { label: ROUTE_META[ROUTER.JOB_LIST].breadcrumb, path: ROUTER.JOB_LIST },
+];
 
 const HeaderMain = ({ className }) => {
   const [open, setOpen] = useState(false);

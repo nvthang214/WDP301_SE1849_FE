@@ -7,6 +7,7 @@ import {
   refreshurl,
   registerurl,
   resetPasswordurl,
+  changePasswordUrl,
 } from "./urls";
 
 const login = async (payload) => {
@@ -41,6 +42,10 @@ const refresh = async () => {
   return await api.get(refreshurl);
 };
 
+const changePassword = async (payload) => {
+  return await api.put(changePasswordUrl, payload);
+};
+
 export const AuthService = {
   login,
   register,
@@ -49,4 +54,5 @@ export const AuthService = {
   loginWithGoogle,
   logout,
   refresh,
+  changePassword,
 };

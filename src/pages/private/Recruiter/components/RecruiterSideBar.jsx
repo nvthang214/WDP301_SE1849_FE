@@ -1,4 +1,4 @@
-import { LayoutDashboard, Settings } from "lucide-react";
+import { LayoutDashboard, Settings, BriefcaseBusiness, Building2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import MenuLeft from "../../../../components/MenuLeft";
 import ROUTER from "../../../../router/ROUTER";
@@ -16,6 +16,20 @@ const RecruiterSideBar = () => {
       key: ROUTER.RECRUITER_OVERVIEW,
       icon: <LayoutDashboard size={20} />,
       label: ROUTE_META[ROUTER.RECRUITER_OVERVIEW]?.breadcrumb,
+      onClick: ({ key }) => navigate(key),
+    },
+
+    {
+      key: ROUTER.RECRUITER_MY_JOBS,
+      icon: <BriefcaseBusiness size={20} />,
+      label: ROUTE_META[ROUTER.RECRUITER_MY_JOBS]?.breadcrumb,
+      onClick: ({ key }) => navigate(key),
+    },
+
+    {
+      key: ROUTER.RECRUITER_MY_COMPANY,
+      icon: <Building2 size={20} />,
+      label: ROUTE_META[ROUTER.RECRUITER_MY_COMPANY]?.breadcrumb,
       onClick: ({ key }) => navigate(key),
     },
 

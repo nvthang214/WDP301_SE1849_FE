@@ -1,5 +1,5 @@
 //job
-export const getAll = "/jobs";
+export const getAll = "/jobs/list";
 export const getById = (id) => `/jobs/${id}`;
 export const postJob = "/jobs/post";
 export const updateJob = (id) => `/jobs/edit/${id}`;

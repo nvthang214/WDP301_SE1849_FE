@@ -75,6 +75,10 @@ const ROUTE_META = {
     breadcrumb: "Social",
     title: "Candidate Social",
   },
+  [ROUTER.CANDIDATE_ACCOUNT]: {
+    breadcrumb: "Account Settings",
+    title: "Candidate Account",
+  },
   [ROUTER.CANDIDATE_APPLY_JOB]: {
     breadcrumb: "Applied Jobs",
     title: "Candidate Applied Jobs",
@@ -88,6 +92,10 @@ const ROUTE_META = {
   [ROUTER.ADMIN_OVERVIEW]: {
     breadcrumb: "Overview",
     title: "Admin Overview",
+  },
+  [ROUTER.ADMIN_USER_MANAGEMENT]: {
+    breadcrumb: "User Management",
+    title: "User Management",
   },
 };
 

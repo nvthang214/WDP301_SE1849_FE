@@ -34,7 +34,7 @@ const NAV_ITEMS = [
 		key: "account",
 		label: "Account Setting",
 		icon: <SettingOutlined />,
-		route: ROUTER.CANDIDATE_OVERVIEW,
+		route: ROUTER.CANDIDATE_ACCOUNT,
 	},
 ];
 

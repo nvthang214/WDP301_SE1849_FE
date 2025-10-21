@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Table, 
   Button, 
@@ -22,7 +22,9 @@ import {
   StopOutlined, 
   UnlockOutlined,
   SearchOutlined,
-  ReloadOutlined
+  ReloadOutlined,
+  TeamOutlined,
+  LockOutlined
 } from '@ant-design/icons';
 import { AdminService } from '../../../../services/AdminService';
 
@@ -36,6 +38,7 @@ const UserManagement = () => {
   const [error, setError] = useState(null);
   const [searchText, setSearchText] = useState('');
   const [filteredUsers, setFilteredUsers] = useState([]);
+  const [currentUserId, setCurrentUserId] = useState(null);
   
   // Modal states
   const [isRoleModalVisible, setIsRoleModalVisible] = useState(false);
@@ -43,17 +46,27 @@ const UserManagement = () => {
   const [selectedRoleId, setSelectedRoleId] = useState('');
 
   useEffect(() => {
+    // Determine current logged-in user id to avoid self-ban
+    try {
+      const raw = localStorage.getItem('user');
+      if (raw) {
+        const u = JSON.parse(raw);
+        setCurrentUserId(u?._id || u?.id || null);
+      }
+    } catch {}
     fetchData();
   }, []);
 
   useEffect(() => {
     // Filter users based on search text
-    if (searchText) {
-      const filtered = users.filter(user => 
-        user.FullName?.toLowerCase().includes(searchText.toLowerCase()) ||
-        user.Email?.toLowerCase().includes(searchText.toLowerCase()) ||
-        user.Role?.toLowerCase().includes(searchText.toLowerCase())
-      );
+    const q = searchText.trim().toLowerCase();
+    if (q) {
+      const filtered = users.filter(user => {
+        const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ').toLowerCase();
+        const email = (user.email || '').toLowerCase();
+        const roleName = (user.role?.name || '').toLowerCase();
+        return fullName.includes(q) || email.includes(q) || roleName.includes(q);
+      });
       setFilteredUsers(filtered);
     } else {
       setFilteredUsers(users);
@@ -67,16 +80,35 @@ const UserManagement = () => {
 
       const [usersResponse, rolesResponse] = await Promise.all([
         AdminService.getAllUsers(),
-        AdminService.getAllRoles()
+        AdminService.getAllRoles(),
       ]);
 
-      setUsers(usersResponse.data || []);
-      setRoles(rolesResponse.data || []);
-      setFilteredUsers(usersResponse.data || []);
+      const normalize = (res) => {
+        if (!res) return [];
+        const d = res.data;
+        if (Array.isArray(d)) return d;
+        if (Array.isArray(d?.data)) return d.data;
+        if (Array.isArray(d?.users)) return d.users;
+        if (Array.isArray(d?.roles)) return d.roles;
+        if (Array.isArray(d?.items)) return d.items;
+        return [];
+      };
+
+      const usersData = normalize(usersResponse);
+      const rolesData = normalize(rolesResponse);
+
+      setUsers(usersData);
+      setRoles(rolesData);
+      setFilteredUsers(usersData);
 
     } catch (err) {
       console.error('Error fetching data:', err);
-      setError('Không thể tải dữ liệu. Vui lòng thử lại.');
+      const status = err?.response?.status;
+      if (status === 401 || status === 403) {
+        setError('Phiên đăng nhập hết hạn hoặc không đủ quyền. Vui lòng đăng nhập lại bằng tài khoản admin.');
+      } else {
+        setError('Không thể tải dữ liệu. Vui lòng thử lại.');
+      }
     } finally {
       setLoading(false);
     }
@@ -84,12 +116,21 @@ const UserManagement = () => {
 
   const handleBanUser = async (userId, isActive) => {
     try {
+      if (currentUserId && userId === currentUserId && isActive === false) {
+        message.warning('Bạn không thể tự khóa tài khoản của chính mình.');
+        return;
+      }
       await AdminService.banUser(userId, isActive);
       message.success(isActive ? 'Mở khóa người dùng thành công!' : 'Khóa người dùng thành công!');
       fetchData(); // Refresh data
     } catch (err) {
       console.error('Error banning user:', err);
-      message.error('Có lỗi xảy ra. Vui lòng thử lại.');
+      const status = err?.response?.status;
+      if (status === 401 || status === 403) {
+        message.error('Bạn không đủ quyền hoặc đã bị khóa. Đăng nhập lại bằng tài khoản admin.');
+      } else {
+        message.error('Có lỗi xảy ra. Vui lòng thử lại.');
+      }
     }
   };
 
@@ -109,37 +150,28 @@ const UserManagement = () => {
 
   const openRoleModal = (user) => {
     setSelectedUser(user);
-    setSelectedRoleId(user.role_id?._id || '');
+    setSelectedRoleId(user.role?._id || '');
     setIsRoleModalVisible(true);
   };
 
   const columns = [
     {
-      title: 'ID',
-      dataIndex: '_id',
-      key: '_id',
-      width: 100,
-      render: (id) => (
-        <span className="text-xs text-gray-500 font-mono">
-          {id?.slice(-8)}
-        </span>
-      ),
-    },
-    {
       title: 'Tên đầy đủ',
-      dataIndex: 'FullName',
-      key: 'FullName',
-      render: (text, record) => (
-        <div>
-          <div className="font-medium">{text || 'Chưa cập nhật'}</div>
-          <div className="text-xs text-gray-500">{record.Email}</div>
-        </div>
-      ),
+      key: 'fullName',
+      render: (_, record) => {
+        const fullName = [record.firstName, record.lastName].filter(Boolean).join(' ');
+        return (
+          <div>
+            <div className="font-medium">{fullName || 'Chưa cập nhật'}</div>
+            <div className="text-xs text-gray-500">{record.email}</div>
+          </div>
+        );
+      },
     },
     {
       title: 'Số điện thoại',
-      dataIndex: 'phone_number',
-      key: 'phone_number',
+      dataIndex: 'phoneNumber',
+      key: 'phoneNumber',
       render: (text) => (
         <span className={text ? 'text-gray-800' : 'text-gray-400 italic'}>
           {text || 'Chưa cập nhật'}
@@ -148,10 +180,9 @@ const UserManagement = () => {
     },
     {
       title: 'Vai trò hiện tại',
-      dataIndex: 'Role',
-      key: 'Role',
-      render: (role, record) => {
-        const roleName = role || record.role_id?.name || 'Chưa xác định';
+      key: 'role',
+      render: (_, record) => {
+        const roleName = record.role?.name || 'Chưa xác định';
         const color = roleName === 'admin' ? 'red' : 
                      roleName === 'recruiter' ? 'blue' : 
                      roleName === 'user' ? 'green' : 'default';
@@ -164,8 +195,8 @@ const UserManagement = () => {
     },
     {
       title: 'Trạng thái',
-      dataIndex: 'IsActive',
-      key: 'IsActive',
+      dataIndex: 'isActive',
+      key: 'isActive',
       render: (isActive) => (
         <Tag color={isActive ? 'green' : 'red'} className="font-medium">
           {isActive ? 'Hoạt động' : 'Bị khóa'}
@@ -188,10 +219,10 @@ const UserManagement = () => {
             Đổi vai trò
           </Button>
           
-          {record.IsActive ? (
+          {record.isActive ? (
             <Popconfirm
               title="Xác nhận khóa người dùng"
-              description={`Bạn có chắc chắn muốn khóa người dùng "${record.FullName || record.Email}"?`}
+              description={`Bạn có chắc chắn muốn khóa người dùng "${[record.firstName, record.lastName].filter(Boolean).join(' ') || record.email}"?`}
               onConfirm={() => handleBanUser(record._id, false)}
               okText="Có"
               cancelText="Không"
@@ -208,7 +239,7 @@ const UserManagement = () => {
           ) : (
             <Popconfirm
               title="Xác nhận mở khóa người dùng"
-              description={`Bạn có chắc chắn muốn mở khóa người dùng "${record.FullName || record.Email}"?`}
+              description={`Bạn có chắc chắn muốn mở khóa người dùng "${[record.firstName, record.lastName].filter(Boolean).join(' ') || record.email}"?`}
               onConfirm={() => handleBanUser(record._id, true)}
               okText="Có"
               cancelText="Không"
@@ -266,7 +297,7 @@ const UserManagement = () => {
           <Card>
             <Statistic
               title="Đang hoạt động"
-              value={users.filter(user => user.IsActive).length}
+              value={users.filter(user => user.isActive).length}
               prefix={<TeamOutlined />}
               valueStyle={{ color: '#52c41a' }}
             />
@@ -276,7 +307,7 @@ const UserManagement = () => {
           <Card>
             <Statistic
               title="Bị khóa"
-              value={users.filter(user => !user.IsActive).length}
+              value={users.filter(user => !user.isActive).length}
               prefix={<LockOutlined />}
               valueStyle={{ color: '#ff4d4f' }}
             />

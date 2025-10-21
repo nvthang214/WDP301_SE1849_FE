@@ -12,7 +12,7 @@ import { notifyError, notifySuccess } from "../../../components/Notification";
 import { CandidateService } from "../../../services/CandidateService";
 import SettingsHeader from "./components/Header";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 const { Option } = Select;
 
 const LinkedInIcon = () => (
@@ -22,26 +22,10 @@ const LinkedInIcon = () => (
 );
 
 const SOCIAL_PLATFORMS = [
-  {
-    value: "facebook",
-    label: "Facebook",
-    icon: <FacebookOutlined style={{ color: "#1877f2" }} />,
-  },
-  {
-    value: "twitter",
-    label: "Twitter",
-    icon: <TwitterOutlined style={{ color: "#1da1f2" }} />,
-  },
-  {
-    value: "instagram",
-    label: "Instagram",
-    icon: <InstagramOutlined style={{ color: "#d6249f" }} />,
-  },
-  {
-    value: "linkedin",
-    label: "LinkedIn",
-    icon: <LinkedInIcon />,
-  },
+  { value: "facebook", label: "Facebook", icon: <FacebookOutlined style={{ color: "#1877f2" }} /> },
+  { value: "twitter", label: "Twitter", icon: <TwitterOutlined style={{ color: "#1da1f2" }} /> },
+  { value: "instagram", label: "Instagram", icon: <InstagramOutlined style={{ color: "#d6249f" }} /> },
+  { value: "linkedin", label: "LinkedIn", icon: <LinkedInIcon /> },
 ];
 
 const decodeAccessToken = (token) => {
@@ -72,6 +56,7 @@ const createEmptyLink = (platform = "") => ({
   platform,
   url: "",
   persisted: false,
+  invalid: false,
 });
 
 const getNextAvailablePlatform = (links) => {
@@ -87,6 +72,7 @@ const toSocialArray = (data) => {
       platform: item.platform || "",
       url: item.url || "",
       persisted: Boolean(item.platform && item.url),
+      invalid: false,
     }));
   }
 
@@ -96,6 +82,7 @@ const toSocialArray = (data) => {
       platform,
       url: url || "",
       persisted: Boolean(platform && url),
+      invalid: false,
     }));
   }
 
@@ -120,6 +107,7 @@ const CandidateSocial = () => {
       return;
     }
     setUserId(payload.userId);
+
     const fetchSocial = async () => {
       try {
         const response = await CandidateService.getCandidateSocial(payload.userId);
@@ -131,12 +119,12 @@ const CandidateSocial = () => {
           return;
         }
 
-  const normalized = toSocialArray(response?.data);
-  setSocialLinks(normalized.length ? normalized : [createEmptyLink(getNextAvailablePlatform([]))]);
+        const normalized = toSocialArray(response?.data);
+        setSocialLinks(normalized.length ? normalized : [createEmptyLink(getNextAvailablePlatform([]))]);
       } catch (error) {
         console.error(error);
         notifyError("Không thể tải dữ liệu mạng xã hội.");
-  setSocialLinks([createEmptyLink(getNextAvailablePlatform([]))]);
+        setSocialLinks([createEmptyLink(getNextAvailablePlatform([]))]);
       } finally {
         setIsLoading(false);
         setIsDirty(false);
@@ -149,27 +137,18 @@ const CandidateSocial = () => {
   const handlePlatformChange = (id, platform) => {
     setSocialLinks((prev) =>
       prev.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              platform,
-              persisted: false,
-            }
-          : item
+        item.id === id ? { ...item, platform, persisted: false } : item
       )
     );
     setIsDirty(true);
   };
 
   const handleUrlChange = (id, url) => {
+    const urlRegex = /^https:\/\/[^\s/$.?#].[^\s]*$/i;
     setSocialLinks((prev) =>
       prev.map((item) =>
         item.id === id
-          ? {
-              ...item,
-              url,
-              persisted: false,
-            }
+          ? { ...item, url, invalid: url.length > 0 && !urlRegex.test(url), persisted: false }
           : item
       )
     );
@@ -177,7 +156,7 @@ const CandidateSocial = () => {
   };
 
   const handleAddSocialLink = () => {
-  setSocialLinks((prev) => [...prev, createEmptyLink(nextAvailablePlatform)]);
+    setSocialLinks((prev) => [...prev, createEmptyLink(nextAvailablePlatform)]);
     setIsDirty(true);
   };
 
@@ -207,9 +186,15 @@ const CandidateSocial = () => {
     const hasDuplicatePlatform = prepared.some(
       (link, index) => prepared.findIndex((item) => item.platform === link.platform) !== index
     );
-
     if (hasDuplicatePlatform) {
       notifyError("Mỗi mạng xã hội chỉ được chọn một lần.");
+      return;
+    }
+
+    // Kiểm tra URL không hợp lệ
+    const urlRegex = /^https:\/\/[^\s/$.?#].[^\s]*$/i;
+    const invalidUrl = prepared.find((item) => !urlRegex.test(item.url));
+    if (invalidUrl) {
       return;
     }
 
@@ -221,13 +206,7 @@ const CandidateSocial = () => {
       }
 
       const normalized = toSocialArray(response?.data);
-      setSocialLinks(() => {
-        if (!normalized.length) {
-          const fallback = getNextAvailablePlatform([]);
-          return [createEmptyLink(fallback)];
-        }
-        return normalized;
-      });
+      setSocialLinks(normalized.length ? normalized : [createEmptyLink()]);
       setIsDirty(false);
       notifySuccess(response?.msg || "Đã cập nhật mạng xã hội thành công.");
     } catch (error) {
@@ -249,9 +228,9 @@ const CandidateSocial = () => {
     ));
 
   return (
-    <div >
-      <SettingsHeader activeKey="social"/>
-      <div >
+    <div>
+      <SettingsHeader activeKey="social" />
+      <div>
         {isLoading ? (
           <div className="flex justify-center py-12">
             <Spin size="large" />
@@ -277,6 +256,7 @@ const CandidateSocial = () => {
                     onChange={(event) => handleUrlChange(link.id, event.target.value)}
                     placeholder="Profile link/url..."
                     prefix={<LinkOutlined className="text-neutral-400" />}
+                    status={link.invalid ? "error" : ""}
                     disabled={isSubmitting}
                   />
                   <Button
@@ -287,6 +267,11 @@ const CandidateSocial = () => {
                     style={{ background: "#fef2f2", borderColor: "#fecaca" }}
                   />
                 </Space.Compact>
+                {link.invalid && (
+                  <Text type="danger" className="text-sm text-red-500">
+                    URL phải bắt đầu bằng https://
+                  </Text>
+                )}
               </div>
             ))}
 
@@ -303,13 +288,17 @@ const CandidateSocial = () => {
         )}
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex justify-end mt-6">
         <Button
           type="primary"
           size="large"
           onClick={handleSaveChanges}
           loading={isSubmitting}
-          disabled={isLoading || !userId || (!isDirty && socialLinks.every((item) => !item.platform && !item.url))}
+          disabled={
+            isLoading ||
+            !userId ||
+            (!isDirty && socialLinks.every((item) => !item.platform && !item.url))
+          }
         >
           Save Changes
         </Button>

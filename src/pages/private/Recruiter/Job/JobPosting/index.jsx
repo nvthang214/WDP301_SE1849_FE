@@ -12,7 +12,6 @@ const jobLevels = ["Intern", "Fresher", "Junior", "Middle", "Senior", "Lead"];
 export default function JobPosting() {
   const [form, setForm] = useState({
     company: "",
-    recruiter: "",
     category: "",
     title: "",
     tags: [],
@@ -70,9 +69,8 @@ export default function JobPosting() {
   useEffect(() => {
     async function fetchCompany() {
       try {
-        const recruiterId = "68ebccd50612c5184b23abbe"; // Replace with actual recruiter ID
-        const res = await JobService.getCompanyByRecruiterId(recruiterId);
-        setForm((prev) => ({ ...prev, company: res.data._id, recruiter: recruiterId }));
+        const res = await JobService.getCompanyOfRecruiter();
+        setForm((prev) => ({ ...prev, company: res.data._id }));
       } catch (error) {
         console.error("Failed to fetch company:", error);
       }

@@ -3,6 +3,8 @@ import { JobService } from "../../../../../services/JobService";
 import { TagService } from "../../../../../services/TagService";
 import { CategoryService } from "../../../../../services/CategoryService";
 import { Select } from "antd";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 const jobTypes = ["FULL-TIME", "PART-TIME", "INTERNSHIP", "TEMPORARY", "CONTRACT BASE"];
 const jobLevels = ["Intern", "Fresher", "Junior", "Middle", "Senior", "Lead"];
@@ -93,6 +95,21 @@ export default function JobPosting() {
       ...prev,
       tags: values,
     }));
+  };
+
+  const quillModules = {
+    toolbar: [
+      [{ header: [1, 2, 3, false] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ list: "ordered" }, { list: "bullet" }],
+      [{ align: [] }],
+      ["link", "blockquote", "code-block"],
+      ["clean"],
+    ],
+  };
+
+  const handleRichTextChange = (field) => (value) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
   };
 
   // Handle form submission
@@ -451,63 +468,59 @@ export default function JobPosting() {
           </section>
 
           <section className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-sm)]">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
-                Job Description
-              </label>
-              <textarea
-                className="min-h-[160px] w-full rounded-xl border border-[var(--color-neutral-200)] px-4 py-3 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-100)]"
-                name="description"
-                placeholder="Share job responsibilities, requirements..."
-                value={form.description}
-                onChange={handleChange}
-              />
-            </div>
+            <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+              Job Description
+            </label>
+            <ReactQuill
+              theme="snow"
+              modules={quillModules}
+              value={form.description}
+              onChange={handleRichTextChange("description")}
+              placeholder="Share job responsibilities, requirements..."
+              className="rounded-xl"
+            />
           </section>
 
           <section className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-sm)]">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
-                Job Requirements
-              </label>
-              <textarea
-                className="min-h-[160px] w-full rounded-xl border border-[var(--color-neutral-200)] px-4 py-3 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-100)]"
-                name="requirements"
-                placeholder="Share must-have skills, qualifications..."
-                value={form.requirements}
-                onChange={handleChange}
-              />
-            </div>
+            <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+              Job Requirements
+            </label>
+            <ReactQuill
+              theme="snow"
+              modules={quillModules}
+              value={form.requirements}
+              onChange={handleRichTextChange("requirements")}
+              placeholder="Share must-have skills, qualifications..."
+              className="rounded-xl"
+            />
           </section>
 
           <section className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-sm)]">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
-                Job Desirable
-              </label>
-              <textarea
-                className="min-h-[160px] w-full rounded-xl border border-[var(--color-neutral-200)] px-4 py-3 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-100)]"
-                name="desirable"
-                placeholder="Share bonus points, nice-to-have experience..."
-                value={form.desirable}
-                onChange={handleChange}
-              />
-            </div>
+            <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+              Job Desirable
+            </label>
+            <ReactQuill
+              theme="snow"
+              modules={quillModules}
+              value={form.desirable}
+              onChange={handleRichTextChange("desirable")}
+              placeholder="Share bonus points, nice-to-have experience..."
+              className="rounded-xl"
+            />
           </section>
 
           <section className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-sm)]">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
-                Job Benefits
-              </label>
-              <textarea
-                className="min-h-[160px] w-full rounded-xl border border-[var(--color-neutral-200)] px-4 py-3 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-100)]"
-                name="benefits"
-                placeholder="Share benefits, perks, and incentives..."
-                value={form.benefits}
-                onChange={handleChange}
-              />
-            </div>
+            <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+              Job Benefits
+            </label>
+            <ReactQuill
+              theme="snow"
+              modules={quillModules}
+              value={form.benefits}
+              onChange={handleRichTextChange("benefits")}
+              placeholder="Share benefits, perks, and incentives..."
+              className="rounded-xl"
+            />
           </section>
 
           <section className="rounded-2xl border border-[var(--color-neutral-200)] bg-[var(--color-neutral-100)] p-6 shadow-[var(--shadow-sm)]">

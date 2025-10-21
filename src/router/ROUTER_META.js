@@ -93,6 +93,10 @@ const ROUTE_META = {
     breadcrumb: "Overview",
     title: "Admin Overview",
   },
+  [ROUTER.ADMIN_USER_MANAGEMENT]: {
+    breadcrumb: "User Management",
+    title: "User Management",
+  },
 };
 
 export default ROUTE_META;

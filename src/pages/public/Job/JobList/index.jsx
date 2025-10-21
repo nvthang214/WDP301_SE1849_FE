@@ -24,7 +24,6 @@ const initialFilters = {
   minSalary: undefined,
   maxSalary: undefined,
   isActive: undefined,
-  remote: true,
 };
 
 // Main Job List Component

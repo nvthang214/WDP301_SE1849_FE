@@ -7,6 +7,8 @@ import {
 	getCandidateProfile,
 	addCandidateProfile,
 	updateCandidateProfile,
+	getInfoCandidate,
+	updateInfoCandidate,
 	getCandidateAppliedJobs
 } from "./urls";
 
@@ -19,6 +21,9 @@ export const CandidateService = {
 	getCandidateProfile: async (userId) => await api.get(getCandidateProfile(userId)),
 	addCandidateProfile: async (userId, data) => await api.post(addCandidateProfile(userId), data),
 	updateCandidateProfile: async (userId, data) => await api.put(updateCandidateProfile(userId), data),
+
+	getInfoCandidate: async (userId) => await api.get(getInfoCandidate(userId)),
+	updateInfoCandidate: async (userId, data) => await api.put(updateInfoCandidate(userId), data),
 
 	getCandidateAppliedJobs: async (userId) => await api.get(getCandidateAppliedJobs(userId)),
 };

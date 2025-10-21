@@ -3,5 +3,15 @@ const registerurl = "/auth/register";
 const forgotPasswordurl = "/auth/forgot-password";
 const resetPasswordurl = "/auth/reset-password";
 const loginWithGoogleUrl = "/auth/oauth-google";
+const logouturl = "/auth/logout";
+const refreshurl = "/auth/refresh";
 
-export { loginurl, registerurl, forgotPasswordurl, resetPasswordurl, loginWithGoogleUrl };
+export {
+  loginurl,
+  registerurl,
+  forgotPasswordurl,
+  resetPasswordurl,
+  loginWithGoogleUrl,
+  logouturl,
+  refreshurl,
+};

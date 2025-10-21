@@ -1,9 +1,12 @@
-import { Input } from "antd";
-import { Mail, Phone } from "lucide-react";
+import { Button, Divider, Drawer, Input } from "antd";
+import { Mail, Menu, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
-import logo from "../../../assets/images/Logo/logosvg.svg";
+
 import ROUTE_META from "../../../router/ROUTER_META.js";
 import ROUTER from "../../../router/ROUTER.js";
+import { useState } from "react";
+import Account from "./components/Account.jsx";
+import Logo from "./components/Logo.jsx";
 
 const navItems = [
   { label: ROUTE_META[ROUTER.HOME].breadcrumb, path: ROUTER.HOME },
@@ -11,63 +14,85 @@ const navItems = [
 ];
 
 const HeaderMain = ({ className }) => {
+  const [open, setOpen] = useState(false);
+  const showDrawer = () => {
+    setOpen(true);
+  };
+  const onClose = () => {
+    setOpen(false);
+  };
   return (
     <header className="sticky top-0 z-40 w-full border-b border-neutral-200 bg-white/95 backdrop-blur">
       <div className="hidden border-b border-neutral-100 bg-neutral-100 text-xs text-neutral-500 lg:block">
-        <div className={`flex items-center justify-between py-3 px-4 ${className}`}>
+        <div className={`flex items-center justify-between px-4 py-3 ${className}`}>
           <div className="flex items-center gap-6">
             {navItems.map((item) => (
-              <Link key={item.label} to={item.path} className="transition hover:text-primary-600">
+              <Link key={item.label} to={item.path} className="hover:text-primary-600 transition">
                 {item.label}
               </Link>
             ))}
           </div>
           <div className="flex items-center gap-6">
             <span className="flex items-center gap-2">
-              <Phone className="h-4 w-4 text-primary-600" />
+              <Phone className="text-primary-600 h-4 w-4" />
               +84-377-591-418
             </span>
             <span className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-primary-600" />
+              <Mail className="text-primary-600 h-4 w-4" />
               support@jobpilot.com
             </span>
           </div>
         </div>
       </div>
 
-      <div className={`flex items-center justify-between py-3 px-4 ${className}`}>
-        <div className="flex items-center gap-10">
-          <Link to={ROUTER.HOME} className="flex items-center gap-2">
-            <img src={logo} alt="Jobpilot" className="h-9 w-auto" />
-            <span className="text-2xl font-semibold">Jobpilot</span>
-          </Link>
-        </div>
-        <form className="hidden flex-1 items-center justify-center xl:flex">
+      <div className={`flex items-center justify-between gap-3 px-4 py-3 ${className}`}>
+        <Logo />
+        <form className="flex flex-1 items-center justify-center">
           <div className="relative w-full max-w-2xl">
             <Input.Search
               placeholder="Search jobs, companies..."
               allowClear
               onSearch={() => console.log("ạksndljkasdbn")}
               size="large"
-              className="rounded-full w-full"
+              className="w-full rounded-full"
             />
           </div>
         </form>
+        <Account />
 
-        <div className="hidden items-center gap-3 xl:flex">
-          <Link
-            to={ROUTER.LOGIN}
-            className="rounded-md border border-primary-600 px-5 py-2 text-sm font-semibold text-primary-600 transition hover:bg-primary-50"
-          >
-            Sign In
-          </Link>
-          <Link
-            to={ROUTER.JOB_POST}
-            className="rounded-md bg-primary-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700"
-          >
-            Post A Jobs
-          </Link>
-        </div>
+        {/* Mobile menu button */}
+        <Button className="lg:!hidden" type="text" onClick={showDrawer}>
+          <Menu />
+        </Button>
+        <Drawer
+          title={<Logo />}
+          placement="top"
+          onClose={onClose}
+          closable={false}
+          open={open}
+          height="fit-content"
+        >
+          <form className="flex-1 items-center justify-center">
+            <div className="relative w-full">
+              <Input.Search
+                placeholder="Search jobs, companies..."
+                allowClear
+                onSearch={() => console.log("ạksndljkasdbn")}
+                size="large"
+                className="w-full rounded-full"
+              />
+            </div>
+          </form>
+          <Divider />
+          <div className="flex items-center gap-3">
+            <Link to={ROUTER.LOGIN}>
+              <Button type="default">Sign In</Button>
+            </Link>
+            <Link to={ROUTER.REGISTER}>
+              <Button type="primary">Sign Up</Button>
+            </Link>
+          </div>
+        </Drawer>
       </div>
     </header>
   );

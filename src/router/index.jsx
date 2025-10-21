@@ -1,9 +1,11 @@
 import React from "react";
 import { createBrowserRouter } from "react-router-dom";
 import LazyLoad from "../components/LazyLoad";
-import NotFound from "../pages/public/NotFound";
+
 import ROUTER from "./ROUTER.js";
 import ROUTE_META from "./ROUTER_META.js";
+import NotFound from "../components/NotFound/index.jsx";
+import ProtectedRoute from "./ProtectedRoute.jsx";
 
 /// === React lazy imports ===
 // =========================== Layouts =============================
@@ -34,7 +36,9 @@ const CandidateProfile = React.lazy(() => import("../pages/private/Candidate/Can
 const CandidateSocial = React.lazy(() => import("../pages/private/Candidate/CandidateSocial"));
 const CandidateAccount = React.lazy(() => import("../pages/private/Candidate/CandidateAccount"));
 const CandidateApplyJob = React.lazy(() => import("../pages/private/Candidate/CandidateApplyJob"));
-const CandidateJobDetail = React.lazy(() => import("../pages/private/Candidate/CandidateJobDetail"));
+const CandidateJobDetail = React.lazy(
+  () => import("../pages/private/Candidate/CandidateJobDetail")
+);
 
 // ========================= End candidate pages ===================
 
@@ -44,8 +48,12 @@ const CandidateJobDetail = React.lazy(() => import("../pages/private/Candidate/C
 const RecruiterOverview = React.lazy(() => import("../pages/private/Recruiter"));
 const RecruiterMyJobs = React.lazy(() => import("../pages/private/Recruiter/Job/MyJobs"));
 const RecruiterMyCompany = React.lazy(() => import("../pages/private/Recruiter/Company/MyCompany"));
-const RecruiterCompanyCreate = React.lazy(() => import("../pages/private/Recruiter/Company/CompanyCreate"));
-const RecruiterCompanyEdit = React.lazy(() => import("../pages/private/Recruiter/Company/CompanyEdit"));
+const RecruiterCompanyCreate = React.lazy(
+  () => import("../pages/private/Recruiter/Company/CompanyCreate")
+);
+const RecruiterCompanyEdit = React.lazy(
+  () => import("../pages/private/Recruiter/Company/CompanyEdit")
+);
 const RecruiterJobPosting = React.lazy(() => import("../pages/private/Recruiter/Job/JobPosting"));
 const RecruiterJobEditing = React.lazy(() => import("../pages/private/Recruiter/Job/JobEditing"));
 
@@ -151,157 +159,173 @@ const router = createBrowserRouter([
   // ========================= Private routes =======================
 
   // --- Candidate routes ---
+
   {
-    element: <LayoutCandidate />,
+    element: <ProtectedRoute role="candidate" />,
     children: [
       {
-        path: ROUTER.CANDIDATE_OVERVIEW,
-        element: (
-          <LazyLoad>
-            <CandidateOverview />
-          </LazyLoad>
-        ),
-        handle: ROUTE_META[ROUTER.CANDIDATE_OVERVIEW],
-      },
-      {
-        path: ROUTER.CANDIDATE_PROFILE,
-        element: (
-          <LazyLoad>
-            <CandidateProfile />
-          </LazyLoad>
-        ),
-        handle: ROUTE_META[ROUTER.CANDIDATE_PROFILE],
-      },
-      {
-        path: ROUTER.CANDIDATE_SOCIAL,
-        element: (
-          <LazyLoad>
-            <CandidateSocial />
-          </LazyLoad>
-        ),
-        handle: ROUTE_META[ROUTER.CANDIDATE_SOCIAL],
-      },
-      {
-        path: ROUTER.CANDIDATE_ACCOUNT,
-        element: (
-          <LazyLoad>
-            <CandidateAccount />
-          </LazyLoad>
-        ),
-        handle: ROUTE_META[ROUTER.CANDIDATE_ACCOUNT],
-      },
-      {
-        path: ROUTER.CANDIDATE_APPLY_JOB,
-        element: (
-          <LazyLoad>
-            <CandidateApplyJob />
-          </LazyLoad>
-        ),
-        handle: ROUTE_META[ROUTER.CANDIDATE_APPLY_JOB],
-      },
-      {
-        path: ROUTER.CANDIDATE_JOB_DETAIL,
-        element: (
-          <LazyLoad>
-            <CandidateJobDetail />
-          </LazyLoad>
-        ),
-        handle: ROUTE_META[ROUTER.CANDIDATE_JOB_DETAIL],
+        element: <LayoutCandidate />,
+        children: [
+          {
+            path: ROUTER.CANDIDATE_OVERVIEW,
+            element: (
+              <LazyLoad>
+                <CandidateOverview />
+              </LazyLoad>
+            ),
+            handle: ROUTE_META[ROUTER.CANDIDATE_OVERVIEW],
+          },
+          {
+            path: ROUTER.CANDIDATE_PROFILE,
+            element: (
+              <LazyLoad>
+                <CandidateProfile />
+              </LazyLoad>
+            ),
+            handle: ROUTE_META[ROUTER.CANDIDATE_PROFILE],
+          },
+          {
+            path: ROUTER.CANDIDATE_SOCIAL,
+            element: (
+              <LazyLoad>
+                <CandidateSocial />
+              </LazyLoad>
+            ),
+            handle: ROUTE_META[ROUTER.CANDIDATE_SOCIAL],
+          },
+          {
+            path: ROUTER.CANDIDATE_ACCOUNT,
+            element: (
+              <LazyLoad>
+                <CandidateAccount />
+              </LazyLoad>
+            ),
+            handle: ROUTE_META[ROUTER.CANDIDATE_ACCOUNT],
+          },
+          {
+            path: ROUTER.CANDIDATE_APPLY_JOB,
+            element: (
+              <LazyLoad>
+                <CandidateApplyJob />
+              </LazyLoad>
+            ),
+            handle: ROUTE_META[ROUTER.CANDIDATE_APPLY_JOB],
+          },
+          {
+            path: ROUTER.CANDIDATE_JOB_DETAIL,
+            element: (
+              <LazyLoad>
+                <CandidateJobDetail />
+              </LazyLoad>
+            ),
+            handle: ROUTE_META[ROUTER.CANDIDATE_JOB_DETAIL],
+          },
+        ],
       },
     ],
   },
-
   // --- Recruiter routes ---
+
   {
-    element: <LayoutRecruiter />,
+    element: <ProtectedRoute role="recruiter" />,
     children: [
       {
-        path: ROUTER.RECRUITER_OVERVIEW,
-        element: (
-          <LazyLoad>
-            <RecruiterOverview />
-          </LazyLoad>
-        ),
-        handle: ROUTE_META[ROUTER.RECRUITER_OVERVIEW],
-      },
-      {
-        path: ROUTER.RECRUITER_MY_JOBS,
-        element: (
-          <LazyLoad>
-            <RecruiterMyJobs />
-          </LazyLoad>
-        ),
-        handle: ROUTE_META[ROUTER.RECRUITER_MY_JOBS],
-      },
-      {
-        path: ROUTER.RECRUITER_MY_COMPANY,
-        element: (
-          <LazyLoad>
-            <RecruiterMyCompany />
-          </LazyLoad>
-        ),
-        handle: ROUTE_META[ROUTER.RECRUITER_MY_COMPANY],
-      },
-      {
-        path: ROUTER.RECRUITER_COMPANY_CREATE,
-        element: (
-          <LazyLoad>
-            <RecruiterCompanyCreate />
-          </LazyLoad>
-        ),
-        handle: ROUTE_META[ROUTER.RECRUITER_COMPANY_CREATE],
-      },
-      {
-        path: ROUTER.RECRUITER_COMPANY_EDIT,
-        element: (
-          <LazyLoad>
-            <RecruiterCompanyEdit />
-          </LazyLoad>
-        ),
-        handle: ROUTE_META[ROUTER.RECRUITER_COMPANY_EDIT],
-      },
-      {
-        path: ROUTER.RECRUITER_JOB_POSTING,
-        element: (
-          <LazyLoad>
-            <RecruiterJobPosting />
-          </LazyLoad>
-        ),
-        handle: ROUTE_META[ROUTER.RECRUITER_JOB_POSTING],
-      },
-      {
-        path: ROUTER.RECRUITER_JOB_EDITING,
-        element: (
-          <LazyLoad>
-            <RecruiterJobEditing />
-          </LazyLoad>
-        ),
-        handle: ROUTE_META[ROUTER.RECRUITER_JOB_EDITING],
+        element: <LayoutRecruiter />,
+        children: [
+          {
+            path: ROUTER.RECRUITER_OVERVIEW,
+            element: (
+              <LazyLoad>
+                <RecruiterOverview />
+              </LazyLoad>
+            ),
+            handle: ROUTE_META[ROUTER.RECRUITER_OVERVIEW],
+          },
+          {
+            path: ROUTER.RECRUITER_MY_JOBS,
+            element: (
+              <LazyLoad>
+                <RecruiterMyJobs />
+              </LazyLoad>
+            ),
+            handle: ROUTE_META[ROUTER.RECRUITER_MY_JOBS],
+          },
+          {
+            path: ROUTER.RECRUITER_MY_COMPANY,
+            element: (
+              <LazyLoad>
+                <RecruiterMyCompany />
+              </LazyLoad>
+            ),
+            handle: ROUTE_META[ROUTER.RECRUITER_MY_COMPANY],
+          },
+          {
+            path: ROUTER.RECRUITER_COMPANY_CREATE,
+            element: (
+              <LazyLoad>
+                <RecruiterCompanyCreate />
+              </LazyLoad>
+            ),
+            handle: ROUTE_META[ROUTER.RECRUITER_COMPANY_CREATE],
+          },
+          {
+            path: ROUTER.RECRUITER_COMPANY_EDIT,
+            element: (
+              <LazyLoad>
+                <RecruiterCompanyEdit />
+              </LazyLoad>
+            ),
+            handle: ROUTE_META[ROUTER.RECRUITER_COMPANY_EDIT],
+          },
+          {
+            path: ROUTER.RECRUITER_JOB_POSTING,
+            element: (
+              <LazyLoad>
+                <RecruiterJobPosting />
+              </LazyLoad>
+            ),
+            handle: ROUTE_META[ROUTER.RECRUITER_JOB_POSTING],
+          },
+          {
+            path: ROUTER.RECRUITER_JOB_EDITING,
+            element: (
+              <LazyLoad>
+                <RecruiterJobEditing />
+              </LazyLoad>
+            ),
+            handle: ROUTE_META[ROUTER.RECRUITER_JOB_EDITING],
+          },
+        ],
       },
     ],
   },
-
   // --- Admin routes ---
+
   {
-    element: <LayoutAdmin />,
+    element: <ProtectedRoute role="admin" />,
     children: [
       {
-        path: ROUTER.ADMIN_OVERVIEW,
-        element: (
-          <LazyLoad>
-            <div>Admin Dashboard</div>
-          </LazyLoad>
-        ),
-        handle: ROUTE_META[ROUTER.ADMIN_OVERVIEW],
-      },
-      {
-        path: ROUTER.ADMIN_USER_MANAGEMENT,
-        element: (
-          <LazyLoad>
-            <AdminUserManagement />
-          </LazyLoad>
-        ),
-        handle: ROUTE_META[ROUTER.ADMIN_USER_MANAGEMENT],
+        element: <LayoutAdmin />,
+        children: [
+          {
+            path: ROUTER.ADMIN_OVERVIEW,
+            element: (
+              <LazyLoad>
+                <div>Admin Dashboard</div>
+              </LazyLoad>
+            ),
+            handle: ROUTE_META[ROUTER.ADMIN_OVERVIEW],
+          },
+          {
+            path: ROUTER.ADMIN_USER_MANAGEMENT,
+            element: (
+              <LazyLoad>
+                <AdminUserManagement />
+              </LazyLoad>
+            ),
+            handle: ROUTE_META[ROUTER.ADMIN_USER_MANAGEMENT],
+          },
+        ],
       },
     ],
   },

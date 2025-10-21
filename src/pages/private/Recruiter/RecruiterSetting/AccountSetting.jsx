@@ -246,19 +246,6 @@ export default function AccountSettingPage() {
                       disabled
                     />
                   </Form.Item>
-
-                  <Form.Item
-                    name="phoneNumber"
-                    label={<span style={{ fontWeight: 500, color: '#374151' }}>Số điện thoại</span>}
-                    style={{ marginBottom: '24px' }}
-                  >
-                    <Input
-                      prefix={<PhoneOutlined style={{ color: '#9ca3af' }} />}
-                      placeholder="Nhập số điện thoại"
-                      size="large"
-                    />
-                  </Form.Item>
-
                   <Button 
                     type="primary" 
                     size="large" 

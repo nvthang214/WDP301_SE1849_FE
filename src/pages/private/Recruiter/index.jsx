@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { 
   Card, 
   Typography, 
@@ -9,7 +9,8 @@ import {
   Space,
   Row,
   Col,
-  Statistic
+  Statistic,
+  message
 } from "antd";
 import {
   FileTextOutlined,
@@ -21,60 +22,114 @@ import {
   ClockCircleOutlined,
   RightOutlined
 } from "@ant-design/icons";
+import { RecruiterService } from "../../../services/RecruiterService";
+import { Context } from "../../../contexts";
+import { useNavigate } from "react-router-dom";
+import ROUTER from "../../../router/ROUTER";
 
 const { Title, Text } = Typography;
 
 const RecruiterOverview = () => {
   const [loading, setLoading] = useState(false);
+  const [jobsData, setJobsData] = useState([]);
+  const [statistics, setStatistics] = useState({
+    openJobs: 0,
+    totalApplications: 0
+  });
+  const { user } = useContext(Context);
+  const navigate = useNavigate();
 
-  // Mock data for jobs
-  const jobsData = [
-    {
-      key: '1',
-      job: 'UI/UX Designer',
-      type: 'Full Time',
-      remaining: '27 days remaining',
-      status: 'Active',
-      applications: 788,
-      actions: 'view'
-    },
-    {
-      key: '2',
-      job: 'Senior UX Designer',
-      type: 'Internship',
-      remaining: '8 days remaining',
-      status: 'Active',
-      applications: 185,
-      actions: 'view'
-    },
-    {
-      key: '3',
-      job: 'Technical Support Specialist',
-      type: 'Part Time',
-      remaining: '4 days remaining',
-      status: 'Active',
-      applications: 556,
-      actions: 'view'
-    },
-    {
-      key: '4',
-      job: 'Junior Graphic Designer',
-      type: 'Full Time',
-      remaining: '24 days remaining',
-      status: 'Active',
-      applications: 183,
-      actions: 'view'
-    },
-    {
-      key: '5',
-      job: 'Front End Developer',
-      type: 'Full Time',
-      remaining: 'Dec 7, 2019',
-      status: 'Expire',
-      applications: 740,
-      actions: 'view'
-    }
-  ];
+  // Fetch recruiter's jobs and statistics
+  useEffect(() => {
+    const fetchRecruiterData = async () => {
+      if (!user?.userId) return;
+      
+      setLoading(true);
+      try {
+        // Fetch jobs by recruiter ID
+        const jobsResponse = await RecruiterService.getJobsByRecruiterId(user.userId);
+        
+        if (jobsResponse.data?.success && jobsResponse.data?.data) {
+          const jobs = jobsResponse.data.data;
+          
+          // Process jobs data for table
+          const processedJobs = await Promise.all(
+            jobs.slice(0, 5).map(async (job, index) => {
+              let applicationsCount = 0;
+              
+              try {
+                // Fetch applications for each job
+                const applicationsResponse = await RecruiterService.getApplicationsByJobId(job._id);
+                if (applicationsResponse.data?.success && applicationsResponse.data?.data) {
+                  applicationsCount = applicationsResponse.data.data.length;
+                }
+              } catch (error) {
+                console.log(`No applications found for job ${job._id}`);
+              }
+
+              // Calculate remaining days
+              const endDate = new Date(job.endDate);
+              const today = new Date();
+              const timeDiff = endDate.getTime() - today.getTime();
+              const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+              
+              let remaining;
+              if (daysDiff > 0) {
+                remaining = `${daysDiff} days remaining`;
+              } else if (daysDiff === 0) {
+                remaining = 'Expires today';
+              } else {
+                remaining = 'Expired';
+              }
+
+              return {
+                key: job._id,
+                job: job.title,
+                type: job.jobType || 'Full Time',
+                remaining: remaining,
+                status: job.isActive ? 'Active' : 'Inactive',
+                applications: applicationsCount,
+                jobData: job
+              };
+            })
+          );
+
+          setJobsData(processedJobs);
+
+          // Calculate statistics
+          const activeJobs = jobs.filter(job => job.isActive).length;
+          const totalApps = processedJobs.reduce((sum, job) => sum + job.applications, 0);
+          
+          setStatistics({
+            openJobs: activeJobs,
+            totalApplications: totalApps
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching recruiter data:', error);
+        message.error('Failed to load dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecruiterData();
+  }, [user?.userId]);
+
+  // Action handlers
+  const handleViewApplications = (record) => {
+    console.log('handleViewApplications called with record:', record);
+    console.log('record.key (jobId):', record.key);
+    console.log('record.job (jobTitle):', record.job);
+    
+    navigate(ROUTER.RECRUITER_APPLICATIONS, { 
+      state: { jobId: record.key, jobTitle: record.job } 
+    });
+  };
+
+  const handleViewJobDetail = (record) => {
+    navigate(`/jobs/${record.key}`);
+  };
 
   // Action menu items
   const getActionItems = (record) => [
@@ -95,6 +150,7 @@ const RecruiterOverview = () => {
           View Detail
         </Space>
       ),
+      onClick: () => handleViewJobDetail(record)
     },
     {
       key: 'expire',
@@ -128,7 +184,7 @@ const RecruiterOverview = () => {
       key: 'status',
       render: (status) => (
         <Tag 
-          color={status === 'Active' ? 'green' : 'red'}
+          color={status === 'Active' ? 'green' : status === 'Inactive' ? 'orange' : 'red'}
           style={{ borderRadius: '12px', padding: '2px 8px' }}
         >
           {status}
@@ -155,6 +211,7 @@ const RecruiterOverview = () => {
             type="primary" 
             size="small"
             style={{ borderRadius: '6px' }}
+            onClick={() => handleViewApplications(record)}
           >
             View Applications
           </Button>
@@ -162,7 +219,11 @@ const RecruiterOverview = () => {
             menu={{ 
               items: getActionItems(record),
               onClick: ({ key }) => {
-                console.log(`Action ${key} clicked for job ${record.job}`);
+                if (key === 'view') {
+                  handleViewJobDetail(record);
+                } else {
+                  console.log(`Action ${key} clicked for job ${record.job}`);
+                }
               }
             }}
             trigger={['click']}
@@ -184,7 +245,7 @@ const RecruiterOverview = () => {
       {/* Header Section */}
       <div style={{ marginBottom: '32px' }}>
         <Title level={3} style={{ margin: 0, color: '#1f2937' }}>
-          Hello, Instagram
+          Hello, {user?.firstName || user?.fullName || 'Recruiter'}
         </Title>
         <Text type="secondary" style={{ fontSize: '14px' }}>
           Here is your daily activities and applications
@@ -208,7 +269,7 @@ const RecruiterOverview = () => {
                    <span style={{ color: '#6b7280', fontSize: '14px' }}>Open Jobs</span>
                  </div>
                }
-              value={589}
+              value={statistics.openJobs}
               valueStyle={{ 
                 color: '#1f2937', 
                 fontSize: '32px', 
@@ -228,12 +289,12 @@ const RecruiterOverview = () => {
           >
             <Statistic
               title={
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <UserOutlined style={{ color: '#f59e0b' }} />
-                  <span style={{ color: '#6b7280', fontSize: '14px' }}>Saved Candidates</span>
-                </div>
-              }
-              value={2517}
+                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                   <UserOutlined style={{ color: '#10b981' }} />
+                   <span style={{ color: '#6b7280', fontSize: '14px' }}>Total Applications</span>
+                 </div>
+               }
+              value={statistics.totalApplications}
               valueStyle={{ 
                 color: '#1f2937', 
                 fontSize: '32px', 
@@ -281,17 +342,6 @@ const RecruiterOverview = () => {
           dataSource={jobsData}
           pagination={false}
           loading={loading}
-          style={{ 
-            '.ant-table-thead > tr > th': {
-              background: '#f9fafb',
-              border: 'none',
-              color: '#6b7280',
-              fontSize: '12px',
-              fontWeight: 500,
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }
-          }}
         />
       </Card>
     </div>

@@ -33,17 +33,23 @@ export default function SocialMediaPage() {
   // Get user ID from localStorage
   const getUserId = () => {
     try {
+      console.log('Debug - localStorage user:', localStorage.getItem('user'));
       const user = JSON.parse(localStorage.getItem('user'));
+      console.log('Debug - parsed user:', user);
       if (user && user.id) {
+        console.log('Debug - user.id found:', user.id);
         return user.id;
       }
       
+      console.log('Debug - localStorage accessToken:', localStorage.getItem('accessToken'));
       const accessToken = localStorage.getItem('accessToken');
       if (accessToken) {
         const payload = JSON.parse(atob(accessToken.split('.')[1]));
-        return payload.id;
+        console.log('Debug - token payload:', payload);
+        return payload.userId || payload.id; // Try userId first, fallback to id
       }
       
+      console.log('Debug - No user ID found, returning null');
       return null;
     } catch (error) {
       console.error('Error getting user ID:', error);
@@ -56,12 +62,15 @@ export default function SocialMediaPage() {
     try {
       setLoading(true);
       const userId = getUserId();
+      console.log('Debug - User ID:', userId);
       if (!userId) {
         message.error('Không thể lấy thông tin người dùng');
         return;
       }
 
+      console.log('Debug - Calling API with userId:', userId);
       const response = await CompanyService.getCompanyByRecruiter(userId);
+      console.log('Debug - API Response:', response);
       if (response.success && response.data) {
         setCompanyData(response.data);
         
@@ -88,6 +97,12 @@ export default function SocialMediaPage() {
       }
     } catch (error) {
       console.error('Error loading company data:', error);
+      console.log('Debug - Error details:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        message: error.message
+      });
       if (error.response?.status !== 404) {
         message.error('Không thể tải thông tin mạng xã hội');
       }

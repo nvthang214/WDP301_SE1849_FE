@@ -1,5 +1,5 @@
 import React from "react";
-import { StoreContext } from "./Context";
+import { StoreContext } from "../../contexts/Context";
 
 const Providers = ({ children }) => {
   const [isLogin, setIsLogin] = React.useState(false);

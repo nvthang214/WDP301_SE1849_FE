@@ -12,3 +12,4 @@ const StoreProvider = ({ children }) => {
 };
 
 export default StoreProvider;
+export { StoreContext as Context };

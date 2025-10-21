@@ -246,7 +246,7 @@ const CandidateProfile = () => {
                 label="Location"
                 rules={[{ max: 100, message: "Tối đa 100 ký tự." }]}
               >
-                <Input size="large" placeholder="Where are you based?" allowClear />
+                <Input size="large" placeholder="City,state,country name" allowClear />
               </Form.Item>
 
               <Form.Item name="tags" label="Tags">

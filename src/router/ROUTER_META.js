@@ -82,10 +82,13 @@ const ROUTE_META = {
     title: "Company Info",
     requiresAuth: true,
   },
-  [ROUTER.SOCIAL_MEDIA]: {
-    breadcrumb: "Social Media",
-    title: "Social Media",
-    requiresAuth: true,
+  [ROUTER.CANDIDATE_ACCOUNT]: {
+    breadcrumb: "Account Settings",
+    title: "Candidate Account",
+  },
+  [ROUTER.CANDIDATE_APPLY_JOB]: {
+    breadcrumb: "Applied Jobs",
+    title: "Candidate Applied Jobs",
   },
   
   // Candidate routes
@@ -99,6 +102,10 @@ const ROUTE_META = {
   [ROUTER.ADMIN_OVERVIEW]: {
     breadcrumb: "Overview",
     title: "Admin Overview",
+  },
+  [ROUTER.ADMIN_USER_MANAGEMENT]: {
+    breadcrumb: "User Management",
+    title: "User Management",
   },
 };
 

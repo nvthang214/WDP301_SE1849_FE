@@ -26,6 +26,7 @@ const ROUTER = {
   CANDIDATE_OVERVIEW: `${candidate}/overview`,
   CANDIDATE_PROFILE: `${candidate}/profile`,
   CANDIDATE_SOCIAL: `${candidate}/social`,
+  CANDIDATE_ACCOUNT: `${candidate}/account`,
   CANDIDATE_APPLY_JOB: `${candidate}/applied-jobs`,
   CANDIDATE_JOB_DETAIL: `${candidate}/detail/:id`,
   // Recruiter routes
@@ -42,6 +43,7 @@ const ROUTER = {
 
   // --- Admin routes ---
   ADMIN_OVERVIEW: `${admin}/overview`,
+  ADMIN_USER_MANAGEMENT: `${admin}/users`,
   // ========================= End private routes ======================
 };
 

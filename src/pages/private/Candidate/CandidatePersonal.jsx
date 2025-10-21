@@ -439,17 +439,17 @@ const handleCvDelete = async () => {
             </header>
 
             <div className="grid gap-6 md:grid-cols-[260px,1fr] lg:grid-cols-[280px,1fr]">
-              <div className="flex flex-col items-center gap-4">
+              <div className="flex flex-col items-start gap-4">
                 <Spin spinning={isAvatarBusy}>
                   {avatarData?.url ? (
-                    <div className="flex flex-col items-center gap-4">
+                    <div className="flex flex-col items-start gap-4">
                       <Avatar
                         src={avatarData.url}
-                        size={168}
+                        size={200}
                         shape="square"
                         className="!rounded-lg object-cover"
                       />
-                      <div className="flex flex-wrap justify-center gap-2">
+                      <div className="flex flex-wrap justify-start gap-2">
                         <Button icon={<EditOutlined />} onClick={() => avatarInputRef.current?.click()}>
                           Edit avatar 
                         </Button>

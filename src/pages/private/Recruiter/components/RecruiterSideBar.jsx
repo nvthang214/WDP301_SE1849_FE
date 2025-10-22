@@ -38,10 +38,10 @@ const RecruiterSideBar = () => {
       type: "divider",
     },
     {
-      key: "sub3",
+      key: ROUTER.RECRUITER_SETTINGS,
       icon: <Settings size={20} />,
-      label: "Settings",
-      extra: "1",
+      label: ROUTE_META[ROUTER.RECRUITER_SETTINGS]?.breadcrumb,
+      onClick: ({ key }) => navigate(key),
     },
     // ======================= End Menu Items ========================
   ];

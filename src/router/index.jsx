@@ -55,6 +55,7 @@ const RecruiterCompanyEdit = React.lazy(
 );
 const RecruiterJobPosting = React.lazy(() => import("../pages/private/Recruiter/Job/JobPosting"));
 const RecruiterJobEditing = React.lazy(() => import("../pages/private/Recruiter/Job/JobEditing"));
+const RecruiterSettings = React.lazy(() => import("../pages/private/Recruiter/RecruiterSetting"));
 
 // ========================= End Recruiter pages ===================
 
@@ -303,6 +304,15 @@ const router = createBrowserRouter([
               </LazyLoad>
             ),
             handle: ROUTE_META[ROUTER.RECRUITER_JOB_EDITING],
+          },
+          {
+            path: ROUTER.RECRUITER_SETTINGS,
+            element: (
+              <LazyLoad>
+                <RecruiterSettings />
+              </LazyLoad>
+            ),
+            handle: ROUTE_META[ROUTER.RECRUITER_SETTINGS],
           },
         ],
       },

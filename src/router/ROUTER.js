@@ -33,6 +33,7 @@ const ROUTER = {
   RECRUITER_COMPANY_EDIT: `${recruiter}/company/edit/:id`,
   RECRUITER_JOB_POSTING: `${recruiter}/jobs/post`,
   RECRUITER_JOB_EDITING: `${recruiter}/jobs/edit/:id`,
+  RECRUITER_SETTINGS: `${recruiter}/settings`,
 
   // --- Candidate routes ---
   CANDIDATE_OVERVIEW: `${candidate}/overview`,

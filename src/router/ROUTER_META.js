@@ -61,6 +61,10 @@ const ROUTE_META = {
     breadcrumb: "Job Editing",
     title: "Job Editing",
   },
+  [ROUTER.RECRUITER_SETTINGS]: {
+    breadcrumb: "Settings",
+    title: "Recruiter Settings",
+  },
 
   // --- Candidate routes ---
   [ROUTER.CANDIDATE_OVERVIEW]: {

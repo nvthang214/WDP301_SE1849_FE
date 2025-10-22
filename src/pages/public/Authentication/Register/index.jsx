@@ -1,12 +1,16 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { notifySuccess } from "../../../../components/Notification";
+import { notifyError, notifySuccess } from "../../../../components/Notification";
 import ROUTER from "../../../../router/ROUTER";
 import { AuthService } from "../../../../services/AuthService";
 import { ArrowRight } from "lucide-react";
 import { LoadingOutlined } from "@ant-design/icons";
+import { Divider } from "antd";
+import LoginGoogle from "../../../../components/Authentication/LoginGoogle";
+import useAuthStore from "../../../../store/useAuthStore";
 
 const Register = () => {
+  const { register, loading } = useAuthStore();
   const nav = useNavigate();
   const [formData, setFormData] = useState({
     firstName: "",
@@ -15,7 +19,6 @@ const Register = () => {
     username: "",
     password: "",
   });
-  const [loading, setLoading] = useState(false);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -27,17 +30,10 @@ const Register = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setLoading(true);
-
-    try {
-      const response = await AuthService.register(formData);
-      notifySuccess(response?.msg);
-      setFormData({ firstName: "", lastName: "", email: "", username: "", password: "" });
+    const res = await register(formData);
+    if (res?.isOk) {
+      notifySuccess(res?.msg || "Đăng ký thành công! Vui lòng đăng nhập.");
       nav(ROUTER.LOGIN);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -50,7 +46,7 @@ const Register = () => {
             Already have account?{" "}
             <Link
               to={ROUTER.LOGIN}
-              className="font-semibold text-primary-600 hover:text-primary-500"
+              className="text-primary-600 hover:text-primary-500 font-semibold"
             >
               Sign in
             </Link>
@@ -71,7 +67,7 @@ const Register = () => {
               value={formData.firstName}
               onChange={handleChange}
               placeholder="Nguyễn"
-              className="w-full rounded-md border border-neutral-200 px-4 py-2.5 text-neutral-800 transition focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
+              className="focus:border-primary-500 focus:ring-primary-100 w-full rounded-md border border-neutral-200 px-4 py-2.5 text-neutral-800 transition focus:ring-2 focus:outline-none"
               autoComplete="given-name"
               required
             />
@@ -87,7 +83,7 @@ const Register = () => {
               value={formData.lastName}
               onChange={handleChange}
               placeholder="Văn A"
-              className="w-full rounded-md border border-neutral-200 px-4 py-2.5 text-neutral-800 transition focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
+              className="focus:border-primary-500 focus:ring-primary-100 w-full rounded-md border border-neutral-200 px-4 py-2.5 text-neutral-800 transition focus:ring-2 focus:outline-none"
               autoComplete="family-name"
               required
             />
@@ -105,7 +101,7 @@ const Register = () => {
               value={formData.username}
               onChange={handleChange}
               placeholder="Enter your username"
-              className="w-full rounded-md border border-neutral-200 px-4 py-2.5 text-neutral-800 transition focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
+              className="focus:border-primary-500 focus:ring-primary-100 w-full rounded-md border border-neutral-200 px-4 py-2.5 text-neutral-800 transition focus:ring-2 focus:outline-none"
               autoComplete="username"
               required
             />
@@ -122,7 +118,7 @@ const Register = () => {
               value={formData.password}
               onChange={handleChange}
               placeholder="Enter your password"
-              className="w-full rounded-md border border-neutral-200 px-4 py-2.5 text-neutral-800 transition focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
+              className="focus:border-primary-500 focus:ring-primary-100 w-full rounded-md border border-neutral-200 px-4 py-2.5 text-neutral-800 transition focus:ring-2 focus:outline-none"
               autoComplete="new-password"
               required
             />
@@ -139,7 +135,7 @@ const Register = () => {
               value={formData.email}
               onChange={handleChange}
               placeholder="example@gmail.com"
-              className="w-full rounded-md border border-neutral-200 px-4 py-2.5 text-neutral-800 transition focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
+              className="focus:border-primary-500 focus:ring-primary-100 w-full rounded-md border border-neutral-200 px-4 py-2.5 text-neutral-800 transition focus:ring-2 focus:outline-none"
               autoComplete="email"
               required
             />
@@ -149,11 +145,16 @@ const Register = () => {
         <button
           type="submit"
           disabled={loading}
-          className="flex w-full items-center justify-center gap-2 rounded-md bg-primary-600 px-4 py-3 text-sm font-semibold !text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:cursor-not-allowed disabled:bg-neutral-300"
+          className="bg-primary-600 hover:bg-primary-700 focus-visible:outline-primary-600 flex w-full items-center justify-center gap-2 rounded-md px-4 py-3 text-sm font-semibold !text-white shadow-sm transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:bg-neutral-300"
         >
           <span>Create Account</span>
           {!loading ? null : <LoadingOutlined />}
         </button>
+        <Divider size="small">or</Divider>
+
+        <div className="w-full">
+          <LoginGoogle />
+        </div>
       </div>
     </form>
   );

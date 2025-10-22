@@ -16,9 +16,9 @@ const LayoutAuth = () => {
       "We help you connect with the right talent through a modern recruitment management system.",
   };
   return (
-    <div className="flex min-h-screen flex-col bg-white lg:flex-row">
+    <div className="flex h-screen flex-col bg-white lg:flex-row overflow-hidden">
       {/* Left column - form */}
-      <div className="flex w-full flex-col px-6 py-10 sm:px-12 lg:w-[580px] lg:px-16">
+      <div className="flex w-full flex-col px-6 py-10 sm:px-12 lg:w-[580px] lg:px-16 overflow-y-auto">
         <Link
           to={ROUTER.HOME}
           className="flex items-center justify-center lg:justify-start gap-3 text-lg font-semibold text-neutral-900"

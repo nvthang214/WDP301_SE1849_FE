@@ -213,6 +213,15 @@ const router = createBrowserRouter([
             handle: ROUTE_META[ROUTER.CANDIDATE_APPLY_JOB],
           },
           {
+            path: ROUTER.CANDIDATE_PERSONAL,
+            element: (
+              <LazyLoad>
+                <CandidatePersonal />
+              </LazyLoad>
+            ),
+            handle: ROUTE_META[ROUTER.CANDIDATE_APPLY_JOB],
+          },
+          {
             path: ROUTER.CANDIDATE_JOB_DETAIL,
             element: (
               <LazyLoad>

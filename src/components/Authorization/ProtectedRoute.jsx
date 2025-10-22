@@ -1,8 +1,8 @@
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
-import NotFound from "../components/NotFound";
-import useAuthStore from "../store/useAuthStore";
-import ROUTER from "./ROUTER";
+import NotFound from "../NotFound";
+import useAuthStore from "../../store/useAuthStore";
+import ROUTER from "../../router/ROUTER";
 
 const ProtectedRoute = ({ role }) => {
   const { accessToken, user } = useAuthStore();

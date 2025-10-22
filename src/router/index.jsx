@@ -5,7 +5,7 @@ import LazyLoad from "../components/LazyLoad";
 import ROUTER from "./ROUTER.js";
 import ROUTE_META from "./ROUTER_META.js";
 import NotFound from "../components/NotFound/index.jsx";
-import ProtectedRoute from "./ProtectedRoute.jsx";
+import ProtectedRoute from "../components/Authorization/ProtectedRoute.jsx";
 
 // =========================== Layouts =============================
 const LayoutAuth = React.lazy(() => import("../components/Layout/LayoutAuth"));
@@ -36,9 +36,8 @@ const CandidateProfile = React.lazy(() => import("../pages/private/Candidate/Can
 const CandidateSocial = React.lazy(() => import("../pages/private/Candidate/CandidateSocial"));
 const CandidateAccount = React.lazy(() => import("../pages/private/Candidate/CandidateAccount"));
 const CandidateApplyJob = React.lazy(() => import("../pages/private/Candidate/CandidateApplyJob"));
-const CandidateJobDetail = React.lazy(
-  () => import("../pages/private/Candidate/CandidateJobDetail")
-);
+const CandidateJobDetail = React.lazy(() => import("../pages/private/Candidate/CandidateJobDetail"));
+const CandidateRequestUpgrade = React.lazy(() => import("../pages/private/Candidate/RequestUpgrade"));
 
 // ========================= End candidate pages ===================
 
@@ -211,6 +210,15 @@ const router = createBrowserRouter([
           },
         ],
       },
+      {
+        path: ROUTER.CANDIDATE_REQUEST_UPGRADE,
+        element: (
+          <LazyLoad>
+            <CandidateRequestUpgrade />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.CANDIDATE_REQUEST_UPGRADE],
+      },
     ],
   },
   // --- Recruiter routes ---
@@ -315,6 +323,15 @@ const router = createBrowserRouter([
             handle: ROUTE_META[ROUTER.ADMIN_USER_MANAGEMENT],
           },
         ],
+      },
+      {
+        path: ROUTER.ADMIN_UPGRADE_REQUESTS,
+        element: (
+          <LazyLoad>
+            <AdminUpgradeRequests />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.ADMIN_UPGRADE_REQUESTS],
       },
     ],
   },

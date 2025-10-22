@@ -5,6 +5,7 @@ import { CategoryService } from "../../../../../services/CategoryService";
 import { Select } from "antd";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import { notifyError, notifySuccess } from "../../../../../components/Notification";
 
 const jobTypes = ["FULL-TIME", "PART-TIME", "INTERNSHIP", "TEMPORARY", "CONTRACT BASE"];
 const jobLevels = ["Intern", "Fresher", "Junior", "Middle", "Senior", "Lead"];
@@ -114,36 +115,44 @@ export default function JobPosting() {
 
   // Handle form submission
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const submitData = {
-      recruiter: form.recruiter,
-      company: form.company,
-      category: form.category,
-      title: form.title,
-      description: form.description,
-      tags: form.tags,
-      role: form.role,
-      minSalary: Number(form.minSalary),
-      maxSalary: Number(form.maxSalary),
-      salaryType: form.salaryType,
-      education: form.education,
-      experience: form.experience,
-      jobType: form.jobType,
-      vacancies: Number(form.vacancies),
-      expiration: form.expiration ? new Date(form.expiration).toISOString() : "",
-      jobLevel: form.jobLevel,
-      country: form.country,
-      city: form.city,
-      remote: !!form.remote,
-      benefits: form.benefits,
-      applyType: form.applyType,
-      requirements: form.requirements,
-      desirable: form.desirable,
-      location: form.location || form.city,
-      isActive: typeof form.isActive === "boolean" ? form.isActive : true,
-    };
-    await JobService.postJob(submitData);
-    alert("Job posted!");
+    try {
+      e.preventDefault();
+      const submitData = {
+        recruiter: form.recruiter,
+        company: form.company,
+        category: form.category,
+        title: form.title,
+        description: form.description,
+        tags: form.tags,
+        role: form.role,
+        minSalary: Number(form.minSalary),
+        maxSalary: Number(form.maxSalary),
+        salaryType: form.salaryType,
+        education: form.education,
+        experience: form.experience,
+        jobType: form.jobType,
+        vacancies: Number(form.vacancies),
+        expiration: form.expiration ? new Date(form.expiration).toISOString() : "",
+        jobLevel: form.jobLevel,
+        country: form.country,
+        city: form.city,
+        remote: !!form.remote,
+        benefits: form.benefits,
+        applyType: form.applyType,
+        requirements: form.requirements,
+        desirable: form.desirable,
+        location: form.location || form.city,
+        isActive: typeof form.isActive === "boolean" ? form.isActive : true,
+      };
+      await JobService.postJob(submitData);
+      notifySuccess("Job posted successfully!");
+      setTimeout(() => {
+        window.location.href = "/recruiter/jobs/my-jobs";
+      }, 1200);
+    } catch (error) {
+      console.error("Failed to post job:", error);
+      notifyError("Failed to post job. Please try again.");
+    }
   };
 
   return (

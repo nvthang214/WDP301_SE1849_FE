@@ -94,6 +94,10 @@ const ROUTE_META = {
     title: "Candidate Dashboard",
     requiresAuth: true,
   },
+  [ROUTER.CANDIDATE_REQUEST_UPGRADE]: {
+    breadcrumb: "Request Upgrade",
+    title: "Request Upgrade to Recruiter",
+  },
 
   // --- Admin routes ---
   [ROUTER.ADMIN_OVERVIEW]: {
@@ -103,6 +107,10 @@ const ROUTE_META = {
   [ROUTER.ADMIN_USER_MANAGEMENT]: {
     breadcrumb: "User Management",
     title: "User Management",
+  },
+  [ROUTER.ADMIN_UPGRADE_REQUESTS]: {
+    breadcrumb: "Upgrade Requests",
+    title: "Upgrade Requests Management",
   },
 };
 

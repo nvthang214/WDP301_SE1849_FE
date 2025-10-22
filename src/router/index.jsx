@@ -7,12 +7,13 @@ import ROUTE_META from "./ROUTER_META.js";
 import NotFound from "../components/NotFound/index.jsx";
 import ProtectedRoute from "../components/Authorization/ProtectedRoute.jsx";
 
-/// === React lazy imports ===
 // =========================== Layouts =============================
 const LayoutAuth = React.lazy(() => import("../components/Layout/LayoutAuth"));
 const LayoutCommon = React.lazy(() => import("../components/Layout"));
 const LayoutCandidate = React.lazy(() => import("../components/Layout/LayoutCandidate"));
 const LayoutAdmin = React.lazy(() => import("../components/Layout/LayoutAdmin"));
+const AdminUserManagement = React.lazy(() => import("../pages/private/Admin/UserManagement"));
+const AdminUpgradeRequests = React.lazy(() => import("../pages/private/Admin/UpgradeRequests"));
 const LayoutRecruiter = React.lazy(() => import("../components/Layout/LayoutRecruiter"));
 // ========================== End layouts ==========================
 
@@ -57,21 +58,9 @@ const RecruiterJobPosting = React.lazy(() => import("../pages/private/Recruiter/
 const RecruiterJobEditing = React.lazy(() => import("../pages/private/Recruiter/Job/JobEditing"));
 const RecruiterSettings = React.lazy(() => import("../pages/private/Recruiter/RecruiterSetting"));
 
-// ========================= End Recruiter pages ===================
-
-////////////////////////////////////////////////////////////////////
-
-// ========================= Admin pages ===========================
-const AdminUserManagement = React.lazy(() => import("../pages/private/Admin/UserManagement"));
-const AdminUpgradeRequests = React.lazy(() => import("../pages/private/Admin/UpgradeRequests"));
-
-// ========================= End Admin pages =======================
-
-/**
- * --- Routes config ---
- * loader: kiểm tra điều kiện trước khi vào route
- * handle: meta data của route- yêu cầu auth, title, breadcrumb, ...
- */
+const AccountSetting = React.lazy(() => import("../pages/private/Recruiter/RecruiterSetting/AccountSetting"));
+const CompanyInfo = React.lazy(() => import("../pages/private/Recruiter/RecruiterSetting/CompanyInfo"));
+const SocialMedia = React.lazy(() => import("../pages/private/Recruiter/RecruiterSetting/SocialMedia"));
 const router = createBrowserRouter([
   //========================= Public Routes ==========================
   // --- Authentication routes ---

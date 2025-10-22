@@ -3,21 +3,16 @@ import useAuthStore from "../../store/useAuthStore";
 import { Spin } from "antd";
 
 const Providers = ({ children }) => {
-  const { loading, accessToken, user, refresh, fetchMe } = useAuthStore();
+  const { loading, init } = useAuthStore();
   const [starting, setStarting] = React.useState(true);
 
   React.useEffect(() => {
     const initial = async () => {
-      if (!accessToken) {
-        await refresh();
-      }
-      if (accessToken && !user) {
-        await fetchMe();
-      }
+      await init();
       setStarting(false);
     };
     initial();
-  }, []);
+  }, [init]);
 
   if (starting || loading) {
     return <></>;

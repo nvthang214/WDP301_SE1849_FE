@@ -2,7 +2,6 @@ import { get } from "lodash";
 import api from "../00-Axios";
 import { dashboard, accountSettings, companyInfo, socialMedia, stats, recentJobs } from "./urls";
 
-const getDashboardData = async () => await api.get(dashboard, {params: {}});
 
 export const RecruiterService = {
   getDashboardData,

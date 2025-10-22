@@ -41,6 +41,7 @@ const ROUTE_META = {
     breadcrumb: "My Jobs",
     title: "My Jobs",
   },
+
   [ROUTER.RECRUITER_MY_COMPANY]: {
     breadcrumb: "My Company",
     title: "My Company",
@@ -66,18 +67,21 @@ const ROUTE_META = {
     title: "Recruiter Settings",
   },
 
-  // --- Candidate routes ---
-  [ROUTER.CANDIDATE_OVERVIEW]: {
-    breadcrumb: "Overview",
-    title: "Candidate Overview",
+  // Recruiter routes
+  [ROUTER.RECRUITER_DASHBOARD]: {
+    breadcrumb: "Recruiter Overview",
+    title: "Recruiter Overview",
+    requiresAuth: true,
   },
-  [ROUTER.CANDIDATE_PROFILE]: {
-    breadcrumb: "Profile",
-    title: "Candidate Profile",
+  [ROUTER.ACCOUNT_SETTINGS]: {
+    breadcrumb: "Account Settings",
+    title: "Account Settings",
+    requiresAuth: true,
   },
-  [ROUTER.CANDIDATE_SOCIAL]: {
-    breadcrumb: "Social",
-    title: "Candidate Social",
+  [ROUTER.COMPANY_INFO]: {
+    breadcrumb: "Company Info",
+    title: "Company Info",
+    requiresAuth: true,
   },
   [ROUTER.CANDIDATE_ACCOUNT]: {
     breadcrumb: "Account Settings",
@@ -87,9 +91,12 @@ const ROUTE_META = {
     breadcrumb: "Applied Jobs",
     title: "Candidate Applied Jobs",
   },
-  [ROUTER.CANDIDATE_JOB_DETAIL]: {
-    breadcrumb: "Job Detail",
-    title: "Job Detail",
+  
+  // Candidate routes
+  [ROUTER.CANDIDATE_DASHBOARD]: {
+    breadcrumb: "Candidate Dashboard",
+    title: "Candidate Dashboard",
+    requiresAuth: true,
   },
   [ROUTER.CANDIDATE_REQUEST_UPGRADE]: {
     breadcrumb: "Request Upgrade",

@@ -116,6 +116,7 @@ export default function SocialMediaPage() {
     try {
       setSaving(true);
       const userId = getUserId();
+      console.log('Debug - handleSave - userId:', userId);
       if (!userId) {
         message.error('Không thể lấy thông tin người dùng');
         return;
@@ -129,16 +130,24 @@ export default function SocialMediaPage() {
         }
       });
 
+      console.log('Debug - handleSave - socialLinks:', socialLinks);
+      console.log('Debug - handleSave - socialObject:', socialObject);
+
       const payload = {
         social: socialObject
       };
 
+      console.log('Debug - handleSave - payload:', payload);
+      console.log('Debug - handleSave - companyData:', companyData);
+
       let response;
       if (companyData && companyData._id) {
         // Update existing company
+        console.log('Debug - handleSave - Updating company with ID:', companyData._id);
         response = await CompanyService.updateCompany(companyData._id, payload);
       } else {
         // Create new company with social media
+        console.log('Debug - handleSave - Creating new company');
         const companyPayload = {
           name: 'Tên công ty',
           description: '',
@@ -146,6 +155,8 @@ export default function SocialMediaPage() {
         };
         response = await CompanyService.createCompany(companyPayload);
       }
+
+      console.log('Debug - handleSave - API response:', response);
 
       if (response.success) {
         message.success('Thông tin mạng xã hội đã được lưu thành công!');
@@ -155,6 +166,12 @@ export default function SocialMediaPage() {
       }
     } catch (error) {
       console.error('Error saving social media:', error);
+      console.log('Debug - handleSave - Error details:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        message: error.message
+      });
       message.error('Có lỗi xảy ra khi lưu thông tin mạng xã hội');
     } finally {
       setSaving(false);
@@ -163,8 +180,26 @@ export default function SocialMediaPage() {
 
   // Add new social link
   const addSocialLink = () => {
+    // Check if we already have 5 social links (max limit)
+    if (socialLinks.length >= 5) {
+      message.warning('Bạn chỉ có thể thêm tối đa 5 liên kết mạng xã hội');
+      return;
+    }
+
+    // Get available platforms that haven't been used yet
+    const availablePlatforms = ['facebook', 'twitter', 'instagram', 'youtube', 'linkedin'];
+    const usedPlatforms = socialLinks.map(link => link.platform);
+    const unusedPlatforms = availablePlatforms.filter(platform => !usedPlatforms.includes(platform));
+    
+    // If all platforms are used, show warning
+    if (unusedPlatforms.length === 0) {
+      message.warning('Tất cả các nền tảng mạng xã hội đã được thêm');
+      return;
+    }
+
     const newId = Math.max(...socialLinks.map(link => link.id)) + 1;
-    setSocialLinks([...socialLinks, { id: newId, platform: 'facebook', url: '' }]);
+    const defaultPlatform = unusedPlatforms[0]; // Use first available platform
+    setSocialLinks([...socialLinks, { id: newId, platform: defaultPlatform, url: '' }]);
   };
 
   // Remove social link
@@ -205,34 +240,46 @@ export default function SocialMediaPage() {
             <Space.Compact style={{ width: '100%' }} size="large">
               <Select
                 value={link.platform}
-                onChange={(value) => updateSocialLink(link.id, 'platform', value)}
+                onChange={(value) => {
+                  // Check if platform is already used by another link
+                  const isUsedByOther = socialLinks.some(otherLink => 
+                    otherLink.id !== link.id && otherLink.platform === value
+                  );
+                  
+                  if (isUsedByOther) {
+                    message.warning('Nền tảng này đã được sử dụng');
+                    return;
+                  }
+                  
+                  updateSocialLink(link.id, 'platform', value);
+                }}
                 style={{ width: '200px' }}
               >
-                <Option value="facebook">
+                <Option value="facebook" disabled={socialLinks.some(l => l.id !== link.id && l.platform === 'facebook')}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <FacebookOutlined style={{ color: "#1877f2" }} />
                     <span>Facebook</span>
                   </div>
                 </Option>
-                <Option value="twitter">
+                <Option value="twitter" disabled={socialLinks.some(l => l.id !== link.id && l.platform === 'twitter')}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <TwitterOutlined style={{ color: "#1da1f2" }} />
                     <span>Twitter</span>
                   </div>
                 </Option>
-                <Option value="instagram">
+                <Option value="instagram" disabled={socialLinks.some(l => l.id !== link.id && l.platform === 'instagram')}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <InstagramOutlined style={{ color: "#d6249f" }} />
+                    <InstagramOutlined style={{ color: "#e4405f" }} />
                     <span>Instagram</span>
                   </div>
                 </Option>
-                <Option value="youtube">
+                <Option value="youtube" disabled={socialLinks.some(l => l.id !== link.id && l.platform === 'youtube')}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <YoutubeOutlined style={{ color: "red" }} />
+                    <YoutubeOutlined style={{ color: "#ff0000" }} />
                     <span>YouTube</span>
                   </div>
                 </Option>
-                <Option value="linkedin">
+                <Option value="linkedin" disabled={socialLinks.some(l => l.id !== link.id && l.platform === 'linkedin')}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <LinkedInOutlined />
                     <span>LinkedIn</span>

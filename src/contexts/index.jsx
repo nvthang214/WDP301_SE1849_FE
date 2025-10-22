@@ -11,5 +11,6 @@ const StoreProvider = ({ children }) => {
   );
 };
 
+// Export both StoreProvider as default and StoreContext as named export
 export default StoreProvider;
 export { StoreContext as Context };

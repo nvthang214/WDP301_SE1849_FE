@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Card, 
   Typography, 
@@ -23,7 +23,6 @@ import {
   RightOutlined
 } from "@ant-design/icons";
 import { RecruiterService } from "../../../services/RecruiterService";
-import { Context } from "../../../contexts";
 import { useNavigate } from "react-router-dom";
 import ROUTER from "../../../router/ROUTER";
 
@@ -36,7 +35,9 @@ const RecruiterOverview = () => {
     openJobs: 0,
     totalApplications: 0
   });
-  const { user } = useContext(Context);
+  
+  // Get user data from localStorage
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
   const navigate = useNavigate();
 
   // Fetch recruiter's jobs and statistics

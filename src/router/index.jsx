@@ -47,7 +47,7 @@ const RecruiterCompanyCreate = React.lazy(() => import("../pages/private/Recruit
 const RecruiterCompanyEdit = React.lazy(() => import("../pages/private/Recruiter/Company/CompanyEdit"));
 const RecruiterJobPosting = React.lazy(() => import("../pages/private/Recruiter/Job/JobPosting"));
 const RecruiterJobEditing = React.lazy(() => import("../pages/private/Recruiter/Job/JobEditing"));
-const RecruiterApplications = React.lazy(() => import("../pages/private/Recruiter/Applications"));
+
 const AccountSetting = React.lazy(() => import("../pages/private/Recruiter/RecruiterSetting/AccountSetting"));
 const CompanyInfo = React.lazy(() => import("../pages/private/Recruiter/RecruiterSetting/CompanyInfo"));
 const SocialMedia = React.lazy(() => import("../pages/private/Recruiter/RecruiterSetting/SocialMedia"));
@@ -221,15 +221,7 @@ const router = createBrowserRouter([
         ),
         handle: ROUTE_META[ROUTER.RECRUITER_MY_JOBS],
       },
-      {
-        path: ROUTER.RECRUITER_APPLICATIONS,
-        element: (
-          <LazyLoad>
-            <RecruiterApplications />
-          </LazyLoad>
-        ),
-        handle: ROUTE_META[ROUTER.RECRUITER_APPLICATIONS],
-      },
+
       {
         path: ROUTER.RECRUITER_MY_COMPANY,
         element: (
@@ -319,15 +311,15 @@ const router = createBrowserRouter([
         ),
         handle: ROUTE_META[ROUTER.ADMIN_OVERVIEW],
       },
-      {
-        path: ROUTER.ADMIN_USER_MANAGEMENT,
-        element: (
-          <LazyLoad>
-            <AdminUserManagement />
-          </LazyLoad>
-        ),
-        handle: ROUTE_META[ROUTER.ADMIN_USER_MANAGEMENT],
-      },
+      // {
+      //   path: ROUTER.ADMIN_USER_MANAGEMENT,
+      //   element: (
+      //     <LazyLoad>
+      //       <AdminUserManagement />
+      //     </LazyLoad>
+      //   ),
+      //   handle: ROUTE_META[ROUTER.ADMIN_USER_MANAGEMENT],
+      // },
     ],
   },
 

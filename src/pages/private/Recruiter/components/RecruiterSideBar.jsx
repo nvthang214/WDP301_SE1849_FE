@@ -26,12 +26,7 @@ const RecruiterSideBar = () => {
       onClick: ({ key }) => navigate(key),
     },
 
-    {
-      key: ROUTER.RECRUITER_APPLICATIONS,
-      icon: <Users size={20} />,
-      label: ROUTE_META[ROUTER.RECRUITER_APPLICATIONS]?.breadcrumb,
-      onClick: ({ key }) => navigate(key),
-    },
+
 
     {
       key: ROUTER.RECRUITER_MY_COMPANY,

@@ -1,13 +1,28 @@
 import React from "react";
-import { StoreContext } from "./Context";
+import useAuthStore from "../../store/useAuthStore";
+import { Spin } from "antd";
 
 const Providers = ({ children }) => {
-  const [isLogin, setIsLogin] = React.useState(false);
-  const store = {
-    loginStore: { isLogin, setIsLogin },
-  };
+  const { loading, accessToken, user, refresh, fetchMe } = useAuthStore();
+  const [starting, setStarting] = React.useState(true);
 
-  return <StoreContext.Provider value={{ store }}>{children}</StoreContext.Provider>;
+  React.useEffect(() => {
+    const initial = async () => {
+      if (!accessToken) {
+        await refresh();
+      }
+      if (accessToken && !user) {
+        await fetchMe();
+      }
+      setStarting(false);
+    };
+    initial();
+  }, []);
+
+  if (starting || loading) {
+    return <></>;
+  }
+  return children;
 };
 
 export default Providers;

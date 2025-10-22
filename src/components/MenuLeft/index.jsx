@@ -1,5 +1,5 @@
 import { PieChartOutlined, UserOutlined } from "@ant-design/icons";
-import { Layout, Menu } from "antd";
+import { App, Layout, Menu, Modal } from "antd";
 import { LogOut } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 const { Sider } = Layout;
@@ -45,7 +45,8 @@ const MenuLeft = ({
           {
             key: "logout",
             icon: <LogOut size={20} />,
-            label: "Logout",
+            label: "Log Out",
+            onClick: handleLogout,
           },
         ]}
       />

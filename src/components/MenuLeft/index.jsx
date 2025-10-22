@@ -2,6 +2,7 @@ import { PieChartOutlined, UserOutlined } from "@ant-design/icons";
 import { App, Layout, Menu, Modal } from "antd";
 import { LogOut } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
+import useAuthStore from "../../store/useAuthStore";
 const { Sider } = Layout;
 
 const MenuLeft = ({
@@ -20,6 +21,16 @@ const MenuLeft = ({
 }) => {
   const path = useLocation().pathname;
   const navigate = useNavigate();
+  const { logout } = useAuthStore();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
 
   const handleMenuClick = ({ key }) => {
     // Tìm item được click

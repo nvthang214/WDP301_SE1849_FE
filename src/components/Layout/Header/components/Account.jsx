@@ -7,12 +7,17 @@ import useAuthStore from "../../../../store/useAuthStore";
 
 const Account = () => {
   const user = useAuthStore((state) => state.user);
+  const PAGE = {
+    admin: ROUTER.ADMIN_OVERVIEW,
+    recruiter: ROUTER.RECRUITER_OVERVIEW,
+    candidate: ROUTER.CANDIDATE_OVERVIEW,
+  };
   return (
     <div className="flex items-center gap-3">
       {user ? (
         <Space size="large" align="center">
           <NotificationPopover />
-          <Link to={ROUTER.CANDIDATE_OVERVIEW}>
+          <Link to={PAGE[user?.role?.name]}>
             <Avatar className="bg-primary-600" src={user?.avatar ? user.avatar : null}>
               {user?.name?.charAt(0).toUpperCase()}
             </Avatar>

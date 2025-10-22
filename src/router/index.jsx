@@ -5,7 +5,7 @@ import LazyLoad from "../components/LazyLoad";
 import ROUTER from "./ROUTER.js";
 import ROUTE_META from "./ROUTER_META.js";
 import NotFound from "../components/NotFound/index.jsx";
-import ProtectedRoute from "./ProtectedRoute.jsx";
+import ProtectedRoute from "../components/Authorization/ProtectedRoute.jsx";
 
 /// === React lazy imports ===
 // =========================== Layouts =============================

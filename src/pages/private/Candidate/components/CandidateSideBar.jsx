@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   LogOut,
   Settings,
+  TrendingUp,
 } from "lucide-react";
 import MenuLeft from "../../../../components/MenuLeft";
 import { useNavigate } from "react-router-dom";
@@ -35,6 +36,12 @@ const CandidateSideBar = () => {
       key: ROUTER.CANDIDATE_APPLY_JOB,
       icon: <BriefcaseBusiness size={20} />,
       label: "Applied Jobs",
+      onClick: ({ key }) => navigate(key),
+    },
+    {
+      key: ROUTER.CANDIDATE_REQUEST_UPGRADE,
+      icon: <TrendingUp size={20} />,
+      label: ROUTE_META[ROUTER.CANDIDATE_REQUEST_UPGRADE]?.breadcrumb,
       onClick: ({ key }) => navigate(key),
     },
     {

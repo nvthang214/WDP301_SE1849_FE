@@ -12,6 +12,7 @@ const LayoutAuth = React.lazy(() => import("../components/Layout/LayoutAuth"));
 const LayoutCommon = React.lazy(() => import("../components/Layout"));
 const LayoutCandidate = React.lazy(() => import("../components/Layout/LayoutCandidate"));
 const LayoutAdmin = React.lazy(() => import("../components/Layout/LayoutAdmin"));
+const AdminUserManagement = React.lazy(() => import("../pages/private/Admin/UserManagement"));
 const LayoutRecruiter = React.lazy(() => import("../components/Layout/LayoutRecruiter"));
 // ========================== End layouts ==========================
 

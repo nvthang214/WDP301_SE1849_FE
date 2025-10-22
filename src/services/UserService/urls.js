@@ -1,4 +1,5 @@
 export const getAll = "/users";
+export const getCurrentUser = "/users/me";
 export const getUserProfile = (userId) => `/users/profile/${userId}`;
 export const updateUserProfile = (userId) => `/users/profile/${userId}`;
 export const getUserById = (userId) => `/users/${userId}`;

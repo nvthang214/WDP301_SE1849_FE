@@ -2,11 +2,11 @@
 import axios from "axios";
 
 import { notifyError } from "../../components/Notification";
+import useAuthStore from "../../store/useAuthStore";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
   withCredentials: true,
-  timeout: 15000,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -20,8 +20,8 @@ const processQueue = (err, token = null) => {
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("accessToken");
-    if (token) config.headers.Authorization = `Bearer ${token}`;
+    const { accessToken } = useAuthStore.getState();
+    if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
     return config;
   },
   (err) => Promise.reject(err)
@@ -76,28 +76,30 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // Gọi thẳng endpoint refresh (dùng axios để tránh loop với instance)
-        const refreshRes = await axios.post(
+        const refreshRes = await axios.get(
           `${import.meta.env.VITE_BASE_URL || "http://localhost:4000/api"}/auth/refresh`,
-          {},
           { withCredentials: true }
         );
 
-        const newToken = refreshRes.data?.data?.token;
+        const newToken = refreshRes?.data?.data?.token;
+        console.log(newToken);
+
         if (!newToken) throw new Error("No token from refresh");
 
-        localStorage.setItem("accessToken", newToken);
-        api.defaults.headers.Authorization = `Bearer ${newToken}`;
+        // Cập nhật ngay Zustand và default header
+        useAuthStore.getState().setAccessToken(newToken);
+
+        // Quan trọng: cập nhật lại header cho instance axios
+        api.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
+
         processQueue(null, newToken);
 
-        // Retry original request với token mới
+        // Retry lại request cũ
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return api(originalRequest);
       } catch (err) {
         processQueue(err, null);
-        localStorage.removeItem("accessToken"); // xóa access token / state auth
-        // Redirect ở đây chỉ khi refresh fail (nghĩa là user thực sự cần login lại)
-        window.location.href = "/login";
+        useAuthStore.getState().clearState();
         return Promise.reject(err);
       } finally {
         isRefreshing = false;

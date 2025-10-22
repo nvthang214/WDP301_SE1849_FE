@@ -43,13 +43,10 @@ export default function MyJob() {
   const pageSize = 8;
 
   useEffect(() => {
-    const recruiterId = JSON.parse(localStorage.getItem("recruiterInfo") || "{}")?._id;
     const fetchJobs = async () => {
       try {
         setLoading(true);
-        const res = recruiterId
-          ? await JobService.getJobsByRecruiterId(recruiterId)
-          : await JobService.getJobs({ limit: 100 });
+        const res = await JobService.getJobsOfRecruiter();
         const list = res?.data?.jobs || res?.data || [];
         setJobs(list);
       } catch (error) {
@@ -98,6 +95,14 @@ export default function MyJob() {
           </p>
         </div>
         <div className="relative">
+          {/* Post Job button */}
+          <Link
+            to="/recruiter/jobs/post"
+            className="mr-4 inline-flex items-center gap-2 rounded-xl bg-[var(--color-primary-600)] px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[var(--color-primary-700)]"
+          >
+            Post New Job
+          </Link>
+
           <button
             type="button"
             className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-neutral-200)] bg-white px-4 py-2 text-sm font-medium text-[var(--color-neutral-700)] shadow-sm transition hover:border-[var(--color-primary-300)]"
@@ -134,7 +139,7 @@ export default function MyJob() {
       </div>
 
       <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-white shadow-[var(--shadow-md)]">
-        <div className="grid grid-cols-[1.6fr_0.5fr_0.5fr_auto] items-center gap-4 border-b border-[var(--color-neutral-200)] bg-[var(--color-neutral-100)] px-6 py-4 text-xs font-semibold uppercase tracking-wide text-[var(--color-neutral-500)]">
+        <div className="grid grid-cols-[1.6fr_0.5fr_0.5fr_auto] items-center gap-4 border-b border-[var(--color-neutral-200)] bg-[var(--color-neutral-100)] px-6 py-4 text-xs font-semibold tracking-wide text-[var(--color-neutral-500)] uppercase">
           <span>Jobs</span>
           <span>Status</span>
           <span>Applications</span>

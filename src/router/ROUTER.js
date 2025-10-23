@@ -25,6 +25,7 @@ const ROUTER = {
 
   // --- Candidate routes ---
   CANDIDATE_OVERVIEW: `${candidate}/overview`,
+  CANDIDATE_PERSONAL: `${candidate}/personal`,
   CANDIDATE_PROFILE: `${candidate}/profile`,
   CANDIDATE_SOCIAL: `${candidate}/social`,
   CANDIDATE_ACCOUNT: `${candidate}/account`,

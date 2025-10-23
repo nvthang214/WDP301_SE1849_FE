@@ -16,7 +16,7 @@ const NAV_ITEMS = [
 		key: "personal",
 		label: "Personal",
 		icon: <UserOutlined />,
-		route: ROUTER.CANDIDATE_OVERVIEW,
+		route: ROUTER.CANDIDATE_PERSONAL,
 	},
 	{
 		key: "profile",

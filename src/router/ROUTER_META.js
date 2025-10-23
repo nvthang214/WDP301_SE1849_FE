@@ -73,6 +73,13 @@ const ROUTE_META = {
     title: "Recruiter Overview",
     requiresAuth: true,
   },
+  [ROUTER.CANDIDATE_PERSONAL]: {
+    breadcrumb: "Personal",
+    title: "Candidate Personal",
+  },
+  [ROUTER.CANDIDATE_PROFILE]: {
+    breadcrumb: "Profile",
+    title: "Candidate Profile",
   [ROUTER.ACCOUNT_SETTINGS]: {
     breadcrumb: "Account Settings",
     title: "Account Settings",

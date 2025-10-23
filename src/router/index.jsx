@@ -229,7 +229,7 @@ const router = createBrowserRouter([
                 <CandidatePersonal />
               </LazyLoad>
             ),
-            handle: ROUTE_META[ROUTER.CANDIDATE_APPLY_JOB],
+            handle: ROUTE_META[ROUTER.CANDIDATE_PERSONAL],
           },
           {
             path: ROUTER.CANDIDATE_JOB_DETAIL,
@@ -240,16 +240,16 @@ const router = createBrowserRouter([
             ),
             handle: ROUTE_META[ROUTER.CANDIDATE_JOB_DETAIL],
           },
+          {
+            path: ROUTER.CANDIDATE_REQUEST_UPGRADE,
+            element: (
+              <LazyLoad>
+                <CandidateRequestUpgrade />
+              </LazyLoad>
+            ),
+            handle: ROUTE_META[ROUTER.CANDIDATE_REQUEST_UPGRADE],
+          },
         ],
-      },
-      {
-        path: ROUTER.CANDIDATE_REQUEST_UPGRADE,
-        element: (
-          <LazyLoad>
-            <CandidateRequestUpgrade />
-          </LazyLoad>
-        ),
-        handle: ROUTE_META[ROUTER.CANDIDATE_REQUEST_UPGRADE],
       },
     ],
   },
@@ -354,16 +354,16 @@ const router = createBrowserRouter([
             ),
             handle: ROUTE_META[ROUTER.ADMIN_USER_MANAGEMENT],
           },
+          {
+            path: ROUTER.ADMIN_UPGRADE_REQUESTS,
+            element: (
+              <LazyLoad>
+                <AdminUpgradeRequests />
+              </LazyLoad>
+            ),
+            handle: ROUTE_META[ROUTER.ADMIN_UPGRADE_REQUESTS],
+          },
         ],
-      },
-      {
-        path: ROUTER.ADMIN_UPGRADE_REQUESTS,
-        element: (
-          <LazyLoad>
-            <AdminUpgradeRequests />
-          </LazyLoad>
-        ),
-        handle: ROUTE_META[ROUTER.ADMIN_UPGRADE_REQUESTS],
       },
     ],
   },

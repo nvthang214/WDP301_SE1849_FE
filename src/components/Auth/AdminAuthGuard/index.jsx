@@ -1,27 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { Spin, Alert, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import useAuthStore from '../../../store/useAuthStore';
 
 const AdminAuthGuard = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const navigate = useNavigate();
+  const { user, accessToken, logout } = useAuthStore();
 
   useEffect(() => {
     checkAuth();
-  }, []);
+  }, [user, accessToken]);
 
   const checkAuth = () => {
     try {
-      const token = localStorage.getItem('token');
-      const userStr = localStorage.getItem('user');
-      
-      if (!token || !userStr) {
+      if (!accessToken || !user) {
         navigate('/login');
         return;
       }
-
-      const user = JSON.parse(userStr);
       
       if (user.role !== 'admin') {
         navigate('/');
@@ -31,8 +28,7 @@ const AdminAuthGuard = ({ children }) => {
       setIsAuthorized(true);
     } catch (error) {
       console.error('Auth check error:', error);
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      logout();
       navigate('/login');
     } finally {
       setLoading(false);
@@ -40,8 +36,7 @@ const AdminAuthGuard = ({ children }) => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    logout();
     navigate('/login');
   };
 

@@ -27,6 +27,7 @@ import {
   LockOutlined
 } from '@ant-design/icons';
 import { AdminService } from '../../../../services/AdminService';
+import useAuthStore from '../../../../store/useAuthStore';
 
 const { Option } = Select;
 const { Search } = Input;
@@ -38,7 +39,9 @@ const UserManagement = () => {
   const [error, setError] = useState(null);
   const [searchText, setSearchText] = useState('');
   const [filteredUsers, setFilteredUsers] = useState([]);
-  const [currentUserId, setCurrentUserId] = useState(null);
+  const [roleFilter, setRoleFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const { user } = useAuthStore();
   
   // Modal states
   const [isRoleModalVisible, setIsRoleModalVisible] = useState(false);
@@ -46,32 +49,37 @@ const UserManagement = () => {
   const [selectedRoleId, setSelectedRoleId] = useState('');
 
   useEffect(() => {
-    // Determine current logged-in user id to avoid self-ban
-    try {
-      const raw = localStorage.getItem('user');
-      if (raw) {
-        const u = JSON.parse(raw);
-        setCurrentUserId(u?._id || u?.id || null);
-      }
-    } catch {}
     fetchData();
   }, []);
 
   useEffect(() => {
-    // Filter users based on search text
-    const q = searchText.trim().toLowerCase();
-    if (q) {
-      const filtered = users.filter(user => {
+    // Filter users based on search text, role filter, and status filter
+    let filtered = users;
+
+    // Apply search filter
+    if (searchText.trim()) {
+      const q = searchText.trim().toLowerCase();
+      filtered = filtered.filter(user => {
         const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ').toLowerCase();
         const email = (user.email || '').toLowerCase();
         const roleName = (user.role?.name || '').toLowerCase();
         return fullName.includes(q) || email.includes(q) || roleName.includes(q);
       });
-      setFilteredUsers(filtered);
-    } else {
-      setFilteredUsers(users);
     }
-  }, [searchText, users]);
+
+    // Apply role filter
+    if (roleFilter) {
+      filtered = filtered.filter(user => user.role?.name === roleFilter);
+    }
+
+    // Apply status filter
+    if (statusFilter !== '') {
+      const isActive = statusFilter === 'active';
+      filtered = filtered.filter(user => user.isActive === isActive);
+    }
+
+    setFilteredUsers(filtered);
+  }, [searchText, users, roleFilter, statusFilter]);
 
   const fetchData = async () => {
     try {
@@ -116,7 +124,7 @@ const UserManagement = () => {
 
   const handleBanUser = async (userId, isActive) => {
     try {
-      if (currentUserId && userId === currentUserId && isActive === false) {
+      if (user && userId === user._id && isActive === false) {
         message.warning('Bạn không thể tự khóa tài khoản của chính mình.');
         return;
       }
@@ -337,16 +345,84 @@ const UserManagement = () => {
         </div>
 
         <div className="mb-4">
-          <Search
-            placeholder="Tìm kiếm theo tên, email hoặc vai trò..."
-            allowClear
-            enterButton={<SearchOutlined />}
-            size="large"
-            onSearch={setSearchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            className="w-full max-w-md"
-          />
+          <Row gutter={[16, 16]} align="middle">
+            <Col xs={24} sm={12} md={8}>
+              <Search
+                placeholder="Tìm kiếm theo tên, email hoặc vai trò..."
+                allowClear
+                enterButton={<SearchOutlined />}
+                size="large"
+                onSearch={setSearchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                className="w-full"
+              />
+            </Col>
+            Role:
+            <Col xs={24} sm={12} md={4}>
+              <Select
+                placeholder="Lọc theo vai trò"
+                allowClear
+                size="large"
+                className="w-full"
+                value={roleFilter}
+                onChange={setRoleFilter}
+              >
+                <Option value="admin">Admin</Option>
+                <Option value="recruiter">Recruiter</Option>
+                <Option value="candidate">Candidate</Option>
+              </Select>
+            </Col>
+            Status:
+            <Col xs={24} sm={12} md={4}>
+              <Select
+                placeholder="Lọc theo trạng thái"
+                allowClear
+                size="large"
+                className="w-full"
+                value={statusFilter}
+                onChange={setStatusFilter}
+              >
+                <Option value="active">Hoạt động</Option>
+                <Option value="inactive">Bị khóa</Option>
+              </Select>
+            </Col>
+            <Col xs={24} sm={12} md={4}>
+              <Button
+                size="large"
+                onClick={() => {
+                  setSearchText('');
+                  setRoleFilter('');
+                  setStatusFilter('');
+                }}
+                className="w-full"
+              >
+                Xóa bộ lọc
+              </Button>
+            </Col>
+          </Row>
         </div>
+
+        {/* Filter Results Summary */}
+        {/* {(searchText || roleFilter || statusFilter) && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <span className="text-blue-700 font-medium">
+                  Hiển thị {filteredUsers.length} trong tổng số {users.length} người dùng
+                </span>
+                {(searchText || roleFilter || statusFilter) && (
+                  <span className="ml-2 text-blue-600 text-sm">
+                    (Đã lọc theo: {[
+                      searchText && `"${searchText}"`,
+                      roleFilter && `vai trò: ${roleFilter}`,
+                      statusFilter && `trạng thái: ${statusFilter === 'active' ? 'hoạt động' : 'bị khóa'}`
+                    ].filter(Boolean).join(', ')})
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        )} */}
 
         <Table
           columns={columns}
@@ -358,6 +434,11 @@ const UserManagement = () => {
             showQuickJumper: true,
             showTotal: (total, range) => 
               `${range[0]}-${range[1]} của ${total} người dùng`,
+            pageSizeOptions: ['10', '20', '50', '100'],
+            size: 'default',
+            position: ['bottomRight'],
+            showLessItems: true,
+            responsive: true,
           }}
         />
       </Card>

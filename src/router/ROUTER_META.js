@@ -11,6 +11,10 @@ const ROUTE_META = {
     breadcrumb: "Register",
     title: "Register",
   },
+  [ROUTER.VERIFY_EMAIL]: {
+    breadcrumb: "Verify Email",
+    title: "Verify Email",
+  },
 
   //--- Other public routes ---
   [ROUTER.HOME]: {

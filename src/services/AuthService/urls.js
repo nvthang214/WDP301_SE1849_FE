@@ -6,6 +6,7 @@ const loginWithGoogleUrl = "/auth/oauth-google";
 const logouturl = "/auth/logout";
 const refreshurl = "/auth/refresh";
 const changePasswordUrl = "/auth/change-password";
+const verifyEmailUrl = "/auth/verify-email";
 
 export {
   loginurl,
@@ -16,4 +17,5 @@ export {
   logouturl,
   refreshurl,
   changePasswordUrl,
+  verifyEmailUrl,
 };

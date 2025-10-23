@@ -8,43 +8,26 @@ import {
   registerurl,
   resetPasswordurl,
   changePasswordUrl,
+  verifyEmailUrl,
 } from "./urls";
 
-const login = async (payload) => {
-  const res = await api.post(loginurl, payload);
-  return res;
-};
-const loginWithGoogle = async (token) => {
-  const res = await api.post(loginWithGoogleUrl, token);
-  if (res?.data?.token) {
-    localStorage.setItem("accessToken", res.data.token);
-  }
-  return res;
-};
-const register = async (payload) => {
-  const res = await api.post(registerurl, payload);
-  return res;
-};
+const login = async (payload, config = {}) => api.post(loginurl, payload, config);
 
-const forgotPassword = async (payload) => {
-  return await api.post(forgotPasswordurl, payload);
-};
+const loginWithGoogle = async (token, config = {}) => api.post(loginWithGoogleUrl, token, config);
 
-const resetPassword = async (payload, token) => {
-  return await api.post(resetPasswordurl + `/${token}`, payload);
-};
+const register = async (payload, config = {}) => api.post(registerurl, payload, config);
 
-const logout = async () => {
-  return await api.get(logouturl);
-};
+const forgotPassword = async (payload, config = {}) => api.post(forgotPasswordurl, payload, config);
 
-const refresh = async () => {
-  return await api.get(refreshurl);
-};
+const resetPassword = async (payload, token, config = {}) =>
+  api.post(`${resetPasswordurl}/${token}`, payload, config);
 
-const changePassword = async (payload) => {
-  return await api.put(changePasswordUrl, payload);
-};
+const logout = async (config = {}) => api.get(logouturl, config);
+
+const refresh = async (config = {}) => api.get(refreshurl, config);
+
+const changePassword = async (payload, config = {}) => api.put(changePasswordUrl, payload, config);
+const verifyEmail = async (token, config = {}) => api.get(`${verifyEmailUrl}/${token}`, config);
 
 export const AuthService = {
   login,
@@ -55,4 +38,5 @@ export const AuthService = {
   logout,
   refresh,
   changePassword,
+  verifyEmail,
 };

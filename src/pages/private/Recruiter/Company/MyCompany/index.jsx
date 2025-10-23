@@ -1,49 +1,54 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Building2, Edit, Plus, Trash2 } from "lucide-react";
 import { CompanyService } from "../../../../../services/CompanyService";
+import useAuthStore from "../../../../../store/useAuthStore";
+
+const decodeAccessToken = (token) => {
+  if (!token) return null;
+  try {
+    const [, payload = ""] = token.split(".");
+    if (!payload) return null;
+    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
+    const jsonPayload = decodeURIComponent(
+      atob(padded)
+        .split("")
+        .map((char) => `%${`00${char.charCodeAt(0).toString(16)}`.slice(-2)}`)
+        .join("")
+    );
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error("Failed to decode access token", error);
+    return null;
+  }
+};
 
 export default function MyCompany() {
   const [company, setCompany] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchCompany = async () => {
+  const { user: authUser, accessToken } = useAuthStore();
+
+  const fetchCompany = useCallback(async () => {
     try {
       setLoading(true);
 
-      // Get user data from localStorage
-      const user = localStorage.getItem("user");
-      let recruiterId = null;
+      const recruiterIdFromUser = authUser?._id || authUser?.id || null;
+      let recruiterId = recruiterIdFromUser;
 
-      if (user) {
-        try {
-          const userData = JSON.parse(user);
-          recruiterId = userData?._id || userData?.id;
-
-          // If no id in user data, try to get from token
-          if (!recruiterId) {
-            const token = localStorage.getItem("accessToken");
-            if (token) {
-              try {
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                recruiterId = payload.userId;
-              } catch (e) {
-                console.error("Error decoding token:", e);
-              }
-            }
-          }
-        } catch (e) {
-          console.error("Error parsing user data:", e);
-        }
+      if (!recruiterId) {
+        const payload = decodeAccessToken(accessToken);
+        recruiterId = payload?.userId || null;
       }
 
       if (recruiterId) {
         try {
           const res = await CompanyService.getCompanyByRecruiter(recruiterId);
-          
+
           // Handle API response
           let companyData = null;
-          
+
           if (res?.data && (res.data.name || res.data._id)) {
             companyData = res.data;
           } else if (res && (res.name || res._id)) {
@@ -72,15 +77,15 @@ export default function MyCompany() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [authUser, accessToken]);
 
   useEffect(() => {
     fetchCompany();
-  }, []);
+  }, [fetchCompany]);
 
   const handleDeleteCompany = async () => {
     if (!company?._id) return;
-    
+
     if (window.confirm("Are you sure you want to delete this company?")) {
       try {
         await CompanyService.deleteCompany(company._id);
@@ -98,13 +103,13 @@ export default function MyCompany() {
       <div className="space-y-6">
         <div className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-[var(--shadow-md)]">
           <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/3 mb-2"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            <div className="mb-2 h-8 w-1/3 rounded bg-gray-200"></div>
+            <div className="h-4 w-1/2 rounded bg-gray-200"></div>
           </div>
         </div>
-        <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-white shadow-[var(--shadow-md)] p-6">
+        <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-md)]">
           <div className="animate-pulse">
-            <div className="h-32 bg-gray-200 rounded"></div>
+            <div className="h-32 rounded bg-gray-200"></div>
           </div>
         </div>
       </div>
@@ -116,24 +121,22 @@ export default function MyCompany() {
       <div className="space-y-6">
         <div className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-[var(--shadow-md)]">
           <div>
-            <h1 className="text-2xl font-semibold text-[var(--color-neutral-900)]">
-              My Company
-            </h1>
+            <h1 className="text-2xl font-semibold text-[var(--color-neutral-900)]">My Company</h1>
             <p className="mt-1 text-sm text-[var(--color-neutral-500)]">
               Manage your company information and settings.
             </p>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-white shadow-[var(--shadow-md)] p-12 text-center">
-          <Building2 className="mx-auto h-16 w-16 text-[var(--color-neutral-300)] mb-4" />
-          <h3 className="text-lg font-semibold text-[var(--color-neutral-900)] mb-2">
+        <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-12 text-center shadow-[var(--shadow-md)]">
+          <Building2 className="mx-auto mb-4 h-16 w-16 text-[var(--color-neutral-300)]" />
+          <h3 className="mb-2 text-lg font-semibold text-[var(--color-neutral-900)]">
             No Company Found
           </h3>
-          <p className="text-[var(--color-neutral-500)] mb-6">
+          <p className="mb-6 text-[var(--color-neutral-500)]">
             You haven't created a company yet. Create one to start posting jobs.
           </p>
-          
+
           <Link
             to="/recruiter/company/create"
             className="inline-flex items-center gap-2 rounded-xl bg-[var(--color-primary-500)] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--color-primary-600)]"
@@ -152,7 +155,7 @@ export default function MyCompany() {
         <div>
           <h1 className="text-2xl font-semibold text-[var(--color-neutral-900)]">
             My Company
-            <span className="text-sm font-medium text-[var(--color-neutral-500)] ml-2">
+            <span className="ml-2 text-sm font-medium text-[var(--color-neutral-500)]">
               ({company?.name || "Unnamed"})
             </span>
           </h1>
@@ -180,28 +183,24 @@ export default function MyCompany() {
 
       {/* Company Banner */}
       {company?.banner && (
-        <div className="rounded-2xl overflow-hidden shadow-[var(--shadow-md)]">
-          <img 
-            src={company.banner} 
-            alt="Company banner" 
-            className="w-full h-48 object-cover"
-          />
+        <div className="overflow-hidden rounded-2xl shadow-[var(--shadow-md)]">
+          <img src={company.banner} alt="Company banner" className="h-48 w-full object-cover" />
         </div>
       )}
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Company Information */}
-        <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-white shadow-[var(--shadow-md)] p-6">
-          <div className="flex items-center gap-4 mb-4">
+        <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-md)]">
+          <div className="mb-4 flex items-center gap-4">
             {company?.logo ? (
-              <img 
-                src={company.logo} 
-                alt="Company logo" 
-                className="w-16 h-16 object-cover rounded-lg border border-[var(--color-neutral-200)]"
+              <img
+                src={company.logo}
+                alt="Company logo"
+                className="h-16 w-16 rounded-lg border border-[var(--color-neutral-200)] object-cover"
               />
             ) : (
-              <div className="w-16 h-16 bg-[var(--color-neutral-100)] rounded-lg flex items-center justify-center">
-                <Building2 className="w-8 h-8 text-[var(--color-neutral-400)]" />
+              <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-[var(--color-neutral-100)]">
+                <Building2 className="h-8 w-8 text-[var(--color-neutral-400)]" />
               </div>
             )}
             <div>
@@ -215,41 +214,55 @@ export default function MyCompany() {
           </div>
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-[var(--color-neutral-500)]">Industry</label>
-              <p className="text-[var(--color-neutral-900)]">{company?.industry || "Not provided"}</p>
+              <label className="text-sm font-medium text-[var(--color-neutral-500)]">
+                Industry
+              </label>
+              <p className="text-[var(--color-neutral-900)]">
+                {company?.industry || "Not provided"}
+              </p>
             </div>
             <div>
               <label className="text-sm font-medium text-[var(--color-neutral-500)]">Address</label>
-              <p className="text-[var(--color-neutral-900)]">{company?.address || "Not provided"}</p>
+              <p className="text-[var(--color-neutral-900)]">
+                {company?.address || "Not provided"}
+              </p>
             </div>
             <div>
-              <label className="text-sm font-medium text-[var(--color-neutral-500)]">Team Size</label>
-              <p className="text-[var(--color-neutral-900)]">{company?.teamSize || "Not provided"}</p>
+              <label className="text-sm font-medium text-[var(--color-neutral-500)]">
+                Team Size
+              </label>
+              <p className="text-[var(--color-neutral-900)]">
+                {company?.teamSize || "Not provided"}
+              </p>
             </div>
           </div>
         </div>
 
         {/* Contact Information */}
-        <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-white shadow-[var(--shadow-md)] p-6">
-          <h2 className="text-lg font-semibold text-[var(--color-neutral-900)] mb-4">
+        <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-md)]">
+          <h2 className="mb-4 text-lg font-semibold text-[var(--color-neutral-900)]">
             Contact Information
           </h2>
           <div className="space-y-4">
             <div>
               <label className="text-sm font-medium text-[var(--color-neutral-500)]">Email</label>
-              <p className="text-[var(--color-neutral-900)]">{company?.contact?.email || "Not provided"}</p>
+              <p className="text-[var(--color-neutral-900)]">
+                {company?.contact?.email || "Not provided"}
+              </p>
             </div>
             <div>
               <label className="text-sm font-medium text-[var(--color-neutral-500)]">Phone</label>
-              <p className="text-[var(--color-neutral-900)]">{company?.contact?.phone || "Not provided"}</p>
+              <p className="text-[var(--color-neutral-900)]">
+                {company?.contact?.phone || "Not provided"}
+              </p>
             </div>
             <div>
               <label className="text-sm font-medium text-[var(--color-neutral-500)]">Website</label>
               <p className="text-[var(--color-neutral-900)]">
                 {company?.contact?.website ? (
-                  <a 
-                    href={company.contact.website} 
-                    target="_blank" 
+                  <a
+                    href={company.contact.website}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-[var(--color-primary-600)] hover:underline"
                   >
@@ -266,30 +279,33 @@ export default function MyCompany() {
 
       {/* Company Description */}
       {company?.description && (
-        <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-white shadow-[var(--shadow-md)] p-6">
-          <h2 className="text-lg font-semibold text-[var(--color-neutral-900)] mb-4">
+        <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-md)]">
+          <h2 className="mb-4 text-lg font-semibold text-[var(--color-neutral-900)]">
             About Company
           </h2>
-          <p className="text-[var(--color-neutral-700)] leading-relaxed">
-            {company.description}
-          </p>
+          <p className="leading-relaxed text-[var(--color-neutral-700)]">{company.description}</p>
         </div>
       )}
 
       {/* Social Media */}
-      {(company?.social?.facebook || company?.social?.linkedin || company?.social?.twitter || company?.social?.youtube) && (
-        <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-white shadow-[var(--shadow-md)] p-6">
-          <h2 className="text-lg font-semibold text-[var(--color-neutral-900)] mb-4">
+      {(company?.social?.facebook ||
+        company?.social?.linkedin ||
+        company?.social?.twitter ||
+        company?.social?.youtube) && (
+        <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-md)]">
+          <h2 className="mb-4 text-lg font-semibold text-[var(--color-neutral-900)]">
             Social Media
           </h2>
           <div className="grid gap-4 md:grid-cols-2">
             {company.social.facebook && (
               <div>
-                <label className="text-sm font-medium text-[var(--color-neutral-500)]">Facebook</label>
+                <label className="text-sm font-medium text-[var(--color-neutral-500)]">
+                  Facebook
+                </label>
                 <p className="text-[var(--color-neutral-900)]">
-                  <a 
-                    href={company.social.facebook} 
-                    target="_blank" 
+                  <a
+                    href={company.social.facebook}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-[var(--color-primary-600)] hover:underline"
                   >
@@ -300,11 +316,13 @@ export default function MyCompany() {
             )}
             {company.social.linkedin && (
               <div>
-                <label className="text-sm font-medium text-[var(--color-neutral-500)]">LinkedIn</label>
+                <label className="text-sm font-medium text-[var(--color-neutral-500)]">
+                  LinkedIn
+                </label>
                 <p className="text-[var(--color-neutral-900)]">
-                  <a 
-                    href={company.social.linkedin} 
-                    target="_blank" 
+                  <a
+                    href={company.social.linkedin}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-[var(--color-primary-600)] hover:underline"
                   >
@@ -315,11 +333,13 @@ export default function MyCompany() {
             )}
             {company.social.twitter && (
               <div>
-                <label className="text-sm font-medium text-[var(--color-neutral-500)]">Twitter</label>
+                <label className="text-sm font-medium text-[var(--color-neutral-500)]">
+                  Twitter
+                </label>
                 <p className="text-[var(--color-neutral-900)]">
-                  <a 
-                    href={company.social.twitter} 
-                    target="_blank" 
+                  <a
+                    href={company.social.twitter}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-[var(--color-primary-600)] hover:underline"
                   >
@@ -330,11 +350,13 @@ export default function MyCompany() {
             )}
             {company.social.youtube && (
               <div>
-                <label className="text-sm font-medium text-[var(--color-neutral-500)]">YouTube</label>
+                <label className="text-sm font-medium text-[var(--color-neutral-500)]">
+                  YouTube
+                </label>
                 <p className="text-[var(--color-neutral-900)]">
-                  <a 
-                    href={company.social.youtube} 
-                    target="_blank" 
+                  <a
+                    href={company.social.youtube}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-[var(--color-primary-600)] hover:underline"
                   >
@@ -350,28 +372,19 @@ export default function MyCompany() {
       {/* Benefits & Vision */}
       <div className="grid gap-6 md:grid-cols-2">
         {company?.benefits && (
-          <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-white shadow-[var(--shadow-md)] p-6">
-            <h2 className="text-lg font-semibold text-[var(--color-neutral-900)] mb-4">
-              Benefits
-            </h2>
-            <p className="text-[var(--color-neutral-700)] leading-relaxed">
-              {company.benefits}
-            </p>
+          <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-md)]">
+            <h2 className="mb-4 text-lg font-semibold text-[var(--color-neutral-900)]">Benefits</h2>
+            <p className="leading-relaxed text-[var(--color-neutral-700)]">{company.benefits}</p>
           </div>
         )}
 
         {company?.vision && (
-          <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-white shadow-[var(--shadow-md)] p-6">
-            <h2 className="text-lg font-semibold text-[var(--color-neutral-900)] mb-4">
-              Vision
-            </h2>
-            <p className="text-[var(--color-neutral-700)] leading-relaxed">
-              {company.vision}
-            </p>
+          <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-md)]">
+            <h2 className="mb-4 text-lg font-semibold text-[var(--color-neutral-900)]">Vision</h2>
+            <p className="leading-relaxed text-[var(--color-neutral-700)]">{company.vision}</p>
           </div>
         )}
       </div>
     </div>
   );
 }
-

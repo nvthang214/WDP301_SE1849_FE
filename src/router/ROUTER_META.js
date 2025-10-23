@@ -80,6 +80,7 @@ const ROUTE_META = {
   [ROUTER.CANDIDATE_PROFILE]: {
     breadcrumb: "Profile",
     title: "Candidate Profile",
+  },
   [ROUTER.ACCOUNT_SETTINGS]: {
     breadcrumb: "Account Settings",
     title: "Account Settings",

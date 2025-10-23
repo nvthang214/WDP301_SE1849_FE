@@ -4,9 +4,10 @@ import HeaderMain from "../Header";
 
 const LayoutAdmin = () => {
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex h-screen flex-col">
       <HeaderMain className="mx-auto max-w-7xl" />
-      <div className="flex flex-1 mx-auto max-w-7xl container justify-between overflow-hidden">
+
+      <div className="container mx-auto flex max-w-7xl flex-1 justify-between overflow-hidden">
         <aside className="w-fit border-r border-neutral-200">
           <AdminSideBar />
         </aside>
@@ -14,7 +15,7 @@ const LayoutAdmin = () => {
           <Outlet />
         </main>
       </div>
-      <footer className="text-center py-1 border-t border-neutral-200 text-sm text-neutral-500">
+      <footer className="border-t border-neutral-200 py-1 text-center text-sm text-neutral-500">
         © {new Date().getFullYear()} Jobpilot · Job Portal. All rights reserved.
       </footer>
     </div>

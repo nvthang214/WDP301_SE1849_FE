@@ -32,6 +32,7 @@ import {
   DeleteOutlined
 } from '@ant-design/icons';
 import { AdminService } from '../../../../services/AdminService';
+import useAuthStore from '../../../../store/useAuthStore';
 
 const { Option } = Select;
 const { Search } = Input;
@@ -52,6 +53,7 @@ const AdminDashboard = () => {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [jobSearchText, setJobSearchText] = useState('');
   const [filteredJobs, setFilteredJobs] = useState([]);
+  const { user } = useAuthStore();
   
   // Modal states
   const [isRoleModalVisible, setIsRoleModalVisible] = useState(false);

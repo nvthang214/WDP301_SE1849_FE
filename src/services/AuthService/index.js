@@ -16,9 +16,6 @@ const login = async (payload) => {
 };
 const loginWithGoogle = async (token) => {
   const res = await api.post(loginWithGoogleUrl, token);
-  if (res?.data?.token) {
-    localStorage.setItem("accessToken", res.data.token);
-  }
   return res;
 };
 const register = async (payload) => {

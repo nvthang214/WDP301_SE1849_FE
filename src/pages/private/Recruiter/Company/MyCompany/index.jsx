@@ -2,35 +2,20 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Building2, Edit, Plus, Trash2 } from "lucide-react";
 import { CompanyService } from "../../../../../services/CompanyService";
+import useAuthStore from "../../../../../store/useAuthStore";
 
 export default function MyCompany() {
   const [company, setCompany] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [recruiterId, setRecruiterId] = useState(null);
+  const { user } = useAuthStore();
 
   const fetchCompany = async () => {
     try {
       setLoading(true);
 
-      // Get token from localStorage
-      const token = localStorage.getItem("accessToken");
-      let recruiterId = null;
-
-      // Get userId from token
-      if (token) {
+      if (user) {
         try {
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          recruiterId = payload.userId;
-        } catch (e) {
-          console.error("Error decoding token:", e);
-        }
-      }
-      
-      setRecruiterId(recruiterId);
-
-      if (recruiterId) {
-        try {
-          const res = await CompanyService.getCompanyByRecruiter(recruiterId);
+          const res = await CompanyService.getCompanyByRecruiter();
           
           // Handle API response
           let companyData = null;
@@ -65,7 +50,7 @@ export default function MyCompany() {
 
   useEffect(() => {
     fetchCompany();
-  }, []);
+  }, [user]);
 
   const handleDeleteCompany = async () => {
     if (!company?._id) return;

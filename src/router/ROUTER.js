@@ -10,6 +10,7 @@ const ROUTER = {
   REGISTER: "/register",
   FORGOT_PASSWORD: "/forgot-password",
   RESET_PASSWORD: "/reset-password",
+  VERIFY_EMAIL: "/verify-email",
 
   // --- Other public routes ---
   COMPANIES: "/companies",
@@ -36,6 +37,7 @@ const ROUTER = {
 
   // --- Candidate routes ---
   CANDIDATE_OVERVIEW: `${candidate}/overview`,
+  CANDIDATE_PERSONAL: `${candidate}/personal`,
   CANDIDATE_PROFILE: `${candidate}/profile`,
   CANDIDATE_SOCIAL: `${candidate}/social`,
   CANDIDATE_ACCOUNT: `${candidate}/account`,

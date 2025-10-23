@@ -11,6 +11,10 @@ const ROUTE_META = {
     breadcrumb: "Register",
     title: "Register",
   },
+  [ROUTER.VERIFY_EMAIL]: {
+    breadcrumb: "Verify Email",
+    title: "Verify Email",
+  },
 
   //--- Other public routes ---
   [ROUTER.HOME]: {
@@ -66,6 +70,10 @@ const ROUTE_META = {
   [ROUTER.CANDIDATE_OVERVIEW]: {
     breadcrumb: "Overview",
     title: "Candidate Overview",
+  },
+  [ROUTER.CANDIDATE_PERSONAL]: {
+    breadcrumb: "Personal",
+    title: "Candidate Personal",
   },
   [ROUTER.CANDIDATE_PROFILE]: {
     breadcrumb: "Profile",

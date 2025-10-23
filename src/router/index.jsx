@@ -24,6 +24,7 @@ const Login = React.lazy(() => import("../pages/public/Authentication/Login"));
 const Register = React.lazy(() => import("../pages/public/Authentication/Register"));
 const ForgotPassword = React.lazy(() => import("../pages/public/Authentication/ForgotPassword"));
 const ResetPassword = React.lazy(() => import("../pages/public/Authentication/ResetPassword"));
+const VerifyEmail = React.lazy(() => import("../pages/public/Authentication/VerifyEmail"));
 const JobList = React.lazy(() => import("../pages/public/Job/JobList"));
 const JobDetail = React.lazy(() => import("../pages/public/Job/JobDetail"));
 // ========================= End public pages ======================
@@ -32,6 +33,7 @@ const JobDetail = React.lazy(() => import("../pages/public/Job/JobDetail"));
 
 // ========================= Candidate pages =======================
 const CandidateOverview = React.lazy(() => import("../pages/private/Candidate"));
+const CandidatePersonal = React.lazy(() => import("../pages/private/Candidate/CandidatePersonal"));
 const CandidateProfile = React.lazy(() => import("../pages/private/Candidate/CandidateProfile"));
 const CandidateSocial = React.lazy(() => import("../pages/private/Candidate/CandidateSocial"));
 const CandidateAccount = React.lazy(() => import("../pages/private/Candidate/CandidateAccount"));
@@ -113,6 +115,15 @@ const router = createBrowserRouter([
           </LazyLoad>
         ),
         handle: ROUTE_META[ROUTER.RESET_PASSWORD],
+      },
+      {
+        path: ROUTER.VERIFY_EMAIL,
+        element: (
+          <LazyLoad>
+            <VerifyEmail />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.VERIFY_EMAIL],
       },
     ],
   },
@@ -207,6 +218,15 @@ const router = createBrowserRouter([
             element: (
               <LazyLoad>
                 <CandidateApplyJob />
+              </LazyLoad>
+            ),
+            handle: ROUTE_META[ROUTER.CANDIDATE_APPLY_JOB],
+          },
+          {
+            path: ROUTER.CANDIDATE_PERSONAL,
+            element: (
+              <LazyLoad>
+                <CandidatePersonal />
               </LazyLoad>
             ),
             handle: ROUTE_META[ROUTER.CANDIDATE_APPLY_JOB],

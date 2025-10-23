@@ -37,15 +37,18 @@ const ROUTER = {
 
   // --- Candidate routes ---
   CANDIDATE_OVERVIEW: `${candidate}/overview`,
+  CANDIDATE_PERSONAL: `${candidate}/personal`,
   CANDIDATE_PROFILE: `${candidate}/profile`,
   CANDIDATE_SOCIAL: `${candidate}/social`,
   CANDIDATE_ACCOUNT: `${candidate}/account`,
   CANDIDATE_APPLY_JOB: `${candidate}/applied-jobs`,
   CANDIDATE_JOB_DETAIL: `${candidate}/detail/:id`,
+  CANDIDATE_REQUEST_UPGRADE: `${candidate}/request-upgrade`,
 
   // --- Admin routes ---
   ADMIN_OVERVIEW: `${admin}/overview`,
   ADMIN_USER_MANAGEMENT: `${admin}/users`,
+  ADMIN_UPGRADE_REQUESTS: `${admin}/upgrade-requests`,
   // ========================= End private routes ======================
 };
 

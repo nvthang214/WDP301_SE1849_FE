@@ -6,6 +6,7 @@ import { CategoryService } from "../../../../../services/CategoryService";
 import { Select } from "antd";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import { notifyError, notifySuccess } from "../../../../../components/Notification";
 
 const jobTypes = ["FULL-TIME", "PART-TIME", "INTERNSHIP", "TEMPORARY", "CONTRACT BASE"];
 const jobLevels = ["Intern", "Fresher", "Junior", "Middle", "Senior", "Lead"];
@@ -155,36 +156,44 @@ export default function JobEditing() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const submitData = {
-      company: form.company,
-      recruiter: form.recruiter,
-      category: form.category,
-      title: form.title,
-      description: form.description,
-      tags: form.tags,
-      role: form.role,
-      minSalary: Number(form.minSalary),
-      maxSalary: Number(form.maxSalary),
-      salaryType: form.salaryType,
-      education: form.education,
-      experience: form.experience,
-      jobType: form.jobType,
-      vacancies: Number(form.vacancies),
-      expiration: form.expiration ? new Date(form.expiration).toISOString() : "",
-      jobLevel: form.jobLevel,
-      country: form.country,
-      city: form.city,
-      remote: !!form.remote,
-      benefits: form.benefits,
-      applyType: form.applyType,
-      requirements: form.requirements,
-      desirable: form.desirable,
-      location: form.location || form.city,
-      isActive: typeof form.isActive === "boolean" ? form.isActive : true,
-    };
-    await JobService.updateJob(id, submitData);
-    alert("Job updated!");
+    try {
+      e.preventDefault();
+      const submitData = {
+        company: form.company,
+        recruiter: form.recruiter,
+        category: form.category,
+        title: form.title,
+        description: form.description,
+        tags: form.tags,
+        role: form.role,
+        minSalary: Number(form.minSalary),
+        maxSalary: Number(form.maxSalary),
+        salaryType: form.salaryType,
+        education: form.education,
+        experience: form.experience,
+        jobType: form.jobType,
+        vacancies: Number(form.vacancies),
+        expiration: form.expiration ? new Date(form.expiration).toISOString() : "",
+        jobLevel: form.jobLevel,
+        country: form.country,
+        city: form.city,
+        remote: !!form.remote,
+        benefits: form.benefits,
+        applyType: form.applyType,
+        requirements: form.requirements,
+        desirable: form.desirable,
+        location: form.location || form.city,
+        isActive: typeof form.isActive === "boolean" ? form.isActive : true,
+      };
+      await JobService.updateJob(id, submitData);
+      notifySuccess("Job updated successfully!");
+      setTimeout(() => {
+        window.location.href = "/recruiter/jobs/my-jobs";
+      }, 500);
+    } catch (error) {
+      console.error("Failed to update job:", error);
+      notifyError("Failed to update job. Please try again.");
+    }
   };
 
   if (loading) return <div className="text-center py-10 text-gray-400">Loading...</div>;

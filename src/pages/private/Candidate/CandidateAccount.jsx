@@ -5,6 +5,7 @@ import SettingsHeader from "./components/Header";
 import { CandidateService } from "../../../services/CandidateService";
 import { AuthService } from "../../../services/AuthService";
 import { notifyError, notifySuccess } from "../../../components/Notification";
+import useAuthStore from "../../../store/useAuthStore";
 
 const { Title } = Typography;
 
@@ -25,7 +26,7 @@ const decodeAccessToken = (token) => {
     const jsonPayload = decodeURIComponent(
       atob(padded)
         .split("")
-        .map((char) => `%${(`00${char.charCodeAt(0).toString(16)}`).slice(-2)}`)
+        .map((char) => `%${`00${char.charCodeAt(0).toString(16)}`.slice(-2)}`)
         .join("")
     );
     return JSON.parse(jsonPayload);
@@ -44,10 +45,9 @@ const CandidateAccount = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPasswordSubmitting, setIsPasswordSubmitting] = useState(false);
 
-  const tokenPayload = useMemo(() => {
-    const token = localStorage.getItem("accessToken");
-    return decodeAccessToken(token);
-  }, []);
+  const { accessToken } = useAuthStore();
+
+  const tokenPayload = useMemo(() => decodeAccessToken(accessToken), [accessToken]);
 
   const nameValidator = (_, value) => {
     if (!value) return Promise.resolve();
@@ -176,7 +176,7 @@ const CandidateAccount = () => {
             requiredMark={false}
             className="space-y-6"
           >
-            <section className="space-y-5 rounded-lg  bg-white ">
+            <section className="space-y-5 rounded-lg bg-white">
               <header className="space-y-1">
                 <Title level={4} className="!mb-0">
                   Contact Info
@@ -195,11 +195,7 @@ const CandidateAccount = () => {
                   ]}
                   style={{ marginBottom: 12 }}
                 >
-                  <Input
-                    size="large"
-                    placeholder="First name"
-                    autoComplete="given-name"
-                  />
+                  <Input size="large" placeholder="First name" autoComplete="given-name" />
                 </Form.Item>
 
                 <Form.Item
@@ -213,11 +209,7 @@ const CandidateAccount = () => {
                   ]}
                   style={{ marginBottom: 12 }}
                 >
-                  <Input
-                    size="large"
-                    placeholder="Last name"
-                    autoComplete="family-name"
-                  />
+                  <Input size="large" placeholder="Last name" autoComplete="family-name" />
                 </Form.Item>
               </div>
 
@@ -259,8 +251,8 @@ const CandidateAccount = () => {
               </div>
             </section>
           </Form>
-        <div className="border-t border-neutral-200 mt-10"></div>
-          <section className="space-y-5 rounded-lg bg-white mt-8 ">
+          <div className="mt-10 border-t border-neutral-200"></div>
+          <section className="mt-8 space-y-5 rounded-lg bg-white">
             <header className="space-y-1">
               <Title level={4} className="!mb-0">
                 Change Password
@@ -319,7 +311,12 @@ const CandidateAccount = () => {
               </div>
 
               <div className="flex justify-start">
-                <Button type="primary" htmlType="submit" size="large" loading={isPasswordSubmitting}>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  size="large"
+                  loading={isPasswordSubmitting}
+                >
                   Save Changes
                 </Button>
               </div>

@@ -31,11 +31,13 @@ api.interceptors.response.use(
   (response) => response.data,
   async (error) => {
     const originalRequest = error.config;
+    const shouldNotify = originalRequest?.skipNotify !== true;
 
-    // Nếu không có originalRequest (ví dụ lỗi network) thì reject ngay
     if (!originalRequest) {
-      const msg = error.message || "Lỗi kết nối";
-      notifyError(msg);
+      if (shouldNotify) {
+        const msg = error.message || "Lỗi kết nối";
+        notifyError(msg);
+      }
       return Promise.reject(error);
     }
 
@@ -48,13 +50,11 @@ api.interceptors.response.use(
       "/auth/reset-password",
       "/auth/logout",
       "/auth/oauth-google",
+      "/auth/verify-email",
     ];
 
     // Nếu request là một trong các auth endpoints -> đẩy lỗi ra component (không redirect ở đây)
     if (authPaths.some((p) => originalRequest.url?.includes(p))) {
-      // thông báo lỗi tuỳ backend (interceptor chung có thể vẫn notify)
-      const msg = error.response?.data?.msg || "Đã xảy ra lỗi vui lòng thử lại.";
-      notifyError(msg);
       return Promise.reject(error);
     }
 
@@ -82,7 +82,6 @@ api.interceptors.response.use(
         );
 
         const newToken = refreshRes?.data?.data?.token;
-        console.log(newToken);
 
         if (!newToken) throw new Error("No token from refresh");
 
@@ -108,7 +107,9 @@ api.interceptors.response.use(
 
     // Các lỗi khác xử lý chung
     const msg = error.response?.data?.msg || "Đã xảy ra lỗi, vui lòng thử lại.";
-    notifyError(msg);
+    if (shouldNotify) {
+      notifyError(msg);
+    }
     return Promise.reject(error);
   }
 );

@@ -1,44 +1,55 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { notifyError, notifySuccess } from "../../../../components/Notification";
-import ROUTER from "../../../../router/ROUTER";
-import { AuthService } from "../../../../services/AuthService";
-import { ArrowRight } from "lucide-react";
 import { LoadingOutlined } from "@ant-design/icons";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Divider } from "antd";
 import LoginGoogle from "../../../../components/Authentication/LoginGoogle";
 import useAuthStore from "../../../../store/useAuthStore";
+import { notifyError, notifySuccess } from "../../../../components/Notification";
+import ROUTER from "../../../../router/ROUTER";
+import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom";
+import { z } from "zod";
+
+const registerSchema = z.object({
+  firstName: z.string().min(1, "Vui lòng nhập tên."),
+  lastName: z.string().min(1, "Vui lòng nhập họ."),
+  email: z.string().min(1, "Vui lòng nhập email.").email("Email không hợp lệ."),
+  username: z.string().min(4, "Tên đăng nhập phải có ít nhất 4 ký tự."),
+  password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự."),
+});
 
 const Register = () => {
-  const { register, loading } = useAuthStore();
+  const { register: registerAccount, loading } = useAuthStore();
   const nav = useNavigate();
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    username: "",
-    password: "",
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      username: "",
+      password: "",
+    },
   });
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const res = await register(formData);
+  const onSubmit = handleSubmit(async (formValues) => {
+    const res = await registerAccount(formValues);
     if (res?.isOk) {
       notifySuccess(res?.msg || "Đăng ký thành công! Vui lòng đăng nhập.");
+      reset();
       nav(ROUTER.LOGIN);
+      return;
     }
-  };
+
+    notifyError(res?.msg || "Đăng ký thất bại, vui lòng thử lại!");
+  });
 
   return (
-    <form onSubmit={handleSubmit} className="flex h-full flex-col gap-8">
+    <form onSubmit={onSubmit} className="flex h-full flex-col gap-8">
       <div className="space-y-6">
         <header className="space-y-4">
           <div className="text-3xl font-semibold text-neutral-900">Create Account</div>
@@ -64,13 +75,15 @@ const Register = () => {
             <input
               id="firstName"
               name="firstName"
-              value={formData.firstName}
-              onChange={handleChange}
+              {...register("firstName")}
               placeholder="Nguyễn"
               className="focus:border-primary-500 focus:ring-primary-100 w-full rounded-md border border-neutral-200 px-4 py-2.5 text-neutral-800 transition focus:ring-2 focus:outline-none"
               autoComplete="given-name"
-              required
+              aria-invalid={errors.firstName ? "true" : "false"}
             />
+            {errors.firstName ? (
+              <p className="mt-1 text-xs text-red-500">{errors.firstName.message}</p>
+            ) : null}
           </div>
 
           <div className="text-left">
@@ -80,13 +93,15 @@ const Register = () => {
             <input
               id="lastName"
               name="lastName"
-              value={formData.lastName}
-              onChange={handleChange}
+              {...register("lastName")}
               placeholder="Văn A"
               className="focus:border-primary-500 focus:ring-primary-100 w-full rounded-md border border-neutral-200 px-4 py-2.5 text-neutral-800 transition focus:ring-2 focus:outline-none"
               autoComplete="family-name"
-              required
+              aria-invalid={errors.lastName ? "true" : "false"}
             />
+            {errors.lastName ? (
+              <p className="mt-1 text-xs text-red-500">{errors.lastName.message}</p>
+            ) : null}
           </div>
         </div>
 
@@ -98,13 +113,15 @@ const Register = () => {
             <input
               id="username"
               name="username"
-              value={formData.username}
-              onChange={handleChange}
+              {...register("username")}
               placeholder="Enter your username"
               className="focus:border-primary-500 focus:ring-primary-100 w-full rounded-md border border-neutral-200 px-4 py-2.5 text-neutral-800 transition focus:ring-2 focus:outline-none"
               autoComplete="username"
-              required
+              aria-invalid={errors.username ? "true" : "false"}
             />
+            {errors.username ? (
+              <p className="mt-1 text-xs text-red-500">{errors.username.message}</p>
+            ) : null}
           </div>
 
           <div className="text-left">
@@ -115,13 +132,15 @@ const Register = () => {
               id="password"
               name="password"
               type="password"
-              value={formData.password}
-              onChange={handleChange}
+              {...register("password")}
               placeholder="Enter your password"
               className="focus:border-primary-500 focus:ring-primary-100 w-full rounded-md border border-neutral-200 px-4 py-2.5 text-neutral-800 transition focus:ring-2 focus:outline-none"
               autoComplete="new-password"
-              required
+              aria-invalid={errors.password ? "true" : "false"}
             />
+            {errors.password ? (
+              <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>
+            ) : null}
           </div>
 
           <div className="text-left">
@@ -132,13 +151,15 @@ const Register = () => {
               id="email"
               name="email"
               type="email"
-              value={formData.email}
-              onChange={handleChange}
+              {...register("email")}
               placeholder="example@gmail.com"
               className="focus:border-primary-500 focus:ring-primary-100 w-full rounded-md border border-neutral-200 px-4 py-2.5 text-neutral-800 transition focus:ring-2 focus:outline-none"
               autoComplete="email"
-              required
+              aria-invalid={errors.email ? "true" : "false"}
             />
+            {errors.email ? (
+              <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>
+            ) : null}
           </div>
         </div>
 

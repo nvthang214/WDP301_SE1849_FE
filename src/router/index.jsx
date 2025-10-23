@@ -25,6 +25,7 @@ const Login = React.lazy(() => import("../pages/public/Authentication/Login"));
 const Register = React.lazy(() => import("../pages/public/Authentication/Register"));
 const ForgotPassword = React.lazy(() => import("../pages/public/Authentication/ForgotPassword"));
 const ResetPassword = React.lazy(() => import("../pages/public/Authentication/ResetPassword"));
+const VerifyEmail = React.lazy(() => import("../pages/public/Authentication/VerifyEmail"));
 const JobList = React.lazy(() => import("../pages/public/Job/JobList"));
 const JobDetail = React.lazy(() => import("../pages/public/Job/JobDetail"));
 // ========================= End public pages ======================
@@ -104,6 +105,15 @@ const router = createBrowserRouter([
           </LazyLoad>
         ),
         handle: ROUTE_META[ROUTER.RESET_PASSWORD],
+      },
+      {
+        path: ROUTER.VERIFY_EMAIL,
+        element: (
+          <LazyLoad>
+            <VerifyEmail />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.VERIFY_EMAIL],
       },
     ],
   },
@@ -209,7 +219,7 @@ const router = createBrowserRouter([
                 <CandidatePersonal />
               </LazyLoad>
             ),
-            handle: ROUTE_META[ROUTER.CANDIDATE_APPLY_JOB],
+            handle: ROUTE_META[ROUTER.CANDIDATE_PERSONAL],
           },
           {
             path: ROUTER.CANDIDATE_JOB_DETAIL,
@@ -220,16 +230,16 @@ const router = createBrowserRouter([
             ),
             handle: ROUTE_META[ROUTER.CANDIDATE_JOB_DETAIL],
           },
+          {
+            path: ROUTER.CANDIDATE_REQUEST_UPGRADE,
+            element: (
+              <LazyLoad>
+                <CandidateRequestUpgrade />
+              </LazyLoad>
+            ),
+            handle: ROUTE_META[ROUTER.CANDIDATE_REQUEST_UPGRADE],
+          },
         ],
-      },
-      {
-        path: ROUTER.CANDIDATE_REQUEST_UPGRADE,
-        element: (
-          <LazyLoad>
-            <CandidateRequestUpgrade />
-          </LazyLoad>
-        ),
-        handle: ROUTE_META[ROUTER.CANDIDATE_REQUEST_UPGRADE],
       },
     ],
   },
@@ -343,16 +353,16 @@ const router = createBrowserRouter([
             ),
             handle: ROUTE_META[ROUTER.ADMIN_USER_MANAGEMENT],
           },
+          {
+            path: ROUTER.ADMIN_UPGRADE_REQUESTS,
+            element: (
+              <LazyLoad>
+                <AdminUpgradeRequests />
+              </LazyLoad>
+            ),
+            handle: ROUTE_META[ROUTER.ADMIN_UPGRADE_REQUESTS],
+          },
         ],
-      },
-      {
-        path: ROUTER.ADMIN_UPGRADE_REQUESTS,
-        element: (
-          <LazyLoad>
-            <AdminUpgradeRequests />
-          </LazyLoad>
-        ),
-        handle: ROUTE_META[ROUTER.ADMIN_UPGRADE_REQUESTS],
       },
     ],
   },

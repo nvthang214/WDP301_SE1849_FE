@@ -1,4 +1,4 @@
-import { Button, Divider, Drawer, Input } from "antd";
+import { Alert, Button, Divider, Drawer, Input } from "antd";
 import { Mail, Menu, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -7,6 +7,7 @@ import ROUTER from "../../../router/ROUTER.js";
 import { useState } from "react";
 import Account from "./components/Account.jsx";
 import Logo from "./components/Logo.jsx";
+import useAuthStore from "../../../store/useAuthStore.js";
 
 const navItems = [
   { label: ROUTE_META[ROUTER.HOME].breadcrumb, path: ROUTER.HOME },
@@ -15,6 +16,7 @@ const navItems = [
 
 const HeaderMain = ({ className }) => {
   const [open, setOpen] = useState(false);
+  const { user } = useAuthStore();
   const showDrawer = () => {
     setOpen(true);
   };
@@ -94,6 +96,15 @@ const HeaderMain = ({ className }) => {
           </div>
         </Drawer>
       </div>
+      {user?.isEmailVerified === false && (
+        <Alert
+          message="Warning: Your email is not verified. Please verify your email to access all features."
+          banner
+          type="warning"
+          showIcon
+          className="mx-auto w-full"
+        />
+      )}
     </header>
   );
 };

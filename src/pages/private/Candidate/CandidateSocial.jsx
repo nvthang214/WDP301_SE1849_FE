@@ -11,6 +11,7 @@ import {
 import { notifyError, notifySuccess } from "../../../components/Notification";
 import { CandidateService } from "../../../services/CandidateService";
 import SettingsHeader from "./components/Header";
+import useAuthStore from "../../../store/useAuthStore";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -24,7 +25,11 @@ const LinkedInIcon = () => (
 const SOCIAL_PLATFORMS = [
   { value: "facebook", label: "Facebook", icon: <FacebookOutlined style={{ color: "#1877f2" }} /> },
   { value: "twitter", label: "Twitter", icon: <TwitterOutlined style={{ color: "#1da1f2" }} /> },
-  { value: "instagram", label: "Instagram", icon: <InstagramOutlined style={{ color: "#d6249f" }} /> },
+  {
+    value: "instagram",
+    label: "Instagram",
+    icon: <InstagramOutlined style={{ color: "#d6249f" }} />,
+  },
   { value: "linkedin", label: "LinkedIn", icon: <LinkedInIcon /> },
 ];
 
@@ -38,7 +43,7 @@ const decodeAccessToken = (token) => {
     const jsonPayload = decodeURIComponent(
       atob(padded)
         .split("")
-        .map((c) => `%${(`00${c.charCodeAt(0).toString(16)}`).slice(-2)}`)
+        .map((c) => `%${`00${c.charCodeAt(0).toString(16)}`.slice(-2)}`)
         .join("")
     );
     return JSON.parse(jsonPayload);
@@ -98,19 +103,23 @@ const CandidateSocial = () => {
 
   const nextAvailablePlatform = useMemo(() => getNextAvailablePlatform(socialLinks), [socialLinks]);
 
+  const { accessToken } = useAuthStore();
+
+  const tokenPayload = useMemo(() => decodeAccessToken(accessToken), [accessToken]);
+
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    const payload = decodeAccessToken(token);
-    if (!payload?.userId) {
+    if (!tokenPayload?.userId) {
       notifyError("Không tìm thấy thông tin người dùng, vui lòng đăng nhập lại.");
       setIsLoading(false);
       return;
     }
-    setUserId(payload.userId);
+
+    setUserId(tokenPayload.userId);
 
     const fetchSocial = async () => {
       try {
-        const response = await CandidateService.getCandidateSocial(payload.userId);
+        setIsLoading(true);
+        const response = await CandidateService.getCandidateSocial(tokenPayload.userId);
         if (response?.isError) {
           if (response.statusCode !== 404) {
             notifyError(response?.msg || "Không thể tải dữ liệu mạng xã hội.");
@@ -120,7 +129,9 @@ const CandidateSocial = () => {
         }
 
         const normalized = toSocialArray(response?.data);
-        setSocialLinks(normalized.length ? normalized : [createEmptyLink(getNextAvailablePlatform([]))]);
+        setSocialLinks(
+          normalized.length ? normalized : [createEmptyLink(getNextAvailablePlatform([]))]
+        );
       } catch (error) {
         console.error(error);
         notifyError("Không thể tải dữ liệu mạng xã hội.");
@@ -132,13 +143,11 @@ const CandidateSocial = () => {
     };
 
     fetchSocial();
-  }, []);
+  }, [tokenPayload]);
 
   const handlePlatformChange = (id, platform) => {
     setSocialLinks((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, platform, persisted: false } : item
-      )
+      prev.map((item) => (item.id === id ? { ...item, platform, persisted: false } : item))
     );
     setIsDirty(true);
   };
@@ -239,7 +248,9 @@ const CandidateSocial = () => {
           <div className="flex flex-col gap-5">
             {socialLinks.map((link, index) => (
               <div key={link.id} className="flex flex-col gap-2">
-                <Text strong className="text-neutral-700">Social Link {index + 1}</Text>
+                <Text strong className="text-neutral-700">
+                  Social Link {index + 1}
+                </Text>
                 <Space.Compact style={{ width: "100%" }} size="large">
                   <Select
                     value={link.platform || undefined}
@@ -288,7 +299,7 @@ const CandidateSocial = () => {
         )}
       </div>
 
-      <div className="flex justify-end mt-6">
+      <div className="mt-6 flex justify-end">
         <Button
           type="primary"
           size="large"

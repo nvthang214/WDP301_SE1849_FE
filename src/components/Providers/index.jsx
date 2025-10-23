@@ -15,7 +15,7 @@ const Providers = ({ children }) => {
   }, [init]);
 
   if (starting || loading) {
-    return <></>;
+    return <Spin fullscreen spinning />;
   }
   return children;
 };

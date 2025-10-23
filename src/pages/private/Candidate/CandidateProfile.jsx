@@ -4,6 +4,7 @@ import { CandidateService } from "../../../services/CandidateService";
 import { TagService } from "../../../services/TagService";
 import { notifyError, notifySuccess } from "../../../components/Notification";
 import SettingsHeader from "./components/Header";
+import useAuthStore from "../../../store/useAuthStore";
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;
@@ -36,7 +37,7 @@ const decodeAccessToken = (token) => {
     const jsonPayload = decodeURIComponent(
       atob(padded)
         .split("")
-        .map((char) => `%${(`00${char.charCodeAt(0).toString(16)}`).slice(-2)}`)
+        .map((char) => `%${`00${char.charCodeAt(0).toString(16)}`.slice(-2)}`)
         .join("")
     );
     return JSON.parse(jsonPayload);
@@ -82,7 +83,8 @@ const CandidateProfile = () => {
 
   const mergedExperienceOptions = useMemo(() => {
     if (!watchedExperience) return EXPERIENCE_PRESETS;
-    if (EXPERIENCE_PRESETS.some((item) => item.value === watchedExperience)) return EXPERIENCE_PRESETS;
+    if (EXPERIENCE_PRESETS.some((item) => item.value === watchedExperience))
+      return EXPERIENCE_PRESETS;
     return [{ value: watchedExperience, label: watchedExperience }, ...EXPERIENCE_PRESETS];
   }, [watchedExperience]);
 
@@ -92,10 +94,9 @@ const CandidateProfile = () => {
     return [{ value: watchedEducation, label: watchedEducation }, ...EDUCATION_PRESETS];
   }, [watchedEducation]);
 
-  const tokenPayload = useMemo(() => {
-    const token = localStorage.getItem("accessToken");
-    return decodeAccessToken(token);
-  }, []);
+  const { accessToken } = useAuthStore();
+
+  const tokenPayload = useMemo(() => decodeAccessToken(accessToken), [accessToken]);
 
   useEffect(() => {
     const fetchTags = async () => {
@@ -194,10 +195,8 @@ const CandidateProfile = () => {
 
   return (
     <div>
-      <SettingsHeader activeKey="profile"/>
+      <SettingsHeader activeKey="profile" />
       <div>
-        
-
         {isLoading ? (
           <div className="flex justify-center py-12">
             <Spin size="large" />
@@ -210,7 +209,7 @@ const CandidateProfile = () => {
             onFinish={handleSubmit}
             style={{ maxWidth: 1200 }}
           >
-            <div className="grid gap-4 md:grid-cols-2 ">
+            <div className="grid gap-4 md:grid-cols-2">
               <Form.Item
                 name="education"
                 label="Education"
@@ -281,7 +280,7 @@ const CandidateProfile = () => {
             <Form.Item>
               <div className="flex justify-end gap-3">
                 <Button type="primary" htmlType="submit" loading={isSubmitting} size="large">
-                  Save changes 
+                  Save changes
                 </Button>
               </div>
             </Form.Item>

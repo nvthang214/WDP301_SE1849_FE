@@ -15,25 +15,63 @@ const useAuthStore = create((set, get) => ({
   },
 
   register: async (payload) => {
+    set({ loading: true });
     try {
-      set({ loading: true });
-      return await AuthService.register(payload);
+      const response = await AuthService.register(payload, { skipNotify: true });
+      return {
+        isOk: true,
+        data: response?.data ?? null,
+        msg: response?.msg,
+      };
     } catch (error) {
-      console.log(error);
+      const message = error?.response?.data?.msg || error?.message || "Đăng ký thất bại.";
+      return { isOk: false, msg: message, error };
     } finally {
       set({ loading: false });
     }
   },
   login: async (payload) => {
+    set({ loading: true });
     try {
-      set({ loading: true });
-      const res = await AuthService.login(payload);
-      const accessToken = res?.data?.token || null;
-      get().setAccessToken(accessToken);
-      await get().fetchMe();
-      return res;
+      const response = await AuthService.login(payload, { skipNotify: true });
+      const token = response?.data?.token || response?.token || response?.data?.accessToken || null;
+
+      if (token) {
+        get().setAccessToken(token);
+        await get().fetchMe();
+      }
+
+      return {
+        isOk: Boolean(token),
+        data: response?.data ?? null,
+        msg: response?.msg,
+      };
     } catch (error) {
-      console.log(error);
+      const message = error?.response?.data?.msg || error?.message || "Đăng nhập thất bại.";
+      return { isOk: false, msg: message, error };
+    } finally {
+      set({ loading: false });
+    }
+  },
+  loginWithGoogle: async (payload) => {
+    set({ loading: true });
+    try {
+      const response = await AuthService.loginWithGoogle(payload, { skipNotify: true });
+      const token = response?.data?.token || response?.token || response?.data?.accessToken || null;
+
+      if (token) {
+        get().setAccessToken(token);
+        await get().fetchMe();
+      }
+
+      return {
+        isOk: Boolean(token),
+        data: response?.data ?? null,
+        msg: response?.msg,
+      };
+    } catch (error) {
+      const message = error?.response?.data?.msg || error?.message || "Đăng nhập thất bại.";
+      return { isOk: false, msg: message, error };
     } finally {
       set({ loading: false });
     }
@@ -55,7 +93,7 @@ const useAuthStore = create((set, get) => ({
     try {
       set({ loading: true });
       const res = await UserService.fetchMe();
-      const user = res?.data || null;
+      const user = res?.data || res?.user || null;
       set({ user });
       return res;
     } catch (error) {
@@ -69,8 +107,8 @@ const useAuthStore = create((set, get) => ({
     try {
       set({ loading: true });
       const { user, fetchMe, setAccessToken } = get();
-      const res = await AuthService.refresh();
-      const accessToken = res?.data || null;
+      const res = await AuthService.refresh({ skipNotify: true });
+      const accessToken = res?.data?.token || res?.data || null;
       setAccessToken(accessToken);
 
       if (!user) {

@@ -20,7 +20,7 @@ const Providers = ({ children }) => {
   }, []);
 
   if (starting || loading) {
-    return <></>;
+    return <Spin fullscreen spinning />;
   }
   return children;
 };

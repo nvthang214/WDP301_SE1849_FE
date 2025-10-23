@@ -24,6 +24,7 @@ const Login = React.lazy(() => import("../pages/public/Authentication/Login"));
 const Register = React.lazy(() => import("../pages/public/Authentication/Register"));
 const ForgotPassword = React.lazy(() => import("../pages/public/Authentication/ForgotPassword"));
 const ResetPassword = React.lazy(() => import("../pages/public/Authentication/ResetPassword"));
+const VerifyEmail = React.lazy(() => import("../pages/public/Authentication/VerifyEmail"));
 const JobList = React.lazy(() => import("../pages/public/Job/JobList"));
 const JobDetail = React.lazy(() => import("../pages/public/Job/JobDetail"));
 // ========================= End public pages ======================
@@ -114,6 +115,15 @@ const router = createBrowserRouter([
           </LazyLoad>
         ),
         handle: ROUTE_META[ROUTER.RESET_PASSWORD],
+      },
+      {
+        path: ROUTER.VERIFY_EMAIL,
+        element: (
+          <LazyLoad>
+            <VerifyEmail />
+          </LazyLoad>
+        ),
+        handle: ROUTE_META[ROUTER.VERIFY_EMAIL],
       },
     ],
   },

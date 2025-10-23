@@ -1,9 +1,8 @@
+import { Avatar, Button, Space } from "antd";
 import { Link } from "react-router-dom";
 import ROUTER from "../../../../router/ROUTER";
-import { Alert, Avatar, Badge, Button, Dropdown, Space } from "antd";
-import { Bell } from "lucide-react";
-import NotificationPopover from "./NotificationPopover";
 import useAuthStore from "../../../../store/useAuthStore";
+import NotificationPopover from "./NotificationPopover";
 
 const Account = () => {
   const user = useAuthStore((state) => state.user);
@@ -19,7 +18,7 @@ const Account = () => {
           <NotificationPopover />
           <Link to={PAGE[user?.role?.name]}>
             <Avatar className="bg-primary-600" src={user?.avatar ? user.avatar : null}>
-              {user?.name?.charAt(0).toUpperCase()}
+              {user?.lastName?.charAt(0).toUpperCase()}
             </Avatar>
           </Link>
         </Space>

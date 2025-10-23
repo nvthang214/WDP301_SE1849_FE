@@ -1,43 +1,48 @@
 import { LoadingOutlined } from "@ant-design/icons";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Divider } from "antd";
-import { ArrowRight, Chrome } from "lucide-react";
-import { useState } from "react";
+import { ArrowRight } from "lucide-react";
+import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
+import { z } from "zod";
+import LoginGoogle from "../../../../components/Authentication/LoginGoogle";
 import { notifyError, notifySuccess } from "../../../../components/Notification";
 import ROUTER from "../../../../router/ROUTER";
-import { AuthService } from "../../../../services/AuthService";
-import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
-import LoginGoogle from "../../../../components/Authentication/LoginGoogle";
 import useAuthStore from "../../../../store/useAuthStore";
+
+const loginSchema = z.object({
+  username: z.string().min(1, "Vui lòng nhập tên đăng nhập."),
+  password: z.string().min(1, "Vui lòng nhập mật khẩu."),
+});
 
 const LoginScreen = () => {
   const { login, loading } = useAuthStore();
   const nav = useNavigate();
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-    remember: false,
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+    },
   });
 
-  const handleChange = (event) => {
-    const { name, value, type, checked } = event.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
-
-  const handleLogin = async (event) => {
-    event.preventDefault();
+  const handleLogin = handleSubmit(async (formValues) => {
     const res = await login({
-      username: formData.username,
-      password: formData.password,
+      username: formValues.username,
+      password: formValues.password,
     });
     if (res?.isOk) {
       notifySuccess(res?.msg || "Đăng nhập thành công!");
       nav(ROUTER.HOME);
+      return;
     }
-  };
+
+    notifyError(res?.msg || "Đăng nhập thất bại, vui lòng thử lại!");
+  });
 
   return (
     <form onSubmit={handleLogin} className="flex h-full flex-col justify-between gap-8">
@@ -61,13 +66,15 @@ const LoginScreen = () => {
               id="email"
               name="username"
               type="text"
-              value={formData.username}
-              onChange={handleChange}
+              {...register("username")}
               placeholder="Enter your username"
               className="focus:border-primary-500 focus:ring-primary-100 w-full rounded-md border border-neutral-200 px-4 py-2.5 text-neutral-800 transition focus:ring-2 focus:outline-none"
               autoComplete="username"
-              required
+              aria-invalid={errors.username ? "true" : "false"}
             />
+            {errors.username ? (
+              <p className="mt-1 text-xs text-red-500">{errors.username.message}</p>
+            ) : null}
           </div>
 
           <div className="text-left">
@@ -75,13 +82,15 @@ const LoginScreen = () => {
               id="password"
               name="password"
               type="password"
-              value={formData.password}
-              onChange={handleChange}
+              {...register("password")}
               placeholder="Enter your password"
               className="focus:border-primary-500 focus:ring-primary-100 w-full rounded-md border border-neutral-200 px-4 py-2.5 text-neutral-800 transition focus:ring-2 focus:outline-none"
               autoComplete="current-password"
-              required
+              aria-invalid={errors.password ? "true" : "false"}
             />
+            {errors.password ? (
+              <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>
+            ) : null}
           </div>
         </div>
 

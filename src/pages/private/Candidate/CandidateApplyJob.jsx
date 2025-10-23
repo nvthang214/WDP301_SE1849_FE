@@ -13,6 +13,7 @@ import { CandidateService } from "../../../services/CandidateService";
 import { notifyError } from "../../../components/Notification";
 import { useNavigate } from "react-router-dom";
 import ROUTER from "../../../router/ROUTER";
+import useAuthStore from "../../../store/useAuthStore";
 
 const { Title, Text } = Typography;
 
@@ -64,7 +65,7 @@ const decodeAccessToken = (token) => {
     const jsonPayload = decodeURIComponent(
       atob(padded)
         .split("")
-        .map((char) => `%${(`00${char.charCodeAt(0).toString(16)}`).slice(-2)}`)
+        .map((char) => `%${`00${char.charCodeAt(0).toString(16)}`.slice(-2)}`)
         .join("")
     );
     return JSON.parse(jsonPayload);
@@ -171,34 +172,36 @@ const CandidateApplyJob = () => {
     }
   }, []);
 
-  useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    const payload = decodeAccessToken(token);
+  const { accessToken } = useAuthStore();
 
-    if (!payload?.userId) {
+  const tokenPayload = useMemo(() => decodeAccessToken(accessToken), [accessToken]);
+
+  useEffect(() => {
+    if (!tokenPayload?.userId) {
       notifyError("Không tìm thấy thông tin ứng viên, vui lòng đăng nhập lại.");
       setIsLoading(false);
       return;
     }
 
-    setUserId(payload.userId);
-    fetchAppliedJobs(payload.userId, true);
-  }, [fetchAppliedJobs]);
+    setUserId(tokenPayload.userId);
+    fetchAppliedJobs(tokenPayload.userId, true);
+  }, [fetchAppliedJobs, tokenPayload]);
 
   const handleRefresh = () => {
     if (!userId || isRefreshing) return;
     fetchAppliedJobs(userId, false);
   };
 
-    const renderHeader = () => (
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <Title level={4} className="!mb-0 text-neutral-900">
-            Applied Jobs <span className="text-sm font-semibold text-neutral-400">({totalApplied})</span>
-          </Title>
-        </div>
+  const renderHeader = () => (
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <Title level={4} className="!mb-0 text-neutral-900">
+          Applied Jobs{" "}
+          <span className="text-sm font-semibold text-neutral-400">({totalApplied})</span>
+        </Title>
       </div>
-    );
+    </div>
+  );
 
   const renderSkeletonRows = () => (
     <div className="flex flex-col gap-3 px-6 py-6">
@@ -219,7 +222,7 @@ const CandidateApplyJob = () => {
   };
 
   const renderJobRow = (application) => {
-  const { job, applicationId, _id } = application;
+    const { job, applicationId, _id } = application;
     if (!job) return null;
 
     const recordId = applicationId || _id || job._id;
@@ -247,9 +250,13 @@ const CandidateApplyJob = () => {
             )}
           </div>
           <div className="flex flex-1 flex-col gap-1">
-            <span className="text-base font-semibold text-neutral-900">{job.title || "Untitled Job"}</span>
+            <span className="text-base font-semibold text-neutral-900">
+              {job.title || "Untitled Job"}
+            </span>
             <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-500">
-              {job.company?.name && <span className="font-medium text-neutral-600">{job.company.name}</span>}
+              {job.company?.name && (
+                <span className="font-medium text-neutral-600">{job.company.name}</span>
+              )}
               <span className="flex items-center gap-1">
                 <EnvironmentOutlined className="text-neutral-300" />
                 {locationLabel}
@@ -282,7 +289,9 @@ const CandidateApplyJob = () => {
         </div>
 
         <div className="col-span-6 text-neutral-500 md:col-span-3 md:text-center">
-          {formatAppliedAt(application.appliedAt || application.appliedDate || application.createdAt)}
+          {formatAppliedAt(
+            application.appliedAt || application.appliedDate || application.createdAt
+          )}
         </div>
 
         <div className="col-span-6 md:col-span-2 md:text-center">
@@ -296,8 +305,7 @@ const CandidateApplyJob = () => {
 
         <div className="col-span-12 flex justify-start md:col-span-2 md:justify-end">
           <Button
-
-            className="rounded-full px-5 font-semibold hover:bg-primary-600 bg-primary-500"
+            className="hover:bg-primary-600 bg-primary-500 rounded-full px-5 font-semibold"
             onClick={() => navigateToJobDetail(job._id)}
           >
             View Details
@@ -313,7 +321,10 @@ const CandidateApplyJob = () => {
     if (!appliedJobs.length) {
       return (
         <div className="flex flex-col items-center justify-center gap-3 px-6 py-12">
-          <Empty description="You haven't applied to any jobs yet." image={Empty.PRESENTED_IMAGE_SIMPLE} />
+          <Empty
+            description="You haven't applied to any jobs yet."
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+          />
           <Button type="primary" ghost onClick={handleRefresh} disabled={isRefreshing}>
             Refresh List
           </Button>
@@ -328,8 +339,8 @@ const CandidateApplyJob = () => {
     <div className="flex flex-col gap-6">
       <section className="flex flex-col gap-4">
         {renderHeader()}
-        <div >
-          <div className="grid grid-cols-12 items-center gap-4 border-b border-neutral-100 bg-neutral-50 px-6 py-4 text-[12px] font-semibold uppercase tracking-[0.18em] text-neutral-500">
+        <div>
+          <div className="grid grid-cols-12 items-center gap-4 border-b border-neutral-100 bg-neutral-50 px-6 py-4 text-[12px] font-semibold tracking-[0.18em] text-neutral-500 uppercase">
             <span className="col-span-5 hidden md:block">Jobs</span>
             <span className="col-span-12 md:col-span-3 md:text-center">Date Applied</span>
             <span className="col-span-12 md:col-span-2 md:text-center">Status</span>

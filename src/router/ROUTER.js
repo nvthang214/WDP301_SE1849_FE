@@ -32,6 +32,7 @@ const ROUTER = {
   CANDIDATE_ACCOUNT: `${candidate}/account`,
   CANDIDATE_APPLY_JOB: `${candidate}/applied-jobs`,
   CANDIDATE_JOB_DETAIL: `${candidate}/detail/:id`,
+  CANDIDATE_REQUEST_UPGRADE: `${candidate}/request-upgrade`,
   // Recruiter routes
   RECRUITER_DASHBOARD: "/recruiter/overview",
   ACCOUNT_SETTINGS: "/recruiter/account",

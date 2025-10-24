@@ -24,6 +24,7 @@ import {
 } from '@ant-design/icons';
 import { UserService } from '../../../../services/UserService';
 import { AuthService } from '../../../../services/AuthService';
+import useAuthStore from '../../../../store/useAuthStore';
 
 const { Title, Text } = Typography;
 const { confirm } = Modal;
@@ -31,49 +32,44 @@ const { confirm } = Modal;
 const AccountSetting = () => {
   const [contactForm] = Form.useForm();
   const [passwordForm] = Form.useForm();
-  const [loading, setLoading] = useState(false);
   const [savingContact, setSavingContact] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
-  const [userData, setUserData] = useState(null);
+  
+  // Sử dụng auth store
+  const { user: userData, loading, fetchMe } = useAuthStore();
 
   useEffect(() => {
-    fetchUserData();
-  }, []);
+    if (!userData) {
+      fetchMe();
+    } else {
+      fillForm(userData);
+    }
+  }, [userData, fetchMe]);
 
-  const fetchUserData = async () => {
-    try {
-      setLoading(true);
-      const response = await UserService.fetchMe();
-      if (response.success && response.data) {
-        setUserData(response.data);
-        contactForm.setFieldsValue({
-          fullName: response.data.fullName,
-          email: response.data.email,
-          phone: response.data.phone,
-          address: response.data.address
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-      message.error('Failed to load user information');
-    } finally {
-      setLoading(false);
+  const fillForm = (data) => {
+    if (data) {
+      contactForm.setFieldsValue({
+        fullName: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        address: data.address
+      });
     }
   };
 
   const handleContactInfoSave = async (values) => {
     try {
       setSavingContact(true);
-      const response = await UserService.updateUserProfile(userData._id, values);
+      const response = await UserService.updateProfile(userData._id, values);
       
-      if (response.success) {
+      if (response.isOk) {
         message.success('Contact information updated successfully!');
-        setUserData({ ...userData, ...values });
+        // Gọi lại fetchMe để cập nhật user data trong auth store
+        await fetchMe();
       } else {
-        message.error('Failed to update contact information');
+        message.error(response.msg || 'Failed to update contact information');
       }
     } catch (error) {
-      console.error('Error updating contact info:', error);
       message.error('Failed to update contact information');
     } finally {
       setSavingContact(false);
@@ -95,7 +91,6 @@ const AccountSetting = () => {
         message.error(response.msg || 'Failed to change password');
       }
     } catch (error) {
-      console.error('Error changing password:', error);
       message.error('Failed to change password');
     } finally {
       setChangingPassword(false);
@@ -124,16 +119,15 @@ const AccountSetting = () => {
       onOk: async () => {
         try {
           const response = await UserService.deleteUser(userData._id);
-          if (response.success) {
+          if (response.isOk) {
             message.success('Account deleted successfully');
             // Redirect to login page
             localStorage.clear();
             window.location.href = '/login';
           } else {
-            message.error('Failed to delete account');
+            message.error(response.msg || 'Failed to delete account');
           }
         } catch (error) {
-          console.error('Error deleting account:', error);
           message.error('Failed to delete account');
         }
       }

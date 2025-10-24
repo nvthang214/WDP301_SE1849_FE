@@ -25,7 +25,7 @@ import {
   LinkedinOutlined,
   GlobalOutlined
 } from '@ant-design/icons';
-import { CompanyService } from '../../../../services/CompanyService';
+import { UserService } from '../../../../services/UserService';
 
 const { Title, Text } = Typography;
 
@@ -37,16 +37,21 @@ const SocialMediaProfile = () => {
   const [socialLinks, setSocialLinks] = useState([]);
 
   useEffect(() => {
-    fetchCompanyData();
+    fetchUserProfile();
   }, []);
 
-  const fetchCompanyData = async () => {
+  const fetchUserProfile = async () => {
     try {
       setLoading(true);
-      const response = await CompanyService.getCompanyByRecruiter();
-      if (response.success && response.data) {
-        setCompanyData(response.data);
-        const social = response.data.social || {};
+      const response = await UserService.fetchMe();
+      console.log('User profile response:', response);
+      
+      // Handle different response structures
+      const userData = response?.data || response;
+      
+      if (userData) {
+        setCompanyData(userData);
+        const social = userData.social || {};
         
         // Convert social object to array of social links
         const links = Object.keys(social)
@@ -60,7 +65,7 @@ const SocialMediaProfile = () => {
         setSocialLinks(links.length > 0 ? links : [{ id: Date.now(), platform: '', url: '' }]);
       }
     } catch (error) {
-      console.error('Error fetching company data:', error);
+      console.error('Error fetching user profile:', error);
       notifyError('Failed to load social media information');
     } finally {
       setLoading(false);
@@ -127,26 +132,16 @@ const SocialMediaProfile = () => {
         social: socialData
       };
 
-      let response;
-      if (companyData) {
-        // Update existing company
-        response = await CompanyService.updateCompany(companyData._id, updateData);
-      } else {
-        // Create new company with required fields
-        const newCompanyData = {
-          name: 'New Company', // Default name, user can update later
-          recruiter: 'current-recruiter-id', // This should be set from auth context
-          ...updateData
-        };
-        response = await CompanyService.createCompany(newCompanyData);
+      // Update user profile with social media data
+      if (!companyData || !companyData._id) {
+        throw new Error('User data not loaded. Please refresh the page.');
       }
+      const response = await UserService.updateProfile(companyData._id, updateData);
 
       if (response.success || response.data) {
         notifySuccess('Social media links saved successfully!');
-        if (!companyData) {
-          // Refresh data after creating new company
-          fetchCompanyData();
-        }
+        // Refresh data after updating profile
+        fetchUserProfile();
       } else {
         throw new Error(response.message || 'Failed to save social media links');
       }

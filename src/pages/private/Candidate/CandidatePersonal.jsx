@@ -5,7 +5,6 @@ import {
   Dropdown,
   Form,
   Input,
-  Modal,
   Select,
   Spin,
   Typography,
@@ -16,16 +15,15 @@ import {
   DeleteOutlined,
   EditOutlined,
   FilePdfOutlined,
-  GlobalOutlined,
   MoreOutlined,
   PlusOutlined,
-  UserOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import SettingsHeader from "./components/Header";
 import { CandidateService } from "../../../services/CandidateService";
 import { UploadService } from "../../../services/UploadService";
 import { notifyError, notifySuccess } from "../../../components/Notification";
+import useAuthStore from "../../../store/useAuthStore";
 
 const { Title, Text } = Typography;
 const { Dragger } = Upload;
@@ -60,26 +58,6 @@ const defaultFormValues = {
   website: "",
 };
 
-const decodeAccessToken = (token) => {
-  if (!token) return null;
-  try {
-    const [, payload = ""] = token.split(".");
-    if (!payload) return null;
-    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
-    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
-    const jsonPayload = decodeURIComponent(
-      atob(padded)
-        .split("")
-        .map((char) => `%${(`00${char.charCodeAt(0).toString(16)}`).slice(-2)}`)
-        .join("")
-    );
-    return JSON.parse(jsonPayload);
-  } catch (error) {
-    console.error("Failed to decode access token", error);
-    return null;
-  }
-};
-
 const formatFileSize = (size) => {
   if (!size && size !== 0) return "";
   const kb = 1024;
@@ -93,7 +71,6 @@ const CandidatePersonal = () => {
   const [form] = Form.useForm();
   const avatarInputRef = useRef(null);
   const cvInputRef = useRef(null);
-  const [userId, setUserId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isAvatarBusy, setIsAvatarBusy] = useState(false);
@@ -103,11 +80,9 @@ const CandidatePersonal = () => {
   const [hasProfile, setHasProfile] = useState(false);
   const [candidateInfo, setCandidateInfo] = useState({ firstName: "", lastName: "" });
   const [initialWebsite, setInitialWebsite] = useState("");
-
-  const tokenPayload = useMemo(() => {
-    const token = localStorage.getItem("accessToken");
-    return decodeAccessToken(token);
-  }, []);
+  // lấy user từ authstore
+  const { user,loading } = useAuthStore();
+  const userId = useMemo(() => user?._id || user?.id || user?.userId || null, [user]);
 
   const watchedExperience = Form.useWatch("experience", form);
   const watchedEducation = Form.useWatch("education", form);
@@ -129,13 +104,13 @@ const CandidatePersonal = () => {
   }, [watchedEducation]);
 
   useEffect(() => {
-    if (!tokenPayload?.userId) {
+    if (loading) return;
+
+    if (!userId) {
       notifyError("Không tìm thấy thông tin người dùng, vui lòng đăng nhập lại.");
       setIsLoading(false);
       return;
     }
-
-    setUserId(tokenPayload.userId);
 
     const loadInitialData = async () => {
       setIsLoading(true);
@@ -143,10 +118,10 @@ const CandidatePersonal = () => {
 
       try {
         const [infoResult, profileResult, avatarResult, cvResult] = await Promise.allSettled([
-          CandidateService.getInfoCandidate(tokenPayload.userId),
-          CandidateService.getCandidateProfile(tokenPayload.userId),
-          UploadService.getUserAvatar(tokenPayload.userId),
-          UploadService.getCandidateCv(tokenPayload.userId),
+          CandidateService.getInfoCandidate(userId),
+          CandidateService.getCandidateProfile(userId),
+          UploadService.getUserAvatar(userId),
+          UploadService.getCandidateCv(userId),
         ]);
 
         if (infoResult.status === "fulfilled" && !infoResult.value?.isError) {
@@ -194,7 +169,7 @@ const CandidatePersonal = () => {
     };
 
     loadInitialData();
-  }, [form, tokenPayload]);
+  }, [loading, form, userId]);
 
   const validateAvatarFile = (file) => {
     if (!ALLOWED_AVATAR_TYPES.includes(file.type)) {

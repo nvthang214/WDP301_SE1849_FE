@@ -37,7 +37,6 @@ const ROUTER = {
   RECRUITER_DASHBOARD: "/recruiter/overview",
   ACCOUNT_SETTINGS: "/recruiter/account",
   COMPANY_INFO: "/recruiter/companyinfo",
-  SOCIAL_MEDIA: "/recruiter/socialmedia",
 
   // //company for candidate view
   // COMPANY_INFORMATION: "/company/:id",

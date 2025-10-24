@@ -62,7 +62,6 @@ const RecruiterSettings = React.lazy(() => import("../pages/private/Recruiter/Re
 
 const AccountSetting = React.lazy(() => import("../pages/private/Recruiter/RecruiterSetting/AccountSetting"));
 const CompanyInfo = React.lazy(() => import("../pages/private/Recruiter/RecruiterSetting/CompanyInfo"));
-const SocialMedia = React.lazy(() => import("../pages/private/Recruiter/RecruiterSetting/SocialMedia"));
 const router = createBrowserRouter([
   //========================= Public Routes ==========================
   // --- Authentication routes ---

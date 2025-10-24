@@ -6,9 +6,9 @@ import {
   Upload,
   Typography,
   Space,
-  message,
   Spin
 } from 'antd';
+import { notifySuccess, notifyError } from '../../../../components/Notification';
 import {
   UploadOutlined,
   PictureOutlined,
@@ -61,7 +61,7 @@ const CompanyInfo = () => {
       }
     } catch (error) {
       console.error('Error fetching company data:', error);
-      message.error('Failed to load company information');
+      notifyError('Failed to load company information');
     } finally {
       setLoading(false);
     }
@@ -74,9 +74,9 @@ const CompanyInfo = () => {
     if (info.file.status === 'done') {
       const url = info.file.response?.data?.url || URL.createObjectURL(info.file.originFileObj);
       setLogo(url);
-      message.success('Logo uploaded successfully');
+      notifySuccess('Logo uploaded successfully');
     } else if (info.file.status === 'error') {
-      message.error('Logo upload failed');
+      notifyError('Logo upload failed');
     }
   };
 
@@ -87,20 +87,20 @@ const CompanyInfo = () => {
     if (info.file.status === 'done') {
       const url = info.file.response?.data?.url || URL.createObjectURL(info.file.originFileObj);
       setBanner(url);
-      message.success('Banner uploaded successfully');
+      notifySuccess('Banner uploaded successfully');
     } else if (info.file.status === 'error') {
-      message.error('Banner upload failed');
+      notifyError('Banner upload failed');
     }
   };
 
   const beforeUpload = (file) => {
     const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
     if (!isJpgOrPng) {
-      message.error('You can only upload JPG/PNG file!');
+      notifyError('You can only upload JPG/PNG file!');
     }
     const isLt2M = file.size / 1024 / 1024 < 2;
     if (!isLt2M) {
-      message.error('Image must smaller than 2MB!');
+      notifyError('Image must smaller than 2MB!');
     }
     return isJpgOrPng && isLt2M;
   };
@@ -123,14 +123,14 @@ const CompanyInfo = () => {
       }
 
       if (response.isOk) {
-        message.success('Company information saved successfully!');
+        notifySuccess('Company information saved successfully!');
         setCompanyData(response.data);
       } else {
-        message.error(response.msg || 'Failed to save company information');
+        notifyError(response.msg || 'Failed to save company information');
       }
     } catch (error) {
       console.error('Error saving company info:', error);
-      message.error('Failed to save company information');
+      notifyError('Failed to save company information');
     } finally {
       setSaving(false);
     }

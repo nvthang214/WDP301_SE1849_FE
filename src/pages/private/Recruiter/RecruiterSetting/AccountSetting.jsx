@@ -7,11 +7,11 @@ import {
   Space,
   Card,
   Divider,
-  message,
   Modal,
   Spin,
   Alert
 } from 'antd';
+import { notifySuccess, notifyError } from '../../../../components/Notification';
 import {
   UserOutlined,
   MailOutlined,
@@ -63,14 +63,14 @@ const AccountSetting = () => {
       const response = await UserService.updateProfile(userData._id, values);
       
       if (response.isOk) {
-        message.success('Contact information updated successfully!');
+        notifySuccess('Thông tin liên hệ đã được cập nhật thành công!');
         // Gọi lại fetchMe để cập nhật user data trong auth store
         await fetchMe();
       } else {
-        message.error(response.msg || 'Failed to update contact information');
+        notifyError(response.msg || 'Thông tin liên hệ không thể được cập nhật!');
       }
     } catch (error) {
-      message.error('Failed to update contact information');
+      notifyError('Thông tin liên hệ không thể được cập nhật!');
     } finally {
       setSavingContact(false);
     }
@@ -85,13 +85,13 @@ const AccountSetting = () => {
       });
       
       if (response.isOk) {
-        message.success('Password changed successfully!');
+        notifySuccess('Mật khẩu đã được cập nhật thành công!');
         passwordForm.resetFields();
       } else {
-        message.error(response.msg || 'Failed to change password');
+        notifyError(response.msg || 'Thông tin liên hệ không thể được cập nhật!');
       }
     } catch (error) {
-      message.error('Failed to change password');
+      notifyError('Mật khẩu không thể được cập nhật!');
     } finally {
       setChangingPassword(false);
     }
@@ -99,7 +99,7 @@ const AccountSetting = () => {
 
   const handleDeleteAccount = () => {
     confirm({
-      title: 'Are you sure you want to delete your account?',
+      title: 'Bạn có chắc chắn muốn xóa tài khoản này?',
       icon: <ExclamationCircleOutlined />,
       content: (
         <div>
@@ -113,22 +113,22 @@ const AccountSetting = () => {
           <p><strong>Please type "DELETE" to confirm:</strong></p>
         </div>
       ),
-      okText: 'Delete Account',
+      okText: 'Xóa tài khoản',
       okType: 'danger',
-      cancelText: 'Cancel',
+      cancelText: 'Hủy',
       onOk: async () => {
         try {
           const response = await UserService.deleteUser(userData._id);
           if (response.isOk) {
-            message.success('Account deleted successfully');
+            notifySuccess('Tài khoản đã được xóa thành công!');
             // Redirect to login page
             localStorage.clear();
             window.location.href = '/login';
           } else {
-            message.error(response.msg || 'Failed to delete account');
+            notifyError(response.msg || 'Tài khoản không thể được xóa!');
           }
         } catch (error) {
-          message.error('Failed to delete account');
+          notifyError('Tài khoản không thể được xóa!');
         }
       }
     });

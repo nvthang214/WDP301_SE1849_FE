@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Button, Form, Input, Spin, Typography } from "antd";
-import { IdcardOutlined, MailOutlined, PhoneOutlined, UserOutlined } from "@ant-design/icons";
+import { MailOutlined, PhoneOutlined } from "@ant-design/icons";
 import SettingsHeader from "./components/Header";
 import { CandidateService } from "../../../services/CandidateService";
 import { AuthService } from "../../../services/AuthService";
@@ -9,45 +9,19 @@ import useAuthStore from "../../../store/useAuthStore";
 
 const { Title } = Typography;
 
-const DEFAULT_STATE = {
-  firstName: "",
-  lastName: "",
-  email: "",
-  phoneNumber: "",
-};
-
-const decodeAccessToken = (token) => {
-  if (!token) return null;
-  try {
-    const [, payload = ""] = token.split(".");
-    if (!payload) return null;
-    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
-    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
-    const jsonPayload = decodeURIComponent(
-      atob(padded)
-        .split("")
-        .map((char) => `%${`00${char.charCodeAt(0).toString(16)}`.slice(-2)}`)
-        .join("")
-    );
-    return JSON.parse(jsonPayload);
-  } catch (error) {
-    console.error("Failed to decode access token", error);
-    return null;
-  }
-};
+const DEFAULT_STATE = { firstName: "", lastName: "", email: "", phoneNumber: "",};
 
 const CandidateAccount = () => {
   const [form] = Form.useForm();
   const [passwordForm] = Form.useForm();
-  const [userId, setUserId] = useState(null);
   const [initialValues, setInitialValues] = useState({ ...DEFAULT_STATE });
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPasswordSubmitting, setIsPasswordSubmitting] = useState(false);
 
-  const { accessToken } = useAuthStore();
-
-  const tokenPayload = useMemo(() => decodeAccessToken(accessToken), [accessToken]);
+  // lấy user từ authstore
+  const { user,loading } = useAuthStore();
+  const userId = useMemo(() => user?._id || user?.id || user?.userId || null, [user]);
 
   const nameValidator = (_, value) => {
     if (!value) return Promise.resolve();
@@ -58,18 +32,18 @@ const CandidateAccount = () => {
   };
 
   useEffect(() => {
-    if (!tokenPayload?.userId) {
+    if (loading) return;
+
+    if (!userId) {
       notifyError("Không tìm thấy thông tin người dùng, vui lòng đăng nhập lại.");
       setIsLoading(false);
       return;
     }
 
-    setUserId(tokenPayload.userId);
-
     const fetchCandidateInfo = async () => {
       setIsLoading(true);
       try {
-        const response = await CandidateService.getInfoCandidate(tokenPayload.userId);
+        const response = await CandidateService.getInfoCandidate(userId);
         if (response?.isError) {
           throw new Error(response?.msg || "Không thể tải thông tin tài khoản.");
         }
@@ -95,7 +69,7 @@ const CandidateAccount = () => {
     };
 
     fetchCandidateInfo();
-  }, [form, tokenPayload]);
+  }, [loading, form, userId]);
 
   const handleSubmit = async (values) => {
     if (!userId) {
@@ -220,7 +194,7 @@ const CandidateAccount = () => {
                   rules={[
                     { required: true, message: "Vui lòng nhập số điện thoại." },
                     {
-                      pattern: /^[0-9+()\-\s]{6,20}$/,
+                      pattern: /^[0-9+()\-\s]{10}$/,
                       message: "Số điện thoại không hợp lệ.",
                     },
                   ]}

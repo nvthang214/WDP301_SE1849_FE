@@ -9,44 +9,6 @@ import useAuthStore from "../../../store/useAuthStore";
 const { Text, Title } = Typography;
 const { TextArea } = Input;
 
-const EXPERIENCE_PRESETS = [
-  { value: "Intern", label: "Intern" },
-  { value: "Junior", label: "Junior" },
-  { value: "Mid-level", label: "Mid-level" },
-  { value: "Senior", label: "Senior" },
-  { value: "Lead", label: "Lead" },
-  { value: "Principal", label: "Principal" },
-];
-
-const EDUCATION_PRESETS = [
-  { value: "High School", label: "High School" },
-  { value: "Associate", label: "Associate" },
-  { value: "Bachelor", label: "Bachelor" },
-  { value: "Master", label: "Master" },
-  { value: "PhD", label: "PhD" },
-  { value: "Certification", label: "Certification" },
-];
-
-const decodeAccessToken = (token) => {
-  if (!token) return null;
-  try {
-    const [, payload = ""] = token.split(".");
-    if (!payload) return null;
-    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
-    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
-    const jsonPayload = decodeURIComponent(
-      atob(padded)
-        .split("")
-        .map((char) => `%${`00${char.charCodeAt(0).toString(16)}`.slice(-2)}`)
-        .join("")
-    );
-    return JSON.parse(jsonPayload);
-  } catch (error) {
-    console.error("Failed to decode access token", error);
-    return null;
-  }
-};
-
 const defaultFormValues = {
   experience: "",
   education: "",
@@ -71,32 +33,15 @@ const extractFormValues = (profile) => {
 
 const CandidateProfile = () => {
   const [form] = Form.useForm();
-  const [userId, setUserId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isNewProfile, setIsNewProfile] = useState(false);
   const [tags, setTags] = useState([]);
   const [isTagsLoading, setIsTagsLoading] = useState(true);
   const [initialValues, setInitialValues] = useState({ ...defaultFormValues });
-  const watchedExperience = Form.useWatch("experience", form);
-  const watchedEducation = Form.useWatch("education", form);
-
-  const mergedExperienceOptions = useMemo(() => {
-    if (!watchedExperience) return EXPERIENCE_PRESETS;
-    if (EXPERIENCE_PRESETS.some((item) => item.value === watchedExperience))
-      return EXPERIENCE_PRESETS;
-    return [{ value: watchedExperience, label: watchedExperience }, ...EXPERIENCE_PRESETS];
-  }, [watchedExperience]);
-
-  const mergedEducationOptions = useMemo(() => {
-    if (!watchedEducation) return EDUCATION_PRESETS;
-    if (EDUCATION_PRESETS.some((item) => item.value === watchedEducation)) return EDUCATION_PRESETS;
-    return [{ value: watchedEducation, label: watchedEducation }, ...EDUCATION_PRESETS];
-  }, [watchedEducation]);
-
-  const { accessToken } = useAuthStore();
-
-  const tokenPayload = useMemo(() => decodeAccessToken(accessToken), [accessToken]);
+  // lấy user từ authstore
+  const { user,loading } = useAuthStore();
+  const userId = useMemo(() => user?._id || user?.id || user?.userId || null, [user]);
 
   useEffect(() => {
     const fetchTags = async () => {
@@ -116,17 +61,18 @@ const CandidateProfile = () => {
   }, []);
 
   useEffect(() => {
-    if (!tokenPayload?.userId) {
+    if (loading) return;
+
+    if (!userId) {
       notifyError("Không tìm thấy thông tin người dùng, vui lòng đăng nhập lại.");
       setIsLoading(false);
       return;
     }
 
-    setUserId(tokenPayload.userId);
     const fetchProfile = async () => {
       setIsLoading(true);
       try {
-        const response = await CandidateService.getCandidateProfile(tokenPayload.userId);
+        const response = await CandidateService.getCandidateProfile(userId);
         if (response?.isError) {
           if (response.statusCode !== 404) {
             notifyError(response?.msg || "Không thể tải hồ sơ ứng viên.");
@@ -153,7 +99,7 @@ const CandidateProfile = () => {
     };
 
     fetchProfile();
-  }, [form, tokenPayload]);
+  }, [loading, form, userId]);
 
   const handleSubmit = async (values) => {
     if (!userId) {
@@ -215,13 +161,10 @@ const CandidateProfile = () => {
                 label="Education"
                 rules={[{ max: 1000, message: "Tối đa 1000 ký tự." }]}
               >
-                <Select
+                <Input
                   size="large"
                   allowClear
-                  placeholder="Select..."
-                  options={mergedEducationOptions}
-                  showSearch
-                  optionFilterProp="label"
+                  placeholder="Your education"
                 />
               </Form.Item>
 
@@ -230,13 +173,10 @@ const CandidateProfile = () => {
                 label="Experience"
                 rules={[{ max: 1000, message: "Tối đa 1000 ký tự." }]}
               >
-                <Select
+                <Input
                   size="large"
                   allowClear
-                  placeholder="Select..."
-                  options={mergedExperienceOptions}
-                  showSearch
-                  optionFilterProp="label"
+                  placeholder="Your experience"
                 />
               </Form.Item>
 

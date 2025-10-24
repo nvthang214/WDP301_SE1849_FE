@@ -9,24 +9,6 @@ import useAuthStore from "../../../store/useAuthStore";
 const { Text, Title } = Typography;
 const { TextArea } = Input;
 
-const EXPERIENCE_PRESETS = [
-  { value: "Intern", label: "Intern" },
-  { value: "Junior", label: "Junior" },
-  { value: "Mid-level", label: "Mid-level" },
-  { value: "Senior", label: "Senior" },
-  { value: "Lead", label: "Lead" },
-  { value: "Principal", label: "Principal" },
-];
-
-const EDUCATION_PRESETS = [
-  { value: "High School", label: "High School" },
-  { value: "Associate", label: "Associate" },
-  { value: "Bachelor", label: "Bachelor" },
-  { value: "Master", label: "Master" },
-  { value: "PhD", label: "PhD" },
-  { value: "Certification", label: "Certification" },
-];
-
 const defaultFormValues = {
   experience: "",
   education: "",
@@ -57,21 +39,6 @@ const CandidateProfile = () => {
   const [tags, setTags] = useState([]);
   const [isTagsLoading, setIsTagsLoading] = useState(true);
   const [initialValues, setInitialValues] = useState({ ...defaultFormValues });
-  const watchedExperience = Form.useWatch("experience", form);
-  const watchedEducation = Form.useWatch("education", form);
-
-  const mergedExperienceOptions = useMemo(() => {
-    if (!watchedExperience) return EXPERIENCE_PRESETS;
-    if (EXPERIENCE_PRESETS.some((item) => item.value === watchedExperience))
-      return EXPERIENCE_PRESETS;
-    return [{ value: watchedExperience, label: watchedExperience }, ...EXPERIENCE_PRESETS];
-  }, [watchedExperience]);
-
-  const mergedEducationOptions = useMemo(() => {
-    if (!watchedEducation) return EDUCATION_PRESETS;
-    if (EDUCATION_PRESETS.some((item) => item.value === watchedEducation)) return EDUCATION_PRESETS;
-    return [{ value: watchedEducation, label: watchedEducation }, ...EDUCATION_PRESETS];
-  }, [watchedEducation]);
   // lấy user từ authstore
   const { user,loading } = useAuthStore();
   const userId = useMemo(() => user?._id || user?.id || user?.userId || null, [user]);
@@ -194,13 +161,10 @@ const CandidateProfile = () => {
                 label="Education"
                 rules={[{ max: 1000, message: "Tối đa 1000 ký tự." }]}
               >
-                <Select
+                <Input
                   size="large"
                   allowClear
-                  placeholder="Select..."
-                  options={mergedEducationOptions}
-                  showSearch
-                  optionFilterProp="label"
+                  placeholder="Your education"
                 />
               </Form.Item>
 
@@ -209,13 +173,10 @@ const CandidateProfile = () => {
                 label="Experience"
                 rules={[{ max: 1000, message: "Tối đa 1000 ký tự." }]}
               >
-                <Select
+                <Input
                   size="large"
                   allowClear
-                  placeholder="Select..."
-                  options={mergedExperienceOptions}
-                  showSearch
-                  optionFilterProp="label"
+                  placeholder="Your experience"
                 />
               </Form.Item>
 

@@ -1,15 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Avatar,
-  Button,
-  Dropdown,
-  Form,
-  Input,
-  Select,
-  Spin,
-  Typography,
-  Upload,
-} from "antd";
+import { Avatar, Button, Dropdown, Form, Input, Spin, Typography, Upload } from "antd";
 import {
   CloudUploadOutlined,
   DeleteOutlined,
@@ -27,24 +17,6 @@ import useAuthStore from "../../../store/useAuthStore";
 
 const { Title, Text } = Typography;
 const { Dragger } = Upload;
-
-const EXPERIENCE_PRESETS = [
-  { value: "Intern", label: "Intern" },
-  { value: "Junior", label: "Junior" },
-  { value: "Mid-level", label: "Mid-level" },
-  { value: "Senior", label: "Senior" },
-  { value: "Lead", label: "Lead" },
-  { value: "Principal", label: "Principal" },
-];
-
-const EDUCATION_PRESETS = [
-  { value: "High School", label: "High School" },
-  { value: "Associate", label: "Associate" },
-  { value: "Bachelor", label: "Bachelor" },
-  { value: "Master", label: "Master" },
-  { value: "PhD", label: "PhD" },
-  { value: "Certification", label: "Certification" },
-];
 
 const AVATAR_MAX_SIZE = 5 * 1024 * 1024;
 const CV_MAX_SIZE = 20 * 1024 * 1024;
@@ -84,24 +56,6 @@ const CandidatePersonal = () => {
   const { user,loading } = useAuthStore();
   const userId = useMemo(() => user?._id || user?.id || user?.userId || null, [user]);
 
-  const watchedExperience = Form.useWatch("experience", form);
-  const watchedEducation = Form.useWatch("education", form);
-
-  const mergedExperienceOptions = useMemo(() => {
-    if (!watchedExperience) return EXPERIENCE_PRESETS;
-    if (EXPERIENCE_PRESETS.some((option) => option.value === watchedExperience)) {
-      return EXPERIENCE_PRESETS;
-    }
-    return [{ value: watchedExperience, label: watchedExperience }, ...EXPERIENCE_PRESETS];
-  }, [watchedExperience]);
-
-  const mergedEducationOptions = useMemo(() => {
-    if (!watchedEducation) return EDUCATION_PRESETS;
-    if (EDUCATION_PRESETS.some((option) => option.value === watchedEducation)) {
-      return EDUCATION_PRESETS;
-    }
-    return [{ value: watchedEducation, label: watchedEducation }, ...EDUCATION_PRESETS];
-  }, [watchedEducation]);
 
   useEffect(() => {
     if (loading) return;
@@ -476,24 +430,10 @@ const handleCvDelete = async () => {
 
                 <div className="grid gap-4 md:grid-cols-2">
                   <Form.Item name="experience" label="Experience">
-                    <Select
-                      size="large"
-                      allowClear
-                      placeholder="Select..."
-                      options={mergedExperienceOptions}
-                      showSearch
-                      optionFilterProp="label"
-                    />
+                    <Input size="large" allowClear placeholder="Your experience" />
                   </Form.Item>
-                  <Form.Item name="education" label="Educations">
-                    <Select
-                      size="large"
-                      allowClear
-                      placeholder="Select..."
-                      options={mergedEducationOptions}
-                      showSearch
-                      optionFilterProp="label"
-                    />
+                  <Form.Item name="education" label="Education">
+                    <Input size="large" allowClear placeholder="Your education" />
                   </Form.Item>
                 </div>
 

@@ -12,6 +12,7 @@ import dayjs from "dayjs";
 import SettingsHeader from "./components/Header";
 import { CandidateService } from "../../../services/CandidateService";
 import { UploadService } from "../../../services/UploadService";
+import { UserService } from "../../../services/UserService";
 import { notifyError, notifySuccess } from "../../../components/Notification";
 import useAuthStore from "../../../store/useAuthStore";
 
@@ -53,7 +54,7 @@ const CandidatePersonal = () => {
   const [candidateInfo, setCandidateInfo] = useState({ firstName: "", lastName: "" });
   const [initialWebsite, setInitialWebsite] = useState("");
   // lấy user từ authstore
-  const { user,loading } = useAuthStore();
+  const { user, loading } = useAuthStore();
   const userId = useMemo(() => user?._id || user?.id || user?.userId || null, [user]);
 
 
@@ -162,7 +163,20 @@ const CandidatePersonal = () => {
       if (response?.isError) {
         throw new Error(response?.msg || "Không thể tải avatar.");
       }
+
+      // Cập nhật local state
       setAvatarData(response?.data || null);
+
+      // Lấy lại thông tin user mới từ server
+      const userResponse = await UserService.fetchMe();
+      if (!userResponse?.isError && userResponse?.data) {
+        // Cập nhật user trong auth store với dữ liệu mới nhất
+        useAuthStore.setState({ user: userResponse.data });
+
+        // Lưu vào localStorage để duy trì sau khi refresh
+        localStorage.setItem('userData', JSON.stringify(userResponse.data));
+      }
+
       notifySuccess(response?.msg || "Đã cập nhật avatar.");
     } catch (error) {
       console.error(error);
@@ -180,23 +194,36 @@ const CandidatePersonal = () => {
     event.target.value = "";
   };
 
- const handleAvatarDelete = async () => {
-  if (!userId || !avatarData) return;
-  setIsAvatarBusy(true);
-  try {
-    const response = await UploadService.deleteUserAvatar(userId);
-    if (response?.isError) {
-      throw new Error(response?.msg || "Không thể xóa avatar.");
+  const handleAvatarDelete = async () => {
+    if (!userId || !avatarData) return;
+    setIsAvatarBusy(true);
+    try {
+      const response = await UploadService.deleteUserAvatar(userId);
+      if (response?.isError) {
+        throw new Error(response?.msg || "Không thể xóa avatar.");
+      }
+
+      // Cập nhật local state
+      setAvatarData(null);
+
+      // Lấy lại thông tin user mới từ server
+      const userResponse = await UserService.fetchMe();
+      if (!userResponse?.isError && userResponse?.data) {
+        // Cập nhật user trong auth store với dữ liệu mới nhất
+        useAuthStore.setState({ user: userResponse.data });
+
+        // Lưu vào localStorage để duy trì sau khi refresh
+        localStorage.setItem('userData', JSON.stringify(userResponse.data));
+      }
+
+      notifySuccess(response?.msg || "Đã xóa avatar.");
+    } catch (error) {
+      console.error(error);
+      notifyError(error.message || "Không thể xóa avatar.");
+    } finally {
+      setIsAvatarBusy(false);
     }
-    setAvatarData(null);
-    notifySuccess(response?.msg || "Đã xóa avatar.");
-  } catch (error) {
-    console.error(error);
-    notifyError(error.message || "Không thể xóa avatar.");
-  } finally {
-    setIsAvatarBusy(false);
-  }
-};
+  };
 
 
   const handleCvUpload = async (file) => {
@@ -228,23 +255,23 @@ const CandidatePersonal = () => {
     event.target.value = "";
   };
 
-const handleCvDelete = async () => {
-  if (!userId || !cvData) return;
-  setIsCvBusy(true);
-  try {
-    const response = await UploadService.deleteCandidateCv(userId);
-    if (response?.isError) {
-      throw new Error(response?.msg || "Không thể xóa CV.");
+  const handleCvDelete = async () => {
+    if (!userId || !cvData) return;
+    setIsCvBusy(true);
+    try {
+      const response = await UploadService.deleteCandidateCv(userId);
+      if (response?.isError) {
+        throw new Error(response?.msg || "Không thể xóa CV.");
+      }
+      setCvData(null);
+      notifySuccess(response?.msg || "Đã xóa CV.");
+    } catch (error) {
+      console.error(error);
+      notifyError(error.message || "Không thể xóa CV.");
+    } finally {
+      setIsCvBusy(false);
     }
-    setCvData(null);
-    notifySuccess(response?.msg || "Đã xóa CV.");
-  } catch (error) {
-    console.error(error);
-    notifyError(error.message || "Không thể xóa CV.");
-  } finally {
-    setIsCvBusy(false);
-  }
-};
+  };
 
 
   const parseFullName = (fullName) => {
@@ -274,10 +301,10 @@ const handleCvDelete = async () => {
       bio: values.headline?.trim() || "",
       ...(trimmedWebsite
         ? {
-            social: {
-              linkedin: trimmedWebsite,
-            },
-          }
+          social: {
+            linkedin: trimmedWebsite,
+          },
+        }
         : {}),
     };
 
@@ -380,10 +407,10 @@ const handleCvDelete = async () => {
                       />
                       <div className="flex flex-wrap justify-start gap-2">
                         <Button icon={<EditOutlined />} onClick={() => avatarInputRef.current?.click()}>
-                          Edit avatar 
+                          Edit avatar
                         </Button>
                         <Button danger icon={<DeleteOutlined />} onClick={handleAvatarDelete}>
-                          Delete 
+                          Delete
                         </Button>
                       </div>
                     </div>
@@ -417,7 +444,7 @@ const handleCvDelete = async () => {
                   accept="image/png,image/jpeg,image/webp"
                   onChange={handleAvatarFileChange}
                 />
-                
+
               </div>
 
               <Form

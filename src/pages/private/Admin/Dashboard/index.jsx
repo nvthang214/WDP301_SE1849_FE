@@ -70,10 +70,10 @@ const AdminDashboard = () => {
   useEffect(() => {
     // Filter users based on search text
     if (searchText) {
-      const filtered = users.filter(user => 
-        user.FullName?.toLowerCase().includes(searchText.toLowerCase()) ||
-        user.Email?.toLowerCase().includes(searchText.toLowerCase()) ||
-        user.Role?.toLowerCase().includes(searchText.toLowerCase())
+        const filtered = users.filter(user => 
+        `${user.firstName || ''} ${user.lastName || ''}`.toLowerCase().includes(searchText.toLowerCase()) ||
+        user.email?.toLowerCase().includes(searchText.toLowerCase()) ||
+        user.role?.name?.toLowerCase().includes(searchText.toLowerCase())
       );
       setFilteredUsers(filtered);
     } else {
@@ -112,8 +112,8 @@ const AdminDashboard = () => {
       const roles = rolesResponse.data || [];
 
       // Calculate statistics
-      const activeUsers = usersData.filter(user => user.IsActive).length;
-      const bannedUsers = usersData.filter(user => !user.IsActive).length;
+      const activeUsers = usersData.filter(user => user.isActive).length;
+      const bannedUsers = usersData.filter(user => !user.isActive).length;
       const activeJobs = jobs.filter(job => job.isActive).length;
 
       setStats({
@@ -165,8 +165,8 @@ const AdminDashboard = () => {
 
   const openRoleModal = (user) => {
     setSelectedUser(user);
-    // Sử dụng role_id thực từ database thay vì Role name
-    setSelectedRoleId(user.role_id?._id || user.role_id || '');
+    // Sử dụng role._id thực từ database
+    setSelectedRoleId(user.role?._id || '');
     setIsRoleModalVisible(true);
   };
 
@@ -195,16 +195,16 @@ const AdminDashboard = () => {
   const columns = [
     {
       title: 'Tên',
-      dataIndex: 'FullName',
-      key: 'FullName',
-      render: (text) => text || 'Chưa cập nhật',
+      dataIndex: 'firstName',
+      key: 'fullName',
+      render: (text, record) => `${record.firstName || ''} ${record.lastName || ''}`.trim() || 'Chưa cập nhật',
     },
     {
       title: 'Role',
-      dataIndex: 'Role',
-      key: 'Role',
+      dataIndex: 'role',
+      key: 'role',
       render: (role, record) => {
-        const roleName = record.role_id?.name || role || 'Chưa xác định';
+        const roleName = record.role?.name || 'Chưa xác định';
         const color = roleName === 'admin' ? 'red' : 
                      roleName === 'recruiter' ? 'blue' : 
                      roleName === 'user' ? 'green' : 'default';
@@ -217,19 +217,19 @@ const AdminDashboard = () => {
     },
     {
       title: 'Email',
-      dataIndex: 'Email',
-      key: 'Email',
+      dataIndex: 'email',
+      key: 'email',
     },
     {
       title: 'Phone',
-      dataIndex: 'phone_number',
-      key: 'phone_number',
+      dataIndex: 'phoneNumber',
+      key: 'phoneNumber',
       render: (text) => text || 'Chưa cập nhật',
     },
     {
       title: 'Trạng thái',
-      dataIndex: 'IsActive',
-      key: 'IsActive',
+      dataIndex: 'isActive',
+      key: 'isActive',
       render: (isActive) => (
         <Tag color={isActive ? 'green' : 'red'} className="font-medium">
           {isActive ? 'Đang hoạt động' : 'Đang bị ban'}
@@ -251,10 +251,10 @@ const AdminDashboard = () => {
             Chỉnh sửa role
           </Button>
           
-          {record.IsActive ? (
+          {record.isActive ? (
             <Popconfirm
               title="Xác nhận khóa người dùng"
-              description={`Bạn có chắc chắn muốn khóa người dùng "${record.FullName || record.Email}"?`}
+              description={`Bạn có chắc chắn muốn khóa người dùng "${`${record.firstName || ''} ${record.lastName || ''}`.trim() || record.email}"?`}
               onConfirm={() => handleBanUser(record._id, false)}
               okText="Có"
               cancelText="Không"
@@ -271,7 +271,7 @@ const AdminDashboard = () => {
           ) : (
             <Popconfirm
               title="Xác nhận mở khóa người dùng"
-              description={`Bạn có chắc chắn muốn mở khóa người dùng "${record.FullName || record.Email}"?`}
+              description={`Bạn có chắc chắn muốn mở khóa người dùng "${`${record.firstName || ''} ${record.lastName || ''}`.trim() || record.email}"?`}
               onConfirm={() => handleBanUser(record._id, true)}
               okText="Có"
               cancelText="Không"

@@ -8,10 +8,18 @@ const useAuthStore = create((set, get) => ({
   user: null,
   loading: false,
 
-  setAccessToken: (token) => set({ accessToken: token }),
+  setAccessToken: (token) => {
+    set({ accessToken: token });
+    if (token) {
+      localStorage.setItem("accessToken", token);
+    } else {
+      localStorage.removeItem("accessToken");
+    }
+  },
 
   clearState: () => {
     set({ accessToken: null, user: null, loading: false });
+    localStorage.removeItem("accessToken");
   },
 
   register: async (payload) => {
@@ -120,6 +128,20 @@ const useAuthStore = create((set, get) => ({
       get().clearState();
     } finally {
       set({ loading: false });
+    }
+  },
+
+  init: async () => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      set({ accessToken: token });
+      try {
+        await get().fetchMe();
+      } catch (error) {
+        console.error("Failed to fetch user info:", error);
+        // Nếu token không hợp lệ, xóa nó
+        get().clearState();
+      }
     }
   },
 }));

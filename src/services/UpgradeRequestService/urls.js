@@ -6,6 +6,6 @@ export const upgradeRequestUrls = {
   // Admin URLs
   getAll: "/admin/upgrade-requests",
   getById: (requestId) => `/admin/upgrade-requests/${requestId}`,
-  review: (requestId) => `/admin/upgrade-requests/${requestId}/review`,
+  review: (requestId) => `/admin/upgrade-requests/${requestId}`,
   getStats: "/admin/upgrade-requests-stats",
 };

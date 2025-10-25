@@ -237,7 +237,7 @@ export default function JobList() {
                   key={job._id || idx}
                   title={job.title}
                   type={job.jobType}
-                  salary={`$${job.minSalary.toLocaleString()} - $${job.maxSalary.toLocaleString()}`}
+                  salary={`$${job.minSalary?.toLocaleString() || '0'} - $${job.maxSalary?.toLocaleString() || '0'}`}
                   company={job.companyName}
                   location={job.city}
                   logo={job.companyLogo}

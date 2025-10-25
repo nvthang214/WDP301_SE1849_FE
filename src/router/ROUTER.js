@@ -12,6 +12,10 @@ const ROUTER = {
   RESET_PASSWORD: "/reset-password",
   VERIFY_EMAIL: "/verify-email",
 
+  //--- Job routes ---
+  JOB_LIST: "/jobs",
+  JOB_DETAIL: "/jobs/:id",
+
   // ========================= Private routes ==========================
   // --- Recruiter routes ---
   RECRUITER_OVERVIEW: `${recruiter}/overview`,

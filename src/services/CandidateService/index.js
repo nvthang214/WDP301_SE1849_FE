@@ -9,6 +9,7 @@ import {
 	updateCandidateProfile,
 	getInfoCandidate,
 	updateInfoCandidate,
+	applyJob,
 	getCandidateAppliedJobs
 } from "./urls";
 
@@ -26,4 +27,5 @@ export const CandidateService = {
 	updateInfoCandidate: async (userId, data) => await api.put(updateInfoCandidate(userId), data),
 
 	getCandidateAppliedJobs: async (userId) => await api.get(getCandidateAppliedJobs(userId)),
+	applyJob: async (userId, payload) => await api.post(applyJob(userId), payload),
 };

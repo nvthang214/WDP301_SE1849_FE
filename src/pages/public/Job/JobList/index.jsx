@@ -181,7 +181,7 @@ export default function JobList() {
           </button>
           <button
             type="submit"
-            className="ml-2 inline-flex items-center gap-2 rounded-[var(--radius-lg)] bg-[var(--color-primary-500)] px-5 py-2 font-semibold text-white shadow-[var(--shadow-md)] transition hover:bg-[var(--color-primary-600)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary-300)] focus-visible:outline-none"
+            className="ml-2 inline-flex items-center gap-2 rounded-[var(--radius-lg)] bg-[var(--color-primary-500)] px-5 py-2 font-semibold !text-white shadow-[var(--shadow-md)] transition hover:bg-[var(--color-primary-600)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary-300)] focus-visible:outline-none"
           >
             Find Job
           </button>
@@ -278,7 +278,7 @@ export default function JobList() {
             key={n}
             className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition ${
               n === page
-                ? "bg-[var(--color-primary-500)] text-white shadow-[var(--shadow-md)]"
+                ? "bg-[var(--color-primary-500)] !text-white shadow-[var(--shadow-md)]"
                 : "border border-transparent bg-white text-[var(--color-neutral-600)] hover:border-[var(--color-primary-200)] hover:text-[var(--color-primary-600)]"
             }`}
             onClick={() => handlePageChange(n)}

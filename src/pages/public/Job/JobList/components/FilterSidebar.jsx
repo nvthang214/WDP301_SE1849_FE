@@ -82,7 +82,7 @@ function FilterSidebar({
         aria-hidden="true"
       />
       <aside
-        className={`fixed left-0 top-0 bottom-0 flex w-full max-w-[360px] transform bg-white shadow-[var(--shadow-lg)] transition-transform duration-300 ${
+        className={`fixed top-0 bottom-0 left-0 flex w-full max-w-[360px] transform bg-white shadow-[var(--shadow-lg)] transition-transform duration-300 ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -112,7 +112,7 @@ function FilterSidebar({
             <section className="mb-6 rounded-2xl border border-[var(--color-neutral-200)] bg-[var(--color-neutral-50)] p-4">
               <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-[var(--color-neutral-700)]">
                 <Building2 size={16} strokeWidth={1.6} />
-                Industry
+                Categories
               </div>
               <div className="flex flex-wrap gap-2">
                 <button
@@ -120,7 +120,7 @@ function FilterSidebar({
                   onClick={() => setFilters((prev) => ({ ...prev, categoryId: "" }))}
                   className={`rounded-full px-3 py-1 text-sm font-medium transition ${
                     !filters.categoryId
-                      ? "bg-[var(--color-primary-500)] text-white shadow-[var(--shadow-sm)]"
+                      ? "bg-[var(--color-primary-500)] !text-white shadow-[var(--shadow-sm)]"
                       : "border border-[var(--color-neutral-200)] bg-white text-[var(--color-neutral-600)] hover:border-[var(--color-primary-200)] hover:text-[var(--color-primary-600)]"
                   }`}
                 >
@@ -135,7 +135,7 @@ function FilterSidebar({
                       onClick={() => setFilters((prev) => ({ ...prev, categoryId: cat._id }))}
                       className={`rounded-full px-3 py-1 text-sm font-medium transition ${
                         active
-                          ? "bg-[var(--color-primary-500)] text-white shadow-[var(--shadow-sm)]"
+                          ? "bg-[var(--color-primary-500)] !text-white shadow-[var(--shadow-sm)]"
                           : "border border-[var(--color-neutral-200)] bg-white text-[var(--color-neutral-600)] hover:border-[var(--color-primary-200)] hover:text-[var(--color-primary-600)]"
                       }`}
                     >
@@ -271,7 +271,7 @@ function FilterSidebar({
                     }
                   />
                   <span className="h-6 w-11 rounded-full bg-[var(--color-neutral-200)] transition peer-checked:bg-[var(--color-primary-500)] peer-focus:outline peer-focus:outline-2 peer-focus:outline-[var(--color-primary-200)]" />
-                  <span className="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white transition peer-checked:translate-x-5 peer-checked:shadow-[var(--shadow-sm)]" />
+                  <span className="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition peer-checked:translate-x-5 peer-checked:shadow-[var(--shadow-sm)]" />
                 </label>
               </div>
               <p className="mt-2 text-xs text-[var(--color-neutral-500)]">
@@ -292,7 +292,7 @@ function FilterSidebar({
             <button
               type="button"
               onClick={onApply}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-[var(--radius-lg)] bg-[var(--color-primary-500)] px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-md)] transition hover:bg-[var(--color-primary-600)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-300)]"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-[var(--radius-lg)] bg-[var(--color-primary-500)] p-2 text-sm font-semibold !text-white shadow-[var(--shadow-md)] transition hover:bg-[var(--color-primary-600)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary-300)] focus-visible:outline-none"
             >
               <Check size={16} strokeWidth={1.6} />
               Apply Filters

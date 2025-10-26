@@ -8,3 +8,4 @@ export const activateJob = (id) => `/jobs/activate/${id}`;
 export const getCompanyOfRecruiter = () => `/companies/recruiter/my-company`;
 export const getJobsOfRecruiter = () => `/jobs/recruiter/my-jobs`;
 export const toggleFavorite = (jobId) => `/jobs/favorite/${jobId}`;
+export const getNumberOfApplicationsByJobId = (jobId) => `jobs/applications/count/${jobId}`;

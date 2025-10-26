@@ -12,14 +12,11 @@ const statusOptions = [
 
 const formatJobType = (job) => job?.jobType?.replace("-", " ") || "N/A";
 
-const getApplicationsCount = (job) =>
-  job?.applicationsCount ?? job?.applications?.length ?? job?.statistics?.applications ?? 0;
-
 const getStatusLabel = (job) => (job?.isActive ? "Active" : "Expired");
 
 const getStatusClass = (isActive) =>
   isActive
-    ? "bg-[var(--color-success-100)] text-[var(--color-success-700)] border border-[var(--color-success-200)]"
+    ? "bg-green-100 text-green-600 border border-green-200"
     : "bg-[var(--color-danger-100)] text-[var(--color-danger-600)] border border-[var(--color-danger-200)]";
 
 const getRemainingDays = (expiration) => {
@@ -41,6 +38,33 @@ export default function MyJob() {
   const [activeMenuId, setActiveMenuId] = useState(null);
   const [page, setPage] = useState(1);
   const pageSize = 8;
+  const [applicationCounts, setApplicationCounts] = useState({});
+
+  useEffect(() => {
+    if (!jobs.length) return;
+
+    let cancelled = false;
+    (async () => {
+      const entries = await Promise.all(
+        jobs.map(async (job) => {
+          try {
+            const res = await JobService.getNumberOfApplicationsByJobId(job._id);
+            return [job._id, res?.data?.count ?? 0];
+          } catch {
+            return [job._id, 0];
+          }
+        })
+      );
+
+      if (!cancelled) {
+        setApplicationCounts(Object.fromEntries(entries));
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [jobs]);
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -157,7 +181,7 @@ export default function MyJob() {
         ) : (
           paginatedJobs.map((job) => {
             const statusLabel = getStatusLabel(job);
-            const applications = getApplicationsCount(job);
+            const applications = applicationCounts[job._id] ?? 0;
             const remaining = getRemainingDays(job?.expiration);
             return (
               <div
@@ -205,7 +229,7 @@ export default function MyJob() {
                 </div>
 
                 <div className="flex items-center justify-end gap-3">
-                  <button className="rounded-full border border-[var(--color-primary-100)] bg-[var(--color-primary-50)] px-4 py-2 text-sm font-semibold text-[var(--color-primary-600)] transition hover:bg-[var(--color-primary-500)] hover:text-white">
+                  <button className="rounded-full border border-[var(--color-primary-100)] bg-[var(--color-primary-50)] px-4 py-2 text-sm font-semibold text-[var(--color-primary-600)] transition hover:bg-[var(--color-primary-500)] hover:!text-white">
                     View Applications
                   </button>
                   <div className="relative">

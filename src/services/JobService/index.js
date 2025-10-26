@@ -8,7 +8,8 @@ import {
   activateJob,
   getCompanyOfRecruiter,
   getJobsOfRecruiter,
-  toggleFavorite
+  toggleFavorite,
+  getNumberOfApplicationsByJobId
 } from "./urls";
 
 // Thêm params vào getJobs
@@ -24,4 +25,5 @@ export const JobService = {
   getCompanyOfRecruiter: async () => await api.get(getCompanyOfRecruiter()),
   getJobsOfRecruiter: async () => await api.get(getJobsOfRecruiter()),
   toggleFavoriteJob: async (jobId) => await api.post(toggleFavorite(jobId)),
+  getNumberOfApplicationsByJobId: async (jobId) => await api.get(getNumberOfApplicationsByJobId(jobId)),
 };

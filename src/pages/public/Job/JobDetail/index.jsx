@@ -135,7 +135,7 @@ function ApplyModal({ open, onClose, jobTitle, onSubmit, submitting }) {
             Cancel
           </button>
           <button
-            className="inline-flex items-center gap-2 rounded-[var(--radius-lg)] bg-[var(--color-primary-500)] px-6 py-2 font-semibold text-white shadow-[var(--shadow-md)] transition hover:bg-[var(--color-primary-600)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary-300)] focus-visible:outline-none"
+            className="inline-flex items-center gap-2 rounded-[var(--radius-lg)] bg-[var(--color-primary-500)] px-6 py-2 font-semibold !text-white shadow-[var(--shadow-md)] transition hover:bg-[var(--color-primary-600)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary-300)] focus-visible:outline-none"
             type="button"
             onClick={handleApply}
             disabled={submitting}
@@ -212,7 +212,7 @@ export default function JobDetails() {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen px-0 md:px-8 py-8">
+    <div className="min-h-screen bg-gray-50 px-0 py-8 md:px-8">
       <ApplyModal
         open={showApply}
         onClose={() => setShowApply(false)}
@@ -256,7 +256,7 @@ export default function JobDetails() {
             <JobToggleFavorite jobId={job._id} isFavorite={job.isFavorite} />
           </button>
           <button
-            className="inline-flex items-center gap-2 rounded-[var(--radius-lg)] bg-[var(--color-primary-500)] px-6 py-2 font-semibold text-white shadow-[var(--shadow-md)] transition hover:bg-[var(--color-primary-600)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-300)]"
+            className="inline-flex items-center gap-2 rounded-[var(--radius-lg)] bg-[var(--color-primary-500)] px-6 py-2 font-semibold !text-white shadow-[var(--shadow-md)] transition hover:bg-[var(--color-primary-600)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary-300)] focus-visible:outline-none"
             onClick={() => {
               const candidateId = user?._id || user?.id;
               if (!candidateId) {

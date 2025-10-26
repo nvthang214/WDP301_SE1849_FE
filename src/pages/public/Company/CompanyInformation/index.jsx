@@ -94,7 +94,7 @@ export default function CompanyInformation() {
             type="button"
             aria-label="View open positions"
             onClick={() => (window.location.href = `/company/${id}/jobs`)}
-            className="inline-flex transform items-center gap-3 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition duration-150 ease-in-out hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-600 hover:shadow-lg focus:ring-2 focus:ring-blue-300 focus:ring-offset-2 focus:outline-none"
+            className="inline-flex transform items-center gap-3 rounded-lg bg-gradient-to-r from-blue-500 to-blue-400 px-5 py-2.5 text-sm font-semibold !text-white shadow-md transition duration-150 ease-in-out hover:-translate-y-0.5 hover:from-blue-600 hover:to-blue-500 hover:shadow-lg focus:ring-2 focus:ring-blue-300 focus:ring-offset-2 focus:outline-none"
           >
             <span>View Open Positions</span>
           </button>

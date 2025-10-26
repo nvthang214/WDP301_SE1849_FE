@@ -36,9 +36,11 @@ export function ScrollToTop() {
 }
 // Main Job List Component
 export default function JobList() {
+  const [searchParams] = useSearchParams();
+  const urlSearch = searchParams.get("search") || "";
+
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchParams] = useSearchParams();
   const category = searchParams.get("category");
 
   // Pagination state
@@ -71,6 +73,14 @@ export default function JobList() {
   const [searchInput, setSearchInput] = useState("");
   const [filters, setFilters] = useState(() => ({ ...initialFilters }));
   const [draftFilters, setDraftFilters] = useState(() => ({ ...initialFilters }));
+
+  // Sync URL search param with state when component mounts
+  useEffect(() => {
+    if (urlSearch) {
+      setSearch(urlSearch);
+      setSearchInput(urlSearch);
+    }
+  }, [urlSearch]);
 
   // Sidebar state
   const [showFilter, setShowFilter] = useState(false);
@@ -121,6 +131,7 @@ export default function JobList() {
         flag = currentUser.data ? "isFavorite" : "";
       } catch (error) {
         // Do nothing
+        console.log("Error: ", error);
       }
 
       const res = await JobService.getJobs(flag, params);
@@ -259,7 +270,7 @@ export default function JobList() {
                 title={job.title}
                 type={job.jobType}
                 salary={`$${job.minSalary.toLocaleString()} - $${job.maxSalary.toLocaleString()}`}
-                company={job.companyName}
+                company={job.company.name}
                 location={job.city}
                 logo={job.company?.logo}
                 isFavorite={job.isFavorite}

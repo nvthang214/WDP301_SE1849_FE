@@ -1,19 +1,25 @@
-import { PieChartOutlined, UserOutlined } from "@ant-design/icons";
+import { AppstoreOutlined, PieChartOutlined, UserOutlined } from "@ant-design/icons";
 import { App, Layout, Menu, Modal } from "antd";
 import { LogOut } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import useAuthStore from "../../store/useAuthStore";
+import ROUTER from "../../router/ROUTER";
 const { Sider } = Layout;
 
 const MenuLeft = ({
   items = [
     {
-      key: "/candidate/overview",
+      key: ROUTER.CANDIDATE_OVERVIEW,
       icon: <PieChartOutlined />,
       label: "Overview",
     },
     {
-      key: "sub1",
+      key: ROUTER.RECRUITER_APPLICATIONS,
+      icon: <AppstoreOutlined />,
+      label: "Applications",
+    },
+    {
+      key: ROUTER.CANDIDATE_APPLY_JOB,
       icon: <UserOutlined />,
       label: "Applied Jobs",
     },

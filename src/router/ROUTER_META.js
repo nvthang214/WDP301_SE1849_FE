@@ -31,7 +31,13 @@ const ROUTE_META = {
     breadcrumb: "Job Detail",
     title: "Job Detail",
   },
-  [ROUTER.COMPANY_DETAILS]: {
+
+  // Company routes
+  [ROUTER.COMPANY_LIST]: {
+    breadcrumb: "Find Companies",
+    title: "Company Listings",
+  },
+  [ROUTER.COMPANY_DETAIL]: {
     breadcrumb: "Company Detail",
     title: "Company Detail",
   },
@@ -48,6 +54,10 @@ const ROUTE_META = {
   [ROUTER.RECRUITER_MY_JOBS]: {
     breadcrumb: "My Jobs",
     title: "My Jobs",
+  },
+  [ROUTER.RECRUITER_APPLICATIONS]: {
+    breadcrumb: "Applications",
+    title: "Job Applications",
   },
 
   [ROUTER.RECRUITER_MY_COMPANY]: {

@@ -20,13 +20,15 @@ import {
   Users2,
   Video,
 } from "lucide-react";
-import { createElement } from "react";
+import { createElement, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import ROUTER from "../../../router/ROUTER";
 import HeroSection from "./components/HeroSection";
 import JobCard from "../../../components/Card/JobCard";
+import { CandidateService } from "../../../services/CandidateService";
+import { notifyError } from "../../../components/Notification";
 import CompanyCard from "../../../components/Card/CompanyCard";
-import { useState, useEffect } from "react";
+import { CompanyService } from "../../../services/CompanyService";
 import { CategoryService } from "../../../services/CategoryService";
 
 const vacancyList = [
@@ -83,56 +85,45 @@ const processSteps = [
 //   { label: "Data & Science", openings: 57, featured: true, icon: <Database /> },
 // ];
 
-const featuredJobs = [
-  {
-    title: "Technical Support Specialist",
-    type: "Full Time",
-    salary: "$20,000 - $25,000",
-    company: "Google Inc.",
-    location: "Dhaka, Bangladesh",
-    tags: ["Google", "Support"],
-  },
-  {
-    title: "Senior UX Designer",
-    type: "Full Time",
-    salary: "$20,000 - $25,000",
-    company: "Google Inc.",
-    location: "Dhaka, Bangladesh",
-    tags: ["Design", "Remote"],
-  },
-  {
-    title: "Marketing Officer",
-    type: "Internship",
-    salary: "$20,000 - $25,000",
-    company: "Google Inc.",
-    location: "Dhaka, Bangladesh",
-    tags: ["Marketing", "Hybrid"],
-  },
-  {
-    title: "Junior Graphic Designer",
-    type: "Part Time",
-    salary: "$20,000 - $25,000",
-    company: "Google Inc.",
-    location: "Dhaka, Bangladesh",
-    tags: ["Design", "Junior"],
-  },
-  {
-    title: "Interaction Designer",
-    type: "Full Time",
-    salary: "$20,000 - $25,000",
-    company: "Google Inc.",
-    location: "Dhaka, Bangladesh",
-    tags: ["UX", "Product"],
-  },
-  {
-    title: "Project Manager",
-    type: "Full Time",
-    salary: "$20,000 - $25,000",
-    company: "Google Inc.",
-    location: "Dhaka, Bangladesh",
-    tags: ["Management", "Leadership"],
-  },
-];
+const formatJobType = (type) => {
+  if (!type) return "N/A";
+  return type.toString().replace(/[_-]/g, " ").toUpperCase();
+};
+
+const formatSalaryRange = (job) => {
+  if (!job) return "Negotiable";
+
+  const formatValue = (value) => {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return null;
+    return `$${numeric.toLocaleString()}`;
+  };
+
+  const { minSalary, maxSalary, salaryType } = job;
+  const suffix = salaryType ? `/${salaryType.toString().toLowerCase()}` : "";
+
+  const minLabel = formatValue(minSalary);
+  const maxLabel = formatValue(maxSalary);
+
+  if (minLabel && maxLabel) return `${minLabel} - ${maxLabel}${suffix}`;
+  if (minLabel) return `${minLabel}+${suffix}`;
+  if (maxLabel) return `Up to ${maxLabel}${suffix}`;
+
+  return "Negotiable";
+};
+
+const formatLocation = (job) => {
+  if (!job) return "Địa điểm đang cập nhật";
+  if (job.location) return job.location;
+
+  const parts = [job.city, job.country]
+    .map((part) => (typeof part === "string" ? part.trim() : ""))
+    .filter(Boolean);
+
+  if (parts.length) return parts.join(", ");
+
+  return job.remote ? "Remote" : "Địa điểm đang cập nhật";
+};
 
 const topCompanies = [
   {
@@ -210,6 +201,89 @@ const dualCtas = [
 ];
 
 const Home = () => {
+  const [featuredJobs, setFeaturedJobs] = useState([]);
+  const [isLoadingFeaturedJobs, setIsLoadingFeaturedJobs] = useState(false);
+  const [companies, setCompanies] = useState([]);
+  const [isLoadingCompanies, setIsLoadingCompanies] = useState(false);
+  const [companiesError, setCompaniesError] = useState(null);
+  const companiesToRender = companies.length ? companies : topCompanies;
+
+  useEffect(() => {
+    let ignore = false;
+
+    const fetchFeaturedJobs = async () => {
+      setIsLoadingFeaturedJobs(true);
+
+      try {
+        const response = await CandidateService.getTopAppliedJobs();
+
+        if (ignore) return;
+
+        if (response?.isError) {
+          throw new Error(response?.msg || "Không thể tải danh sách công việc nổi bật.");
+        }
+
+        const data = Array.isArray(response?.data) ? response.data : [];
+        setFeaturedJobs(data);
+      } catch (error) {
+        if (ignore) return;
+
+        console.error(error);
+        notifyError(error?.message || "Không thể tải danh sách công việc nổi bật.");
+        setFeaturedJobs([]);
+      } finally {
+        if (!ignore) setIsLoadingFeaturedJobs(false);
+      }
+    };
+
+    fetchFeaturedJobs();
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let ignore = false;
+
+    const fetchTopCompanies = async () => {
+      setIsLoadingCompanies(true);
+      setCompaniesError(null);
+
+      try {
+        const response = await CompanyService.getCompanies({ limit: 6, hasOpenings: true });
+
+        if (ignore) return;
+
+        if (response?.isError) {
+          throw new Error(response?.msg || "Không thể tải danh sách công ty.");
+        }
+
+        const data = Array.isArray(response?.data?.companies)
+          ? response.data.companies
+          : Array.isArray(response?.data)
+            ? response.data
+            : [];
+
+        setCompanies(data);
+      } catch (error) {
+        if (ignore) return;
+
+        console.error(error);
+        setCompaniesError(error?.message || "Không thể tải danh sách công ty.");
+        setCompanies([]);
+      } finally {
+        if (!ignore) setIsLoadingCompanies(false);
+      }
+    };
+
+    fetchTopCompanies();
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
   const [popularCategories, setPopularCategories] = useState([]);
 
   useEffect(() => {
@@ -328,9 +402,38 @@ const Home = () => {
           </header>
 
           <div className="mt-12 grid gap-6 lg:grid-cols-3">
-            {featuredJobs.map((item) => (
-              <JobCard {...item} key={item.title} />
-            ))}
+            {isLoadingFeaturedJobs ? (
+              <div className="text-center text-sm text-neutral-500 lg:col-span-3">
+                Đang tải công việc nổi bật...
+              </div>
+            ) : featuredJobs.length ? (
+              featuredJobs.map((job, index) => {
+                const rawJobId = job?.jobId || job?._id || job?.id || null;
+                const key = rawJobId || `${job?.title || "featured-job"}-${index}`;
+                const companyName = job?.company?.name || "Đang cập nhật";
+                const companyLogo = job?.company?.logo || undefined;
+                const jobDetailPath = rawJobId
+                  ? ROUTER.JOB_DETAIL.replace(":id", encodeURIComponent(rawJobId))
+                  : ROUTER.JOB_LIST;
+
+                return (
+                  <Link to={jobDetailPath} key={key} className="block h-full">
+                    <JobCard
+                      title={job?.title || "Đang cập nhật"}
+                      type={formatJobType(job?.jobType)}
+                      salary={formatSalaryRange(job)}
+                      company={companyName}
+                      location={formatLocation(job)}
+                      logo={companyLogo}
+                    />
+                  </Link>
+                );
+              })
+            ) : (
+              <div className="text-center text-sm text-neutral-500 lg:col-span-3">
+                Chưa có công việc nổi bật.
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -343,9 +446,42 @@ const Home = () => {
         </header>
 
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {topCompanies.map((item, index) => (
-            <CompanyCard key={`${item.name}-${index}`} {...item} />
-          ))}
+          {isLoadingCompanies ? (
+            // Loading skeleton
+            Array.from({ length: 6 }).map((_, index) => (
+              <div key={index} className="animate-pulse">
+                <div className="rounded-lg border border-neutral-200 bg-white p-6 shadow-sm">
+                  <div className="flex items-center space-x-4">
+                    <div className="h-12 w-12 rounded-full bg-neutral-200"></div>
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 w-3/4 rounded bg-neutral-200"></div>
+                      <div className="h-3 w-1/2 rounded bg-neutral-200"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : companiesError ? (
+            // Error state
+            <div className="col-span-full py-8 text-center">
+              <p className="text-neutral-500">{companiesError}</p>
+            </div>
+          ) : companiesToRender.length ? (
+            companiesToRender.map((item, index) => (
+              <CompanyCard
+                key={item._id || item.id || `${item.name}-${index}`}
+                name={item.name || item.companyName}
+                location={item.location || item.address}
+                openings={item.openings || item.jobCount || 0}
+                logo={item.logo || item.companyLogo}
+                {...item}
+              />
+            ))
+          ) : (
+            <div className="col-span-full text-center text-sm text-neutral-500">
+              Chưa có dữ liệu công ty.
+            </div>
+          )}
         </div>
       </section>
 

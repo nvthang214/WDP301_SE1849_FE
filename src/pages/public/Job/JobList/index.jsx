@@ -5,6 +5,7 @@ import { CategoryService } from "../../../../services/CategoryService";
 import { useResponsive } from "../../../../hook/useResponsive";
 import JobCard from "../../../../components/Card/JobCard";
 import FilterSidebar from "../JobList/components/FilterSidebar";
+import { useSearchParams, useLocation } from "react-router-dom";
 
 const jobTypes = ["FULL-TIME", "PART-TIME", "INTERNSHIP", "TEMPORARY", "CONTRACT BASE"];
 
@@ -24,11 +25,21 @@ const initialFilters = {
   maxSalary: undefined,
   isActive: undefined,
 };
+export function ScrollToTop() {
+  const { pathname } = useLocation();
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [pathname]);
+
+  return null;
+}
 // Main Job List Component
 export default function JobList() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchParams] = useSearchParams();
+  const category = searchParams.get("category");
 
   // Pagination state
   const [page, setPage] = useState(1);
@@ -56,7 +67,7 @@ export default function JobList() {
   }, []);
 
   // Search & filter states
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(category || "");
   const [searchInput, setSearchInput] = useState("");
   const [filters, setFilters] = useState(() => ({ ...initialFilters }));
   const [draftFilters, setDraftFilters] = useState(() => ({ ...initialFilters }));
@@ -153,6 +164,7 @@ export default function JobList() {
 
   return (
     <div className="relative min-h-screen bg-gray-50 px-8 py-6">
+      <ScrollToTop />
       {/* Search bar */}
       <form className="mb-4 flex flex-col gap-2" onSubmit={handleSearch}>
         <div className="flex items-center gap-2 rounded-xl border bg-white px-3 py-2 shadow-sm">

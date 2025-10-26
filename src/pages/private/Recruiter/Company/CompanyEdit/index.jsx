@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Building2, ArrowLeft } from "lucide-react";
 import { CompanyService } from "../../../../../services/CompanyService";
+import { notifySuccess, notifyError } from "../../../../../components/Notification";
 
 export default function CompanyEdit() {
   const { id } = useParams();
@@ -63,7 +64,7 @@ export default function CompanyEdit() {
         }
       } catch (error) {
         console.error("Failed to load company:", error);
-        alert("Failed to load company information.");
+        notifyError("Không thể tải thông tin công ty.");
         navigate("/recruiter/company/my-company");
       } finally {
         setInitialLoading(false);
@@ -99,13 +100,13 @@ export default function CompanyEdit() {
     if (file) {
       // Check file size (max 2MB for better performance)
       if (file.size > 2 * 1024 * 1024) {
-        alert("File size must be less than 2MB for better performance");
+        notifyError("Kích thước file phải nhỏ hơn 2MB");
         return;
       }
 
       // Check file type
       if (!file.type.startsWith('image/')) {
-        alert("Please select an image file");
+        notifyError("Vui lòng chọn file hình ảnh");
         return;
       }
 
@@ -159,7 +160,7 @@ export default function CompanyEdit() {
       };
       
       img.onerror = () => {
-        alert("Error loading image. Please try again.");
+        notifyError("Lỗi khi tải hình ảnh. Vui lòng thử lại.");
       };
       
       img.src = URL.createObjectURL(file);
@@ -177,11 +178,11 @@ export default function CompanyEdit() {
       };
       
       await CompanyService.updateCompany(id, submitData);
-      alert("Company updated successfully!");
+      notifySuccess("Cập nhật công ty thành công!");
       navigate("/recruiter/company/my-company");
     } catch (error) {
       console.error("Failed to update company:", error);
-      alert("Failed to update company. Please try again.");
+      notifyError("Không thể cập nhật công ty. Vui lòng thử lại.");
     } finally {
       setLoading(false);
     }

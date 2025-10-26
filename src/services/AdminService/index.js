@@ -36,6 +36,18 @@ const deleteJob = async (jobId) => {
   return await api.delete(adminUrls.deleteJob(jobId));
 };
 
+// Overview Statistics Services
+const getOverviewStats = async () => {
+  return await api.get(adminUrls.getOverviewStats);
+};
+
+const getUserRegistrationStats = async (year = null) => {
+  const url = year 
+    ? `${adminUrls.getUserRegistrationStats}?year=${year}`
+    : adminUrls.getUserRegistrationStats;
+  return await api.get(url);
+};
+
 export const AdminService = {
   // User management
   getAllUsers,
@@ -50,4 +62,8 @@ export const AdminService = {
   getAllJobs,
   toggleJobVisibility,
   deleteJob,
+  
+  // Overview statistics
+  getOverviewStats,
+  getUserRegistrationStats,
 };

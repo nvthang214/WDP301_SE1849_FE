@@ -28,6 +28,7 @@ const ForgotPassword = React.lazy(() => import("../pages/public/Authentication/F
 const ResetPassword = React.lazy(() => import("../pages/public/Authentication/ResetPassword"));
 const VerifyEmail = React.lazy(() => import("../pages/public/Authentication/VerifyEmail"));
 const JobList = React.lazy(() => import("../pages/public/Job/JobList"));
+const CompanyList = React.lazy(() => import("../pages/public/Company/CompanyList"));
 const JobDetail = React.lazy(() => import("../pages/public/Job/JobDetail"));
 // ========================= End public pages ======================
 
@@ -148,6 +149,15 @@ const router = createBrowserRouter([
         element: (
           <LazyLoad>
             <JobDetail />
+          </LazyLoad>
+        ),
+      },
+      {
+        index: true,
+        path: ROUTER.COMPANY_LIST,
+        element: (
+          <LazyLoad>
+            <CompanyList />
           </LazyLoad>
         ),
       },

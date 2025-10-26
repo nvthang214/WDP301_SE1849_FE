@@ -16,6 +16,10 @@ const ROUTER = {
   JOB_LIST: "/jobs",
   JOB_DETAIL: "/jobs/:id",
 
+  //--- Company routes ---
+  COMPANY_LIST: "/companies",
+  COMPANY_DETAIL: "/companies/:id",
+
   // ========================= Private routes ==========================
   // --- Recruiter routes ---
   RECRUITER_OVERVIEW: `${recruiter}/overview`,

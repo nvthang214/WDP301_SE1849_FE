@@ -20,6 +20,7 @@ const ROUTER = {
   // --- Recruiter routes ---
   RECRUITER_OVERVIEW: `${recruiter}/overview`,
   RECRUITER_MY_JOBS: `${recruiter}/jobs/my-jobs`,
+  RECRUITER_APPLICATIONS: `${recruiter}/applications`,
 
   RECRUITER_MY_COMPANY: `${recruiter}/company/my-company`,
   RECRUITER_COMPANY_CREATE: `${recruiter}/company/create`,

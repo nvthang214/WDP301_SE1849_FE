@@ -59,9 +59,10 @@ const RecruiterCompanyEdit = React.lazy(
 const RecruiterJobPosting = React.lazy(() => import("../pages/private/Recruiter/Job/JobPosting"));
 const RecruiterJobEditing = React.lazy(() => import("../pages/private/Recruiter/Job/JobEditing"));
 const RecruiterSettings = React.lazy(() => import("../pages/private/Recruiter/RecruiterSetting"));
+const RecruiterApplications = React.lazy(() => import("../pages/private/Recruiter/Applications"));
 
-const AccountSetting = React.lazy(() => import("../pages/private/Recruiter/RecruiterSetting/AccountSetting"));
-const CompanyInfo = React.lazy(() => import("../pages/private/Recruiter/RecruiterSetting/CompanyInfo"));
+// const AccountSetting = React.lazy(() => import("../pages/private/Recruiter/RecruiterSetting/AccountSetting"));
+// const CompanyInfo = React.lazy(() => import("../pages/private/Recruiter/RecruiterSetting/CompanyInfo"));
 const router = createBrowserRouter([
   //========================= Public Routes ==========================
   // --- Authentication routes ---
@@ -267,6 +268,15 @@ const router = createBrowserRouter([
               </LazyLoad>
             ),
             handle: ROUTE_META[ROUTER.RECRUITER_MY_JOBS],
+          },
+          {
+            path: ROUTER.RECRUITER_APPLICATIONS,
+            element: (
+              <LazyLoad>
+                <RecruiterApplications />
+              </LazyLoad>
+            ),
+            handle: ROUTE_META[ROUTER.RECRUITER_APPLICATIONS],
           },
           {
             path: ROUTER.RECRUITER_MY_COMPANY,

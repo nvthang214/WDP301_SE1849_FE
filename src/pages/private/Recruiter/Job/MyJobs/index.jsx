@@ -205,9 +205,12 @@ export default function MyJob() {
                 </div>
 
                 <div className="flex items-center justify-end gap-3">
-                  <button className="rounded-full border border-[var(--color-primary-100)] bg-[var(--color-primary-50)] px-4 py-2 text-sm font-semibold text-[var(--color-primary-600)] transition hover:bg-[var(--color-primary-500)] hover:text-white">
+                  <Link
+                    to={`/recruiter/applications?jobId=${job?._id}`}
+                    className="rounded-full border border-[var(--color-primary-100)] bg-[var(--color-primary-50)] px-4 py-2 text-sm font-semibold text-[var(--color-primary-600)] transition hover:bg-[var(--color-primary-500)] hover:text-white"
+                  >
                     View Applications
-                  </button>
+                  </Link>
                   <div className="relative">
                     <button
                       type="button"

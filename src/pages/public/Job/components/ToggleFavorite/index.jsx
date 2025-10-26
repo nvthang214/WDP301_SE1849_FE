@@ -4,12 +4,12 @@ import { JobService } from "../../../../../services/JobService";
 import { notifySuccess, notifyWarning, notifyError } from "../../../../../components/Notification";
 import { Tooltip } from "antd";
 
-const ToggleFavorite = ({ id, isFavorite }) => {
+const ToggleFavorite = ({ jobId, isFavorite }) => {
   const [fav, setFav] = useState(!!isFavorite);
   const handleToggleFavorite = async () => {
     setFav((prev) => !prev);
     try {
-      const res = await JobService.toggleFavoriteJob(id);
+      const res = await JobService.toggleFavoriteJob(jobId);
       // if API returns actual status, sync it:
       if (res && typeof res.data?.isFavorite !== "undefined") {
         setFav(!!res.data.isFavorite);

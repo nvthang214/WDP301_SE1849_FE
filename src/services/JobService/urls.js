@@ -1,6 +1,6 @@
 //job
 export const getAll = (flag) => `/jobs/list/${flag}`;
-export const getById = (id) => `/jobs/details/${id}`;
+export const getById = (flag, id) => `/jobs/details/${id}/${flag}`;
 export const postJob = "/jobs/post";
 export const updateJob = (id) => `/jobs/edit/${id}`;
 export const deactivateJob = (id) => `/jobs/deactivate/${id}`;

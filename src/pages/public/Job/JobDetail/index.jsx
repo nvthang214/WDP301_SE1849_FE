@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { JobService } from "../../../../services/JobService";
+import { UserService } from "../../../../services/UserService";
 import { Tag } from "antd";
 import DOMPurify from "dompurify";
 import {
@@ -51,7 +52,7 @@ const presetTagColors = [
 ];
 
 // Apply Modal Component
-function ApplyModal({ open, onClose, id, isFavorite, jobTitle }) {
+function ApplyModal({ open, onClose, jobTitle }) {
   const [resume, setResume] = useState("");
   const [coverLetter, setCoverLetter] = useState("");
 
@@ -140,7 +141,16 @@ export default function JobDetails() {
   useEffect(() => {
     async function fetchJob() {
       try {
-        const res = await JobService.getJobById(id);
+        let flag = "";
+
+        try {
+          const currentUser = await UserService.fetchMe();
+          flag = currentUser.data ? "isFavorite" : "";
+        } catch (error) {
+          // Do nothing
+        }
+
+        const res = await JobService.getJobById(flag, id);
         setJob(res.data);
       } catch {
         setJob(null);

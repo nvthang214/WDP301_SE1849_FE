@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import ToggleFavorite from "../../../../public/Job/components/ToggleFavorite";
 
 const JobCard = ({
-  id = null,
+  jobId = null,
   title = "Technical Support Specialist",
   type = "PART-TIME",
   salary = "$20,000 - $25,000",
@@ -22,7 +22,7 @@ const JobCard = ({
       <div className="flex flex-col gap-1">
         <div className="flex items-start justify-between">
           <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-          <ToggleFavorite isFavorite={isFavorite} id={id} />
+          <ToggleFavorite isFavorite={isFavorite} jobId={jobId} />
         </div>
 
         <div className="mt-1 flex items-center gap-3 text-sm">
@@ -36,7 +36,7 @@ const JobCard = ({
       </div>
 
       {/* Company + location */}
-      <Link to={`/jobs/${id}`} className="mt-4 flex items-center gap-3">
+      <Link to={`/jobs/${jobId}`} className="mt-4 flex items-center gap-3">
         <div className="mt-4 flex items-center gap-3">
           <img src={logo} alt={company} className="h-10 w-10 rounded object-contain" />
           <div>

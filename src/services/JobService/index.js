@@ -16,7 +16,7 @@ const getJobs = async (flag, params = {}) => await api.get(getAll(flag), { param
 
 export const JobService = {
   getJobs,
-  getJobById: async (id) => await api.get(getById(id)),
+  getJobById: async (flag, id) => await api.get(getById(flag, id)),
   postJob: async (data) => await api.post(postJob, data),
   updateJob: async (id, data) => await api.put(updateJob(id), data),
   deactivateJob: async (id) => await api.put(deactivateJob(id)),

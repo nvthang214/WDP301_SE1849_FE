@@ -107,7 +107,7 @@ export default function JobList() {
 
       try {
         const currentUser = await UserService.fetchMe();
-        flag = currentUser.data ? "favorite-flag" : "";
+        flag = currentUser.data ? "isFavorite" : "";
       } catch (error) {
         // Do nothing
       }
@@ -243,7 +243,7 @@ export default function JobList() {
             {jobs.map((job, idx) => (
               <JobCard
                 key={job._id || idx}
-                id={job._id}
+                jobId={job._id}
                 title={job.title}
                 type={job.jobType}
                 salary={`$${job.minSalary.toLocaleString()} - $${job.maxSalary.toLocaleString()}`}

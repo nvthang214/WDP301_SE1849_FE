@@ -12,4 +12,8 @@ export const adminUrls = {
   getAllJobs: "/admin/jobs",
   toggleJobVisibility: (jobId) => `/admin/jobs/${jobId}/toggle`,
   deleteJob: (jobId) => `/admin/jobs/${jobId}`,
+  
+  // Overview statistics
+  getOverviewStats: "/admin/overview-stats",
+  getUserRegistrationStats: "/admin/user-registration-stats",
 };

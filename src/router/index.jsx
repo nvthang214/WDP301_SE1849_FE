@@ -15,6 +15,7 @@ const LayoutAdmin = React.lazy(() => import("../components/Layout/LayoutAdmin"))
 const AdminUserManagement = React.lazy(() => import("../pages/private/Admin/UserManagement"));
 const AdminUpgradeRequests = React.lazy(() => import("../pages/private/Admin/UpgradeRequests"));
 const LayoutRecruiter = React.lazy(() => import("../components/Layout/LayoutRecruiter"));
+const AdminOverview = React.lazy(() => import("../pages/private/Admin/Overview"));
 // ========================== End layouts ==========================
 
 ////////////////////////////////////////////////////////////////////
@@ -338,7 +339,7 @@ const router = createBrowserRouter([
             path: ROUTER.ADMIN_OVERVIEW,
             element: (
               <LazyLoad>
-                <div>Admin Dashboard</div>
+                <AdminOverview />
               </LazyLoad>
             ),
             handle: ROUTE_META[ROUTER.ADMIN_OVERVIEW],

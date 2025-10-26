@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Building2, Edit, Plus, Trash2 } from "lucide-react";
 import { CompanyService } from "../../../../../services/CompanyService";
 import useAuthStore from "../../../../../store/useAuthStore";
+import { notifySuccess, notifyError } from "../../../../../components/Notification";
 
 const decodeAccessToken = (token) => {
   if (!token) return null;
@@ -86,15 +87,15 @@ export default function MyCompany() {
 
   const handleDeleteCompany = async () => {
     if (!company?._id) return;
-
-    if (window.confirm("Are you sure you want to delete this company?")) {
+    
+    if (window.confirm("Bạn có chắc chắn muốn xóa công ty này?")) {
       try {
         await CompanyService.deleteCompany(company._id);
         setCompany(null);
-        alert("Company deleted successfully!");
+        notifySuccess("Xóa công ty thành công!");
       } catch (error) {
         console.error("Failed to delete company:", error);
-        alert("Failed to delete company. Please try again.");
+        notifyError("Không thể xóa công ty. Vui lòng thử lại.");
       }
     }
   };

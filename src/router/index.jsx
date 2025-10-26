@@ -30,6 +30,7 @@ const VerifyEmail = React.lazy(() => import("../pages/public/Authentication/Veri
 const JobList = React.lazy(() => import("../pages/public/Job/JobList"));
 const CompanyList = React.lazy(() => import("../pages/public/Company/CompanyList"));
 const JobDetail = React.lazy(() => import("../pages/public/Job/JobDetail"));
+const CompanyDetail = React.lazy(() => import("../pages/public/Company/CompanyInformation"));
 // ========================= End public pages ======================
 
 ////////////////////////////////////////////////////////////////////
@@ -41,8 +42,12 @@ const CandidateProfile = React.lazy(() => import("../pages/private/Candidate/Can
 const CandidateSocial = React.lazy(() => import("../pages/private/Candidate/CandidateSocial"));
 const CandidateAccount = React.lazy(() => import("../pages/private/Candidate/CandidateAccount"));
 const CandidateApplyJob = React.lazy(() => import("../pages/private/Candidate/CandidateApplyJob"));
-const CandidateJobDetail = React.lazy(() => import("../pages/private/Candidate/CandidateJobDetail"));
-const CandidateRequestUpgrade = React.lazy(() => import("../pages/private/Candidate/RequestUpgrade"));
+const CandidateJobDetail = React.lazy(
+  () => import("../pages/private/Candidate/CandidateJobDetail")
+);
+const CandidateRequestUpgrade = React.lazy(
+  () => import("../pages/private/Candidate/RequestUpgrade")
+);
 
 // ========================= End candidate pages ===================
 
@@ -158,6 +163,15 @@ const router = createBrowserRouter([
         element: (
           <LazyLoad>
             <CompanyList />
+          </LazyLoad>
+        ),
+      },
+      {
+        index: true,
+        path: ROUTER.COMPANY_DETAILS,
+        element: (
+          <LazyLoad>
+            <CompanyDetail />
           </LazyLoad>
         ),
       },

@@ -29,6 +29,7 @@ import { CandidateService } from "../../../services/CandidateService";
 import { notifyError } from "../../../components/Notification";
 import CompanyCard from "../../../components/Card/CompanyCard";
 import { CompanyService } from "../../../services/CompanyService";
+import { CategoryService } from "../../../services/CategoryService";
 
 const vacancyList = [
   { title: "Anesthesiologists", openings: "45,004" },
@@ -73,16 +74,16 @@ const processSteps = [
   },
 ];
 
-const popularCategories = [
-  { label: "Graphics & Design", openings: 357, icon: <PenTool /> },
-  { label: "Code & Programming", openings: 312, icon: <Code /> },
-  { label: "Digital Marketing", openings: 297, icon: <Megaphone /> },
-  { label: "Video & Animation", openings: 247, icon: <Video /> },
-  { label: "Music & Audio", openings: 204, icon: <Music /> },
-  { label: "Account & Finance", openings: 167, icon: <DollarSign /> },
-  { label: "Health & Care", openings: 125, icon: <Hospital /> },
-  { label: "Data & Science", openings: 57, featured: true, icon: <Database /> },
-];
+// const popularCategories = [
+//   { label: "Graphics & Design", openings: 357, icon: <PenTool /> },
+//   { label: "Code & Programming", openings: 312, icon: <Code /> },
+//   { label: "Digital Marketing", openings: 297, icon: <Megaphone /> },
+//   { label: "Video & Animation", openings: 247, icon: <Video /> },
+//   { label: "Music & Audio", openings: 204, icon: <Music /> },
+//   { label: "Account & Finance", openings: 167, icon: <DollarSign /> },
+//   { label: "Health & Care", openings: 125, icon: <Hospital /> },
+//   { label: "Data & Science", openings: 57, featured: true, icon: <Database /> },
+// ];
 
 const formatJobType = (type) => {
   if (!type) return "N/A";
@@ -123,9 +124,6 @@ const formatLocation = (job) => {
 
   return job.remote ? "Remote" : "Địa điểm đang cập nhật";
 };
-
-
-
 
 const topCompanies = [
   {
@@ -286,13 +284,25 @@ const Home = () => {
     };
   }, []);
 
+  const [popularCategories, setPopularCategories] = useState([]);
+
+  useEffect(() => {
+    // Simulate fetching data from an API
+    const fetchPopularCategories = async () => {
+      const res = await CategoryService.getPopularCategories();
+      setPopularCategories(res.data || []);
+    };
+
+    fetchPopularCategories();
+  }, []);
+
   return (
     <div className="space-y-20">
       <HeroSection />
 
-      <section className="mx-auto max-w-7xl bg-neutral-100 pt-10 pb-20 px-10 rounded-lg">
+      <section className="mx-auto max-w-7xl rounded-lg bg-neutral-100 px-10 pt-10 pb-20">
         <header className="space-y-2">
-          <p className="text-2xl font-semibold uppercase tracking-wider text-primary">
+          <p className="text-primary text-2xl font-semibold tracking-wider uppercase">
             Most Popular Vacancies
           </p>
         </header>
@@ -312,7 +322,7 @@ const Home = () => {
       <section className="">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <header className="text-center">
-            <p className="text-2xl font-semibold uppercase tracking-wider text-primary-600">
+            <p className="text-primary-600 text-2xl font-semibold tracking-wider uppercase">
               How Jobpilot Works
             </p>
           </header>
@@ -340,37 +350,37 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 bg-neutral-100 pt-10 pb-20 rounded-lg">
+      <section className="mx-auto max-w-7xl rounded-lg bg-neutral-100 px-4 pt-10 pb-20 sm:px-6 lg:px-8">
         <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="text-2xl font-semibold uppercase tracking-wider text-primary-600">
+          <div className="text-primary-600 text-2xl font-semibold tracking-wider uppercase">
             Popular Categories
           </div>
           <Link
-            to="#"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-primary-600"
+            to="/jobs"
+            className="text-primary-600 inline-flex items-center gap-2 text-sm font-semibold"
           >
             View All <ChevronRight className="h-4 w-4" />
           </Link>
         </header>
 
         <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {popularCategories.map(({ label, openings, featured, icon }) => (
-            <div
-              className={`flex h-full gap-3 justify-between items-center rounded-2xl px-6 py-6 text-left transition hover:-translate-y-1 hover:shadow-lg ${
-                featured
-                  ? "border-primary-200 bg-primary-50 -translate-y-1 shadow-lg"
-                  : "border-neutral-200 bg-white"
-              }`}
-            >
-              <div className="bg-primary-100 p-4 rounded-md text-primary">{icon}</div>
-              <button key={label} type="button" className="text-start">
-                <span className="text-base font-semibold text-neutral-900">{label}</span>
-                <br />
-                <span className="mt-3 inline-flex gap-2 text-sm text-neutral-500">
-                  {openings} open positions
-                </span>
-              </button>
-            </div>
+          {popularCategories.map(({ label, openings }) => (
+            <Link to={`/jobs?category=${encodeURIComponent(label)}`} key={label}>
+              <div
+                className={`flex h-full items-center justify-between gap-3 rounded-2xl border-neutral-200 bg-white px-6 py-6 text-left transition hover:-translate-y-1 hover:shadow-lg`}
+              >
+                <div className="bg-primary-100 text-primary rounded-md p-4">
+                  <DollarSign />
+                </div>
+                <button key={label} type="button" className="text-start">
+                  <span className="text-base font-semibold text-neutral-900">{label}</span>
+                  <br />
+                  <span className="mt-3 inline-flex gap-2 text-sm text-neutral-500">
+                    {openings} open positions
+                  </span>
+                </button>
+              </div>
+            </Link>
           ))}
         </div>
       </section>
@@ -379,13 +389,13 @@ const Home = () => {
         <div className="mx-auto max-w-7xl">
           <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <div className="text-2xl font-semibold uppercase tracking-wider text-primary-600">
+              <div className="text-primary-600 text-2xl font-semibold tracking-wider uppercase">
                 Featured Jobs
               </div>
             </div>
             <Link
               to="#"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-primary-600"
+              className="text-primary-600 inline-flex items-center gap-2 text-sm font-semibold"
             >
               View All <ChevronRight className="h-4 w-4" />
             </Link>
@@ -393,7 +403,7 @@ const Home = () => {
 
           <div className="mt-12 grid gap-6 lg:grid-cols-3">
             {isLoadingFeaturedJobs ? (
-              <div className="lg:col-span-3 text-center text-sm text-neutral-500">
+              <div className="text-center text-sm text-neutral-500 lg:col-span-3">
                 Đang tải công việc nổi bật...
               </div>
             ) : featuredJobs.length ? (
@@ -420,7 +430,7 @@ const Home = () => {
                 );
               })
             ) : (
-              <div className="lg:col-span-3 text-center text-sm text-neutral-500">
+              <div className="text-center text-sm text-neutral-500 lg:col-span-3">
                 Chưa có công việc nổi bật.
               </div>
             )}
@@ -430,7 +440,7 @@ const Home = () => {
 
       <section className="mx-auto max-w-7xl">
         <header className="text-start">
-          <div className="text-2xl font-semibold uppercase tracking-wider text-primary-600">
+          <div className="text-primary-600 text-2xl font-semibold tracking-wider uppercase">
             Top Companies
           </div>
         </header>
@@ -453,7 +463,7 @@ const Home = () => {
             ))
           ) : companiesError ? (
             // Error state
-            <div className="col-span-full text-center py-8">
+            <div className="col-span-full py-8 text-center">
               <p className="text-neutral-500">{companiesError}</p>
             </div>
           ) : companiesToRender.length ? (
@@ -476,9 +486,9 @@ const Home = () => {
       </section>
 
       <section className="bg-white py-10">
-        <div className="mx-auto max-w-7xl ">
+        <div className="mx-auto max-w-7xl">
           <header className="text-center">
-            <p className="text-2xl font-semibold uppercase tracking-wider text-primary-600">
+            <p className="text-primary-600 text-2xl font-semibold tracking-wider uppercase">
               Clients Testimonial
             </p>
             <h2 className="mt-2 text-3xl font-semibold text-neutral-900">
@@ -492,7 +502,7 @@ const Home = () => {
                 key={name}
                 className="flex h-full flex-col gap-6 rounded-3xl border border-neutral-100 bg-white p-8 shadow-sm"
               >
-                <div className="flex items-center gap-2 text-primary-500">
+                <div className="text-primary-500 flex items-center gap-2">
                   {[...Array(5)].map((_, index) => (
                     <Star key={index} className="h-4 w-4 fill-current" />
                   ))}
@@ -508,14 +518,14 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl  pb-12 ">
+      <section className="mx-auto max-w-7xl pb-12">
         <div className="grid gap-6 lg:grid-cols-2">
           {dualCtas.map(({ title, description, action, tone }) => (
             <div
               key={title}
               className={`relative overflow-hidden rounded-3xl p-10 shadow-lg ${
                 tone === "dark"
-                  ? "bg-gradient-to-br from-primary-400 to-primary-700 text-white"
+                  ? "from-primary-400 to-primary-700 bg-gradient-to-br text-white"
                   : "bg-white text-neutral-900"
               }`}
             >
@@ -544,6 +554,6 @@ const Home = () => {
   );
 };
 
-const SearchIcon = () => <FileText className="h-4 w-4 text-primary-500" />;
+const SearchIcon = () => <FileText className="text-primary-500 h-4 w-4" />;
 
 export default Home;

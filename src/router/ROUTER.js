@@ -12,7 +12,16 @@ const ROUTER = {
   RESET_PASSWORD: "/reset-password",
   VERIFY_EMAIL: "/verify-email",
 
-  //--- Job routes ---
+  // --- Other public routes ---
+  COMPANIES: "/companies",
+  COMPANY_EDIT: "/companies/edit/:id",
+  COMPANY_POST: "/companies/post",
+  DASHBOARD: "/recruiter/overview",
+  MY_JOBS: "/recruiter/jobs/my-jobs",
+  COMPANY_DETAILS: "/companies/:id",
+
+  // ========================= End public routes =======================
+  // Job routes
   JOB_LIST: "/jobs",
   JOB_DETAIL: "/jobs/:id",
 

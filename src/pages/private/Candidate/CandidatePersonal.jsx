@@ -1,52 +1,23 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Avatar,
-  Button,
-  Dropdown,
-  Form,
-  Input,
-  Modal,
-  Select,
-  Spin,
-  Typography,
-  Upload,
-} from "antd";
+import { Avatar, Button, Dropdown, Form, Input, Spin, Typography, Upload } from "antd";
 import {
   CloudUploadOutlined,
   DeleteOutlined,
   EditOutlined,
   FilePdfOutlined,
-  GlobalOutlined,
   MoreOutlined,
   PlusOutlined,
-  UserOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import SettingsHeader from "./components/Header";
 import { CandidateService } from "../../../services/CandidateService";
 import { UploadService } from "../../../services/UploadService";
+import { UserService } from "../../../services/UserService";
 import { notifyError, notifySuccess } from "../../../components/Notification";
+import useAuthStore from "../../../store/useAuthStore";
 
 const { Title, Text } = Typography;
 const { Dragger } = Upload;
-
-const EXPERIENCE_PRESETS = [
-  { value: "Intern", label: "Intern" },
-  { value: "Junior", label: "Junior" },
-  { value: "Mid-level", label: "Mid-level" },
-  { value: "Senior", label: "Senior" },
-  { value: "Lead", label: "Lead" },
-  { value: "Principal", label: "Principal" },
-];
-
-const EDUCATION_PRESETS = [
-  { value: "High School", label: "High School" },
-  { value: "Associate", label: "Associate" },
-  { value: "Bachelor", label: "Bachelor" },
-  { value: "Master", label: "Master" },
-  { value: "PhD", label: "PhD" },
-  { value: "Certification", label: "Certification" },
-];
 
 const AVATAR_MAX_SIZE = 5 * 1024 * 1024;
 const CV_MAX_SIZE = 20 * 1024 * 1024;
@@ -58,26 +29,6 @@ const defaultFormValues = {
   experience: "",
   education: "",
   website: "",
-};
-
-const decodeAccessToken = (token) => {
-  if (!token) return null;
-  try {
-    const [, payload = ""] = token.split(".");
-    if (!payload) return null;
-    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
-    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
-    const jsonPayload = decodeURIComponent(
-      atob(padded)
-        .split("")
-        .map((char) => `%${(`00${char.charCodeAt(0).toString(16)}`).slice(-2)}`)
-        .join("")
-    );
-    return JSON.parse(jsonPayload);
-  } catch (error) {
-    console.error("Failed to decode access token", error);
-    return null;
-  }
 };
 
 const formatFileSize = (size) => {
@@ -93,7 +44,6 @@ const CandidatePersonal = () => {
   const [form] = Form.useForm();
   const avatarInputRef = useRef(null);
   const cvInputRef = useRef(null);
-  const [userId, setUserId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isAvatarBusy, setIsAvatarBusy] = useState(false);
@@ -103,39 +53,19 @@ const CandidatePersonal = () => {
   const [hasProfile, setHasProfile] = useState(false);
   const [candidateInfo, setCandidateInfo] = useState({ firstName: "", lastName: "" });
   const [initialWebsite, setInitialWebsite] = useState("");
+  // lấy user từ authstore
+  const { user, loading } = useAuthStore();
+  const userId = useMemo(() => user?._id || user?.id || user?.userId || null, [user]);
 
-  const tokenPayload = useMemo(() => {
-    const token = localStorage.getItem("accessToken");
-    return decodeAccessToken(token);
-  }, []);
-
-  const watchedExperience = Form.useWatch("experience", form);
-  const watchedEducation = Form.useWatch("education", form);
-
-  const mergedExperienceOptions = useMemo(() => {
-    if (!watchedExperience) return EXPERIENCE_PRESETS;
-    if (EXPERIENCE_PRESETS.some((option) => option.value === watchedExperience)) {
-      return EXPERIENCE_PRESETS;
-    }
-    return [{ value: watchedExperience, label: watchedExperience }, ...EXPERIENCE_PRESETS];
-  }, [watchedExperience]);
-
-  const mergedEducationOptions = useMemo(() => {
-    if (!watchedEducation) return EDUCATION_PRESETS;
-    if (EDUCATION_PRESETS.some((option) => option.value === watchedEducation)) {
-      return EDUCATION_PRESETS;
-    }
-    return [{ value: watchedEducation, label: watchedEducation }, ...EDUCATION_PRESETS];
-  }, [watchedEducation]);
 
   useEffect(() => {
-    if (!tokenPayload?.userId) {
+    if (loading) return;
+
+    if (!userId) {
       notifyError("Không tìm thấy thông tin người dùng, vui lòng đăng nhập lại.");
       setIsLoading(false);
       return;
     }
-
-    setUserId(tokenPayload.userId);
 
     const loadInitialData = async () => {
       setIsLoading(true);
@@ -143,10 +73,10 @@ const CandidatePersonal = () => {
 
       try {
         const [infoResult, profileResult, avatarResult, cvResult] = await Promise.allSettled([
-          CandidateService.getInfoCandidate(tokenPayload.userId),
-          CandidateService.getCandidateProfile(tokenPayload.userId),
-          UploadService.getUserAvatar(tokenPayload.userId),
-          UploadService.getCandidateCv(tokenPayload.userId),
+          CandidateService.getInfoCandidate(userId),
+          CandidateService.getCandidateProfile(userId),
+          UploadService.getUserAvatar(userId),
+          UploadService.getCandidateCv(userId),
         ]);
 
         if (infoResult.status === "fulfilled" && !infoResult.value?.isError) {
@@ -194,7 +124,7 @@ const CandidatePersonal = () => {
     };
 
     loadInitialData();
-  }, [form, tokenPayload]);
+  }, [loading, form, userId]);
 
   const validateAvatarFile = (file) => {
     if (!ALLOWED_AVATAR_TYPES.includes(file.type)) {
@@ -233,7 +163,20 @@ const CandidatePersonal = () => {
       if (response?.isError) {
         throw new Error(response?.msg || "Không thể tải avatar.");
       }
+
+      // Cập nhật local state
       setAvatarData(response?.data || null);
+
+      // Lấy lại thông tin user mới từ server
+      const userResponse = await UserService.fetchMe();
+      if (!userResponse?.isError && userResponse?.data) {
+        // Cập nhật user trong auth store với dữ liệu mới nhất
+        useAuthStore.setState({ user: userResponse.data });
+
+        // Lưu vào localStorage để duy trì sau khi refresh
+        localStorage.setItem('userData', JSON.stringify(userResponse.data));
+      }
+
       notifySuccess(response?.msg || "Đã cập nhật avatar.");
     } catch (error) {
       console.error(error);
@@ -251,23 +194,36 @@ const CandidatePersonal = () => {
     event.target.value = "";
   };
 
- const handleAvatarDelete = async () => {
-  if (!userId || !avatarData) return;
-  setIsAvatarBusy(true);
-  try {
-    const response = await UploadService.deleteUserAvatar(userId);
-    if (response?.isError) {
-      throw new Error(response?.msg || "Không thể xóa avatar.");
+  const handleAvatarDelete = async () => {
+    if (!userId || !avatarData) return;
+    setIsAvatarBusy(true);
+    try {
+      const response = await UploadService.deleteUserAvatar(userId);
+      if (response?.isError) {
+        throw new Error(response?.msg || "Không thể xóa avatar.");
+      }
+
+      // Cập nhật local state
+      setAvatarData(null);
+
+      // Lấy lại thông tin user mới từ server
+      const userResponse = await UserService.fetchMe();
+      if (!userResponse?.isError && userResponse?.data) {
+        // Cập nhật user trong auth store với dữ liệu mới nhất
+        useAuthStore.setState({ user: userResponse.data });
+
+        // Lưu vào localStorage để duy trì sau khi refresh
+        localStorage.setItem('userData', JSON.stringify(userResponse.data));
+      }
+
+      notifySuccess(response?.msg || "Đã xóa avatar.");
+    } catch (error) {
+      console.error(error);
+      notifyError(error.message || "Không thể xóa avatar.");
+    } finally {
+      setIsAvatarBusy(false);
     }
-    setAvatarData(null);
-    notifySuccess(response?.msg || "Đã xóa avatar.");
-  } catch (error) {
-    console.error(error);
-    notifyError(error.message || "Không thể xóa avatar.");
-  } finally {
-    setIsAvatarBusy(false);
-  }
-};
+  };
 
 
   const handleCvUpload = async (file) => {
@@ -299,23 +255,23 @@ const CandidatePersonal = () => {
     event.target.value = "";
   };
 
-const handleCvDelete = async () => {
-  if (!userId || !cvData) return;
-  setIsCvBusy(true);
-  try {
-    const response = await UploadService.deleteCandidateCv(userId);
-    if (response?.isError) {
-      throw new Error(response?.msg || "Không thể xóa CV.");
+  const handleCvDelete = async () => {
+    if (!userId || !cvData) return;
+    setIsCvBusy(true);
+    try {
+      const response = await UploadService.deleteCandidateCv(userId);
+      if (response?.isError) {
+        throw new Error(response?.msg || "Không thể xóa CV.");
+      }
+      setCvData(null);
+      notifySuccess(response?.msg || "Đã xóa CV.");
+    } catch (error) {
+      console.error(error);
+      notifyError(error.message || "Không thể xóa CV.");
+    } finally {
+      setIsCvBusy(false);
     }
-    setCvData(null);
-    notifySuccess(response?.msg || "Đã xóa CV.");
-  } catch (error) {
-    console.error(error);
-    notifyError(error.message || "Không thể xóa CV.");
-  } finally {
-    setIsCvBusy(false);
-  }
-};
+  };
 
 
   const parseFullName = (fullName) => {
@@ -345,10 +301,10 @@ const handleCvDelete = async () => {
       bio: values.headline?.trim() || "",
       ...(trimmedWebsite
         ? {
-            social: {
-              linkedin: trimmedWebsite,
-            },
-          }
+          social: {
+            linkedin: trimmedWebsite,
+          },
+        }
         : {}),
     };
 
@@ -451,10 +407,10 @@ const handleCvDelete = async () => {
                       />
                       <div className="flex flex-wrap justify-start gap-2">
                         <Button icon={<EditOutlined />} onClick={() => avatarInputRef.current?.click()}>
-                          Edit avatar 
+                          Edit avatar
                         </Button>
                         <Button danger icon={<DeleteOutlined />} onClick={handleAvatarDelete}>
-                          Delete 
+                          Delete
                         </Button>
                       </div>
                     </div>
@@ -488,7 +444,7 @@ const handleCvDelete = async () => {
                   accept="image/png,image/jpeg,image/webp"
                   onChange={handleAvatarFileChange}
                 />
-                
+
               </div>
 
               <Form
@@ -501,24 +457,10 @@ const handleCvDelete = async () => {
 
                 <div className="grid gap-4 md:grid-cols-2">
                   <Form.Item name="experience" label="Experience">
-                    <Select
-                      size="large"
-                      allowClear
-                      placeholder="Select..."
-                      options={mergedExperienceOptions}
-                      showSearch
-                      optionFilterProp="label"
-                    />
+                    <Input size="large" allowClear placeholder="Your experience" />
                   </Form.Item>
-                  <Form.Item name="education" label="Educations">
-                    <Select
-                      size="large"
-                      allowClear
-                      placeholder="Select..."
-                      options={mergedEducationOptions}
-                      showSearch
-                      optionFilterProp="label"
-                    />
+                  <Form.Item name="education" label="Education">
+                    <Input size="large" allowClear placeholder="Your education" />
                   </Form.Item>
                 </div>
 

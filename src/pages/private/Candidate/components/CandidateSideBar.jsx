@@ -24,7 +24,7 @@ const CandidateSideBar = () => {
     {
       key: ROUTER.CANDIDATE_OVERVIEW,
       icon: <LayoutDashboard size={20} />,
-      label: ROUTE_META[ROUTER.CANDIDATE_OVERVIEW]?.breadcrumb,
+      label: "Overview",
       onClick: ({ key }) => navigate(key),
     },
 

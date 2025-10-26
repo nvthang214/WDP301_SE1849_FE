@@ -24,17 +24,18 @@ const ROUTER = {
   // Job routes
   JOB_LIST: "/jobs",
   JOB_DETAIL: "/jobs/:id",
-  //////////////////////////////////////////////////////////////////////
 
   // ========================= Private routes ==========================
   // --- Recruiter routes ---
   RECRUITER_OVERVIEW: `${recruiter}/overview`,
   RECRUITER_MY_JOBS: `${recruiter}/jobs/my-jobs`,
+
   RECRUITER_MY_COMPANY: `${recruiter}/company/my-company`,
   RECRUITER_COMPANY_CREATE: `${recruiter}/company/create`,
   RECRUITER_COMPANY_EDIT: `${recruiter}/company/edit/:id`,
   RECRUITER_JOB_POSTING: `${recruiter}/jobs/post`,
   RECRUITER_JOB_EDITING: `${recruiter}/jobs/edit/:id`,
+  RECRUITER_SETTINGS: `${recruiter}/settings`,
 
   // --- Candidate routes ---
   CANDIDATE_OVERVIEW: `${candidate}/overview`,
@@ -45,6 +46,16 @@ const ROUTER = {
   CANDIDATE_APPLY_JOB: `${candidate}/applied-jobs`,
   CANDIDATE_JOB_DETAIL: `${candidate}/detail/:id`,
   CANDIDATE_REQUEST_UPGRADE: `${candidate}/request-upgrade`,
+  // Recruiter routes
+  RECRUITER_DASHBOARD: "/recruiter/overview",
+  ACCOUNT_SETTINGS: "/recruiter/account",
+  COMPANY_INFO: "/recruiter/companyinfo",
+
+  // //company for candidate view
+  // COMPANY_INFORMATION: "/company/:id",
+
+  // // Candidate routes
+  // CANDIDATE_DASHBOARD: "/candidate/overview",
 
   // --- Admin routes ---
   ADMIN_OVERVIEW: `${admin}/overview`,

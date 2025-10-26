@@ -2,8 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { JobService } from "../../../../services/JobService";
 import { UserService } from "../../../../services/UserService";
+import { CandidateService } from "../../../../services/CandidateService";
 import { Tag } from "antd";
 import DOMPurify from "dompurify";
+import useAuthStore from "../../../../store/useAuthStore";
+import { notifySuccess, notifyWarning } from "../../../../components/Notification";
 import {
   Bookmark,
   DollarSign,
@@ -52,11 +55,26 @@ const presetTagColors = [
 ];
 
 // Apply Modal Component
-function ApplyModal({ open, onClose, jobTitle }) {
+function ApplyModal({ open, onClose, jobTitle, onSubmit, submitting }) {
   const [resume, setResume] = useState("");
   const [coverLetter, setCoverLetter] = useState("");
 
+  useEffect(() => {
+    if (!open) {
+      setResume("");
+      setCoverLetter("");
+    }
+  }, [open]);
+
   if (!open) return null;
+
+  const handleApply = async () => {
+    try {
+      await onSubmit({ resume, coverLetter });
+    } catch (err) {
+      /* handled upstream */
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
@@ -119,12 +137,10 @@ function ApplyModal({ open, onClose, jobTitle }) {
           <button
             className="inline-flex items-center gap-2 rounded-[var(--radius-lg)] bg-[var(--color-primary-500)] px-6 py-2 font-semibold text-white shadow-[var(--shadow-md)] transition hover:bg-[var(--color-primary-600)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary-300)] focus-visible:outline-none"
             type="button"
-            onClick={() => {
-              alert("Applied!");
-              onClose();
-            }}
+            onClick={handleApply}
+            disabled={submitting}
           >
-            Apply Now
+            {submitting ? "Applying..." : "Apply Now"}
           </button>
         </div>
       </div>
@@ -137,6 +153,8 @@ export default function JobDetails() {
   const { id } = useParams();
   const [job, setJob] = useState(null);
   const [showApply, setShowApply] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
     async function fetchJob() {
@@ -168,14 +186,39 @@ export default function JobDetails() {
     color: "var(--color-neutral-900)",
   };
 
+  const handleSubmitApplication = async ({ resume, coverLetter }) => {
+    const candidateId = user?._id || user?.id;
+    if (!candidateId) {
+      notifyWarning("Vui lòng đăng nhập để ứng tuyển.");
+      setShowApply(false);
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const response = await CandidateService.applyJob(candidateId, {
+        jobId: id,
+        resume,
+        coverLetter,
+      });
+
+      notifySuccess(response?.msg || "Ứng tuyển thành công");
+      setShowApply(false);
+    } catch (error) {
+      /* errors are notified via interceptor */
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 px-0 py-8 md:px-8">
+    <div className="bg-gray-50 min-h-screen px-0 md:px-8 py-8">
       <ApplyModal
         open={showApply}
         onClose={() => setShowApply(false)}
         jobTitle={job.title}
-        id={job._id}
-        isFavorite={job.isFavorite}
+        onSubmit={handleSubmitApplication}
+        submitting={submitting}
       />
       {/* Header */}
       <div className="mb-6 flex flex-col items-start justify-between gap-4 rounded-xl bg-white px-8 py-6 shadow-sm md:flex-row md:items-center">
@@ -213,8 +256,15 @@ export default function JobDetails() {
             <JobToggleFavorite jobId={job._id} isFavorite={job.isFavorite} />
           </button>
           <button
-            className="inline-flex items-center gap-2 rounded-[var(--radius-lg)] bg-[var(--color-primary-500)] px-6 py-2 font-semibold text-white shadow-[var(--shadow-md)] transition hover:bg-[var(--color-primary-600)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary-300)] focus-visible:outline-none"
-            onClick={() => setShowApply(true)}
+            className="inline-flex items-center gap-2 rounded-[var(--radius-lg)] bg-[var(--color-primary-500)] px-6 py-2 font-semibold text-white shadow-[var(--shadow-md)] transition hover:bg-[var(--color-primary-600)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-300)]"
+            onClick={() => {
+              const candidateId = user?._id || user?.id;
+              if (!candidateId) {
+                notifyWarning("Vui lòng đăng nhập để ứng tuyển.");
+                return;
+              }
+              setShowApply(true);
+            }}
           >
             Apply Now
           </button>

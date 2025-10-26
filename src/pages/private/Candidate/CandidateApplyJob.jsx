@@ -55,26 +55,6 @@ const STATUS_META = {
   },
 };
 
-const decodeAccessToken = (token) => {
-  if (!token) return null;
-  try {
-    const [, payload = ""] = token.split(".");
-    if (!payload) return null;
-    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
-    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
-    const jsonPayload = decodeURIComponent(
-      atob(padded)
-        .split("")
-        .map((char) => `%${`00${char.charCodeAt(0).toString(16)}`.slice(-2)}`)
-        .join("")
-    );
-    return JSON.parse(jsonPayload);
-  } catch (error) {
-    console.error("Failed to decode access token", error);
-    return null;
-  }
-};
-
 const toTitleCase = (value = "") =>
   value
     .toString()
@@ -138,7 +118,6 @@ const getVisibleTags = (job) => {
 
 const CandidateApplyJob = () => {
   const navigate = useNavigate();
-  const [userId, setUserId] = useState(null);
   const [appliedJobs, setAppliedJobs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -171,21 +150,21 @@ const CandidateApplyJob = () => {
       else setIsRefreshing(false);
     }
   }, []);
-
-  const { accessToken } = useAuthStore();
-
-  const tokenPayload = useMemo(() => decodeAccessToken(accessToken), [accessToken]);
+  // lấy user từ authstore
+  const { user,loading } = useAuthStore();
+  const userId = useMemo(() => user?._id || user?.id || user?.userId || null, [user]);
 
   useEffect(() => {
-    if (!tokenPayload?.userId) {
+    if (loading) return;
+
+    if (!userId) {
       notifyError("Không tìm thấy thông tin ứng viên, vui lòng đăng nhập lại.");
       setIsLoading(false);
       return;
     }
 
-    setUserId(tokenPayload.userId);
-    fetchAppliedJobs(tokenPayload.userId, true);
-  }, [fetchAppliedJobs, tokenPayload]);
+    fetchAppliedJobs(userId, true);
+  }, [loading, fetchAppliedJobs, userId]);
 
   const handleRefresh = () => {
     if (!userId || isRefreshing) return;

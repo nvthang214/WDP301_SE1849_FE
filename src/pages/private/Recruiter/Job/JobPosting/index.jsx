@@ -71,7 +71,9 @@ export default function JobPosting() {
     async function fetchCompany() {
       try {
         const res = await JobService.getCompanyOfRecruiter();
-        setForm((prev) => ({ ...prev, company: res.data._id }));
+        if (res && res.data && res.data._id) {
+          setForm((prev) => ({ ...prev, company: res.data._id }));
+        }
       } catch (error) {
         console.error("Failed to fetch company:", error);
       }

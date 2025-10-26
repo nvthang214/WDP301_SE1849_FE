@@ -75,7 +75,9 @@ export default function JobEditing() {
     async function fetchCompany() {
       try {
         const res = await JobService.getCompanyOfRecruiter();
-        setForm((prev) => ({ ...prev, company: res.data._id }));
+        if (res && res.data && res.data._id) {
+          setForm((prev) => ({ ...prev, company: res.data._id }));
+        }
       } catch (error) {
         console.error("Failed to fetch company:", error);
       }
@@ -90,7 +92,9 @@ export default function JobEditing() {
         const res = await JobService.getJobById("", id);
         let tagIds = [];
         if (Array.isArray(res.data.tags) && res.data.tags.length > 0) {
-          tagIds = res.data.tags.map((tagObj) => tagObj._id || tagObj);
+          tagIds = res.data.tags
+            .filter((tagObj) => tagObj != null) // Filter out null/undefined values
+            .map((tagObj) => tagObj._id || tagObj);
         }
         setForm({
           category: res.data.category?._id || res.data.category || "",

@@ -10,6 +10,7 @@ import {
   SettingOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
+import useAuthStore from '../../../store/useAuthStore';
 
 const { Header, Sider, Content } = Layout;
 
@@ -17,6 +18,7 @@ const AdminLayout = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, logout } = useAuthStore();
 
   const menuItems = [
     {
@@ -31,8 +33,7 @@ const AdminLayout = ({ children }) => {
   };
 
   const handleLogout = () => {
-    // Clear token and redirect to login
-    localStorage.removeItem('token');
+    logout();
     navigate('/login');
   };
 
@@ -110,7 +111,7 @@ const AdminLayout = ({ children }) => {
                   icon={<UserOutlined />} 
                   className="bg-blue-500"
                 />
-                <span className="text-gray-700">Admin User</span>
+                <span className="text-gray-700">{user?.firstName ? `${user.firstName} ${user.lastName}` : 'Admin User'}</span>
               </Space>
             </Dropdown>
           </div>

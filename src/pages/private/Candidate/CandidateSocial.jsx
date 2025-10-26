@@ -25,33 +25,9 @@ const LinkedInIcon = () => (
 const SOCIAL_PLATFORMS = [
   { value: "facebook", label: "Facebook", icon: <FacebookOutlined style={{ color: "#1877f2" }} /> },
   { value: "twitter", label: "Twitter", icon: <TwitterOutlined style={{ color: "#1da1f2" }} /> },
-  {
-    value: "instagram",
-    label: "Instagram",
-    icon: <InstagramOutlined style={{ color: "#d6249f" }} />,
-  },
+  {value: "instagram",label: "Instagram",icon: <InstagramOutlined style={{ color: "#d6249f" }} />,},
   { value: "linkedin", label: "LinkedIn", icon: <LinkedInIcon /> },
 ];
-
-const decodeAccessToken = (token) => {
-  if (!token) return null;
-  try {
-    const [, payload = ""] = token.split(".");
-    if (!payload) return null;
-    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
-    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
-    const jsonPayload = decodeURIComponent(
-      atob(padded)
-        .split("")
-        .map((c) => `%${`00${c.charCodeAt(0).toString(16)}`.slice(-2)}`)
-        .join("")
-    );
-    return JSON.parse(jsonPayload);
-  } catch (error) {
-    console.error("Failed to decode access token", error);
-    return null;
-  }
-};
 
 const createEmptyLink = (platform = "") => ({
   id:
@@ -95,31 +71,29 @@ const toSocialArray = (data) => {
 };
 
 const CandidateSocial = () => {
-  const [userId, setUserId] = useState(null);
   const [socialLinks, setSocialLinks] = useState([createEmptyLink()]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
 
   const nextAvailablePlatform = useMemo(() => getNextAvailablePlatform(socialLinks), [socialLinks]);
-
-  const { accessToken } = useAuthStore();
-
-  const tokenPayload = useMemo(() => decodeAccessToken(accessToken), [accessToken]);
+  // lấy user từ authstore 
+  const { user,loading } = useAuthStore();
+  const userId = useMemo(() => user?._id || user?.id || user?.userId || null, [user]);
 
   useEffect(() => {
-    if (!tokenPayload?.userId) {
+    if (loading) return;
+
+    if (!userId) {
       notifyError("Không tìm thấy thông tin người dùng, vui lòng đăng nhập lại.");
       setIsLoading(false);
       return;
     }
 
-    setUserId(tokenPayload.userId);
-
     const fetchSocial = async () => {
       try {
         setIsLoading(true);
-        const response = await CandidateService.getCandidateSocial(tokenPayload.userId);
+        const response = await CandidateService.getCandidateSocial(userId);
         if (response?.isError) {
           if (response.statusCode !== 404) {
             notifyError(response?.msg || "Không thể tải dữ liệu mạng xã hội.");
@@ -143,7 +117,7 @@ const CandidateSocial = () => {
     };
 
     fetchSocial();
-  }, [tokenPayload]);
+  }, [loading, userId]);
 
   const handlePlatformChange = (id, platform) => {
     setSocialLinks((prev) =>

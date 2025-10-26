@@ -205,6 +205,10 @@ const dualCtas = [
 const Home = () => {
   const [featuredJobs, setFeaturedJobs] = useState([]);
   const [isLoadingFeaturedJobs, setIsLoadingFeaturedJobs] = useState(false);
+  const [companies, setCompanies] = useState([]);
+  const [isLoadingCompanies, setIsLoadingCompanies] = useState(false);
+  const [companiesError, setCompaniesError] = useState(null);
+  const companiesToRender = companies.length ? companies : topCompanies;
 
   useEffect(() => {
     let ignore = false;
@@ -235,6 +239,47 @@ const Home = () => {
     };
 
     fetchFeaturedJobs();
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let ignore = false;
+
+    const fetchTopCompanies = async () => {
+      setIsLoadingCompanies(true);
+      setCompaniesError(null);
+
+      try {
+        const response = await CompanyService.getCompanies({ limit: 6, hasOpenings: true });
+
+        if (ignore) return;
+
+        if (response?.isError) {
+          throw new Error(response?.msg || "Không thể tải danh sách công ty.");
+        }
+
+        const data = Array.isArray(response?.data?.companies)
+          ? response.data.companies
+          : Array.isArray(response?.data)
+            ? response.data
+            : [];
+
+        setCompanies(data);
+      } catch (error) {
+        if (ignore) return;
+
+        console.error(error);
+        setCompaniesError(error?.message || "Không thể tải danh sách công ty.");
+        setCompanies([]);
+      } finally {
+        if (!ignore) setIsLoadingCompanies(false);
+      }
+    };
+
+    fetchTopCompanies();
 
     return () => {
       ignore = true;
@@ -391,7 +436,7 @@ const Home = () => {
         </header>
 
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {loading ? (
+          {isLoadingCompanies ? (
             // Loading skeleton
             Array.from({ length: 6 }).map((_, index) => (
               <div key={index} className="animate-pulse">
@@ -406,23 +451,26 @@ const Home = () => {
                 </div>
               </div>
             ))
-          ) : error ? (
+          ) : companiesError ? (
             // Error state
             <div className="col-span-full text-center py-8">
-              <p className="text-neutral-500">{error}</p>
+              <p className="text-neutral-500">{companiesError}</p>
             </div>
-          ) : (
-            // Render companies data
-            companies.map((item, index) => (
-              <CompanyCard 
-                key={item._id || item.id || `${item.name}-${index}`} 
+          ) : companiesToRender.length ? (
+            companiesToRender.map((item, index) => (
+              <CompanyCard
+                key={item._id || item.id || `${item.name}-${index}`}
                 name={item.name || item.companyName}
                 location={item.location || item.address}
                 openings={item.openings || item.jobCount || 0}
                 logo={item.logo || item.companyLogo}
-                {...item} 
+                {...item}
               />
             ))
+          ) : (
+            <div className="col-span-full text-center text-sm text-neutral-500">
+              Chưa có dữ liệu công ty.
+            </div>
           )}
         </div>
       </section>

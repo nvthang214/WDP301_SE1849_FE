@@ -8,10 +8,11 @@ import {
   activateJob,
   getCompanyOfRecruiter,
   getJobsOfRecruiter,
+  toggleFavorite
 } from "./urls";
 
 // Thêm params vào getJobs
-const getJobs = async (params = {}) => await api.get(getAll, { params });
+const getJobs = async (flag, params = {}) => await api.get(getAll(flag), { params });
 
 export const JobService = {
   getJobs,
@@ -22,4 +23,5 @@ export const JobService = {
   activateJob: async (id) => await api.put(activateJob(id)),
   getCompanyOfRecruiter: async () => await api.get(getCompanyOfRecruiter()),
   getJobsOfRecruiter: async () => await api.get(getJobsOfRecruiter()),
+  toggleFavoriteJob: async (jobId) => await api.post(toggleFavorite(jobId)),
 };

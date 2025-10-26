@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { JobService } from "../../../../services/JobService";
+import { UserService } from "../../../../services/UserService";
 import { CategoryService } from "../../../../services/CategoryService";
 import { useResponsive } from "../../../../hook/useResponsive";
-
-import JobCard from "../../../../components/Card/JobCard";
+import JobCard from "./components/JobCard.jsx";
 import FilterSidebar from "../JobList/components/FilterSidebar";
 
 const jobTypes = ["FULL-TIME", "PART-TIME", "INTERNSHIP", "TEMPORARY", "CONTRACT BASE"];
@@ -79,6 +78,7 @@ export default function JobList() {
   else if (isTablet) gridCols = "grid-cols-2";
   else if (isMobile) gridCols = "grid-cols-1";
 
+  //////////////////////////////////////////
   // Fetch jobs with filters & pagination
   const fetchJobs = async () => {
     setLoading(true);
@@ -96,7 +96,6 @@ export default function JobList() {
       if (filters.maxSalary !== undefined) params.maxSalary = filters.maxSalary;
       if (filters.isActive !== undefined) params.isActive = filters.isActive;
       if (filters.remote !== undefined) params.remote = filters.remote ? "true" : "false";
-
       // Xóa các param undefined/null/rỗng
       Object.keys(params).forEach((key) => {
         if (params[key] === undefined || params[key] === "") {
@@ -104,7 +103,16 @@ export default function JobList() {
         }
       });
 
-      const res = await JobService.getJobs(params);
+      let flag = "";
+
+      try {
+        const currentUser = await UserService.fetchMe();
+        flag = currentUser.data ? "favorite-flag" : "";
+      } catch (error) {
+        // Do nothing
+      }
+
+      const res = await JobService.getJobs(flag, params);
       setJobs(res.data.jobs || []);
       setPagination(
         res.data.pagination || {
@@ -128,6 +136,7 @@ export default function JobList() {
     // eslint-disable-next-line
   }, [search, location, filters, page, limit]);
 
+  //////////////////////////////////////
   // Xử lý submit search/filter
   const handleSearch = (e) => {
     e.preventDefault();
@@ -232,17 +241,17 @@ export default function JobList() {
         ) : (
           <div className={`grid ${gridCols} gap-6`}>
             {jobs.map((job, idx) => (
-              <Link to={`/jobs/${job._id}`} key={idx} className="block">
-                <JobCard
-                  key={job._id || idx}
-                  title={job.title}
-                  type={job.jobType}
-                  salary={`$${job.minSalary.toLocaleString()} - $${job.maxSalary.toLocaleString()}`}
-                  company={job.companyName}
-                  location={job.city}
-                  logo={job.company.logo}
-                />
-              </Link>
+              <JobCard
+                key={job._id || idx}
+                id={job._id}
+                title={job.title}
+                type={job.jobType}
+                salary={`$${job.minSalary.toLocaleString()} - $${job.maxSalary.toLocaleString()}`}
+                company={job.companyName}
+                location={job.city}
+                logo={job.company.logo}
+                isFavorite={job.isFavorite}
+              />
             ))}
           </div>
         )}

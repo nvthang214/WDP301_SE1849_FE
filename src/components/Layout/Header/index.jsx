@@ -1,6 +1,6 @@
 import { Alert, Button, Divider, Drawer, Input } from "antd";
 import { Mail, Menu, Phone } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import ROUTE_META from "../../../router/ROUTER_META.js";
 import ROUTER from "../../../router/ROUTER.js";
@@ -17,12 +17,23 @@ const navItems = [
 
 const HeaderMain = ({ className }) => {
   const [open, setOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  const navigate = useNavigate();
   const { user } = useAuthStore();
+  
   const showDrawer = () => {
     setOpen(true);
   };
   const onClose = () => {
     setOpen(false);
+  };
+
+  const handleSearch = (value) => {
+    if (value && value.trim()) {
+      navigate(`${ROUTER.JOB_LIST}?search=${encodeURIComponent(value.trim())}`);
+    } else {
+      navigate(ROUTER.JOB_LIST);
+    }
   };
   return (
     <header className="sticky top-0 z-40 w-full border-b border-neutral-200 bg-white/95 backdrop-blur">
@@ -55,7 +66,9 @@ const HeaderMain = ({ className }) => {
             <Input.Search
               placeholder="Search jobs, companies..."
               allowClear
-              onSearch={() => console.log("ạksndljkasdbn")}
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              onSearch={handleSearch}
               size="large"
               className="w-full rounded-full"
             />
@@ -80,7 +93,9 @@ const HeaderMain = ({ className }) => {
               <Input.Search
                 placeholder="Search jobs, companies..."
                 allowClear
-                onSearch={() => console.log("ạksndljkasdbn")}
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                onSearch={handleSearch}
                 size="large"
                 className="w-full rounded-full"
               />

@@ -13,29 +13,29 @@ import AccountSetting from './AccountSetting';
 const { Title } = Typography;
 
 const RecruiterSettings = () => {
-  const [activeTab, setActiveTab] = useState('company');
+  // const [activeTab, setActiveTab] = useState('company');
 
   const tabItems = [
-    {
-      key: 'company',
-      label: (
-        <span>
-          <BankOutlined />
-          Company Info
-        </span>
-      ),
-      children: <CompanyInfo />,
-    },
-    {
-      key: 'social',
-      label: (
-        <span>
-          <ShareAltOutlined />
-          Social Media Profile
-        </span>
-      ),
-      children: <SocialMediaProfile />,
-    },
+    // {
+    //   key: 'company',
+    //   label: (
+    //     <span>
+    //       <BankOutlined />
+    //       Company Info
+    //     </span>
+    //   ),
+    //   children: <CompanyInfo />,
+    // },
+    // {
+    //   key: 'social',
+    //   label: (
+    //     <span>
+    //       <ShareAltOutlined />
+    //       Social Media Profile
+    //     </span>
+    //   ),
+    //   children: <SocialMediaProfile />,
+    // },
     {
       key: 'account',
       label: (
@@ -50,7 +50,7 @@ const RecruiterSettings = () => {
 
   return (
     <div style={{ padding: '24px', background: '#f5f5f5', minHeight: '100vh' }}>
-      <Card 
+      <Card
         title={
           <h2 style={{ margin: 0, fontSize: '24px', fontWeight: 'bold' }}>
             Settings
@@ -59,8 +59,8 @@ const RecruiterSettings = () => {
         style={{ maxWidth: '1200px', margin: '0 auto' }}
       >
         <Tabs
-          activeKey={activeTab}
-          onChange={setActiveTab}
+          // activeKey={activeTab}
+          // onChange={setActiveTab}
           items={tabItems}
           size="large"
           tabBarStyle={{ marginBottom: '24px' }}

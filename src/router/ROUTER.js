@@ -18,6 +18,7 @@ const ROUTER = {
   COMPANY_POST: "/companies/post",
   DASHBOARD: "/recruiter/overview",
   MY_JOBS: "/recruiter/jobs/my-jobs",
+  COMPANY_DETAILS: "/companies/:id",
 
   // ========================= End public routes =======================
   // Job routes

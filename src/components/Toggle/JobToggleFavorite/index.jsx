@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { BookmarkPlus, BookmarkCheck } from "lucide-react";
-import { JobService } from "../../../../../services/JobService";
-import { notifySuccess, notifyWarning, notifyError } from "../../../../../components/Notification";
+import { JobService } from "../../../services/JobService";
+import { notifySuccess, notifyWarning, notifyError } from "../../Notification";
 import { Tooltip } from "antd";
 
-const ToggleFavorite = ({ jobId, isFavorite }) => {
+const JobToggleFavorite = ({ jobId, isFavorite }) => {
   const [fav, setFav] = useState(!!isFavorite);
   const handleToggleFavorite = async () => {
     setFav((prev) => !prev);
@@ -48,4 +48,4 @@ const ToggleFavorite = ({ jobId, isFavorite }) => {
   );
 };
 
-export default ToggleFavorite;
+export default JobToggleFavorite;

@@ -27,7 +27,7 @@ import {
   FileUp,
 } from "lucide-react";
 
-import ToggleFavorite from "../components/ToggleFavorite";
+import JobToggleFavorite from "../../../../components/Toggle/JobToggleFavorite";
 
 const typeColor = {
   "FULL-TIME": { bg: "#22c55e", color: "#fff" },
@@ -210,7 +210,7 @@ export default function JobDetails() {
         </div>
         <div className="mt-4 flex w-full items-center gap-2 md:mt-0 md:w-auto">
           <button className="rounded border border-blue-100 p-2 hover:bg-blue-50">
-            <ToggleFavorite jobId={job._id} isFavorite={job.isFavorite} />
+            <JobToggleFavorite jobId={job._id} isFavorite={job.isFavorite} />
           </button>
           <button
             className="inline-flex items-center gap-2 rounded-[var(--radius-lg)] bg-[var(--color-primary-500)] px-6 py-2 font-semibold text-white shadow-[var(--shadow-md)] transition hover:bg-[var(--color-primary-600)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary-300)] focus-visible:outline-none"

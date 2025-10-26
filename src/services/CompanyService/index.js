@@ -1,5 +1,5 @@
 import api from "../00-Axios";
-import { getAll, getById, create, update, deleteCompany, getByRecruiter } from "./urls";
+import { getAll, getById, create, update, deleteCompany, getByRecruiter, getCompanyDetails } from "./urls";
 
 
 export const CompanyService = {
@@ -27,4 +27,8 @@ export const CompanyService = {
     const response = await api.delete(deleteCompany(id));
     return response;
   },
+  getCompanyDetails: async (id) => {
+    const response = await api.get(getCompanyDetails(id));
+    return response;
+  }
 };

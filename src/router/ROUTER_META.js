@@ -31,6 +31,10 @@ const ROUTE_META = {
     breadcrumb: "Job Detail",
     title: "Job Detail",
   },
+  [ROUTER.COMPANY_DETAILS]: {
+    breadcrumb: "Company Detail",
+    title: "Company Detail",
+  },
   // ========================= End public routes =======================
 
   //////////////////////////////////////////////////////////////////////

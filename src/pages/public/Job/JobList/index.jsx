@@ -3,7 +3,7 @@ import { JobService } from "../../../../services/JobService";
 import { UserService } from "../../../../services/UserService";
 import { CategoryService } from "../../../../services/CategoryService";
 import { useResponsive } from "../../../../hook/useResponsive";
-import JobCard from "./components/JobCard.jsx";
+import JobCard from "../../../../components/Card/JobCard";
 import FilterSidebar from "../JobList/components/FilterSidebar";
 
 const jobTypes = ["FULL-TIME", "PART-TIME", "INTERNSHIP", "TEMPORARY", "CONTRACT BASE"];
@@ -249,7 +249,7 @@ export default function JobList() {
                 salary={`$${job.minSalary.toLocaleString()} - $${job.maxSalary.toLocaleString()}`}
                 company={job.companyName}
                 location={job.city}
-                logo={job.company.logo}
+                logo={job.company?.logo}
                 isFavorite={job.isFavorite}
               />
             ))}

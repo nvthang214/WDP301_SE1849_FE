@@ -155,53 +155,42 @@ export default function JobPosting() {
 
   return (
     <div className="min-h-screen bg-[var(--color-neutral-50)]">
-      <form
-        className="mx-auto max-w-5xl rounded-2xl bg-white p-8 shadow-[var(--shadow-lg)]"
-        onSubmit={handleSubmit}
-      >
-        <div className=" flex items-start justify-between">
+      <form className="mx-auto max-w-5xl" onSubmit={handleSubmit}>
+        <div className="flex items-start justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-[var(--color-primary-400)]">
+            <p className="text-sm font-semibold tracking-wide text-[var(--color-primary-400)] uppercase">
               Recruiter Dashboard
             </p>
-            <h2 className="text-3xl font-semibold text-[var(--color-primary-700)]">Post a Job</h2>
+            <h1 className="text-xl font-semibold text-[var(--color-primary-700)]">Post a Job</h1>
           </div>
         </div>
 
-        <div className="space-y-8">
-          <section className="rounded-2xl border border-[var(--color-neutral-200)] bg-[var(--color-neutral-100)]/40 p-6">
-            <div className="mb-4 flex items-center gap-3">
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-primary-100)] text-[var(--color-primary-500)]">
-                1
-              </span>
-              <h3 className="text-lg font-semibold text-[var(--color-neutral-900)]">Job Basics</h3>
-            </div>
+        <div className="space-y-4">
+          <section>
             <div className="space-y-6">
-              {/* Job Title */}
-              <div>
-                <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
-                  Job Title
-                </label>
-                <input
-                  className="w-full rounded-xl border border-[var(--color-neutral-200)] px-4 py-3 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-100)]"
-                  name="title"
-                  placeholder="Add job title, role, vacancies etc"
-                  value={form.title}
-                  onChange={handleChange}
-                />
-              </div>
-
               {/* Tags & Role */}
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+                  <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
+                    Job Title
+                  </label>
+                  <input
+                    className="w-full rounded-xl border border-[var(--color-neutral-200)] p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-100)] focus:outline-none"
+                    name="title"
+                    placeholder="Add job title, role, vacancies etc"
+                    value={form.title}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
                     Tags
                   </label>
                   <Select
                     mode="multiple"
                     allowClear
                     style={{ width: "100%" }}
-                    className="rounded-xl"
+                    className="w-full rounded-xl"
                     placeholder="Select tags"
                     value={form.tags}
                     onChange={handleTagsChange}
@@ -212,40 +201,20 @@ export default function JobPosting() {
                     optionFilterProp="label"
                   />
                 </div>
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
-                    Job Role
-                  </label>
-                  <input
-                    className="w-full rounded-xl border border-[var(--color-neutral-200)] px-4 py-3 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-100)]"
-                    name="role"
-                    value={form.role}
-                    onChange={handleChange}
-                    placeholder="Job role"
-                  />
-                </div>
               </div>
             </div>
           </section>
 
-          <section className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-sm)]">
-            <div className="mb-4 flex items-center gap-3">
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-primary-100)] text-[var(--color-primary-500)]">
-                2
-              </span>
-              <h3 className="text-lg font-semibold text-[var(--color-neutral-900)]">
-                Salary & Category
-              </h3>
-            </div>
+          <section>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
               {/* Min Salary */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+                <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
                   Min Salary
                 </label>
                 <div className="flex overflow-hidden rounded-xl border border-[var(--color-neutral-200)]">
                   <input
-                    className="w-full px-4 py-3 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:outline-none"
+                    className="w-full p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:outline-none"
                     name="minSalary"
                     placeholder="Minimum salary..."
                     value={form.minSalary}
@@ -259,12 +228,12 @@ export default function JobPosting() {
               </div>
               {/* Max Salary */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+                <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
                   Max Salary
                 </label>
                 <div className="flex overflow-hidden rounded-xl border border-[var(--color-neutral-200)]">
                   <input
-                    className="w-full px-4 py-3 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:outline-none"
+                    className="w-full p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:outline-none"
                     name="maxSalary"
                     placeholder="Maximum salary..."
                     value={form.maxSalary}
@@ -278,7 +247,7 @@ export default function JobPosting() {
               </div>
               {/* Salary Type */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+                <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
                   Salary Type
                 </label>
                 <Select
@@ -298,7 +267,7 @@ export default function JobPosting() {
               </div>
               {/* Category */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+                <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
                   Category
                 </label>
                 <Select
@@ -319,19 +288,11 @@ export default function JobPosting() {
             </div>
           </section>
 
-          <section className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-sm)]">
-            <div className="mb-4 flex items-center gap-3">
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-primary-100)] text-[var(--color-primary-500)]">
-                3
-              </span>
-              <h3 className="text-lg font-semibold text-[var(--color-neutral-900)]">
-                Advanced Information
-              </h3>
-            </div>
+          <section>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-4">
               {/* Education */}
               <div className="md:col-span-1">
-                <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+                <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
                   Education
                 </label>
                 <Select
@@ -352,11 +313,11 @@ export default function JobPosting() {
               </div>
               {/* Experience */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+                <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
                   Experience
                 </label>
                 <input
-                  className="w-full rounded-xl border border-[var(--color-neutral-200)] px-4 py-3 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-100)]"
+                  className="w-full rounded-xl border border-[var(--color-neutral-200)] p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-100)] focus:outline-none"
                   name="experience"
                   placeholder="Experience"
                   value={form.experience}
@@ -365,7 +326,7 @@ export default function JobPosting() {
               </div>
               {/* Job Type */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+                <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
                   Job Type
                 </label>
                 <Select
@@ -381,11 +342,11 @@ export default function JobPosting() {
               </div>
               {/* Vacancies */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+                <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
                   Vacancies
                 </label>
                 <input
-                  className="w-full rounded-xl border border-[var(--color-neutral-200)] px-4 py-3 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-100)]"
+                  className="w-full rounded-xl border border-[var(--color-neutral-200)] p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-100)] focus:outline-none"
                   name="vacancies"
                   type="number"
                   placeholder="Vacancies"
@@ -396,11 +357,11 @@ export default function JobPosting() {
               </div>
               {/* Expiration */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+                <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
                   Expiration Date
                 </label>
                 <input
-                  className="w-full rounded-xl border border-[var(--color-neutral-200)] px-4 py-3 text-[var(--color-neutral-900)] focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-100)]"
+                  className="w-full rounded-xl border border-[var(--color-neutral-200)] p-2 text-[var(--color-neutral-900)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-100)] focus:outline-none"
                   name="expiration"
                   type="date"
                   value={form.expiration}
@@ -409,7 +370,7 @@ export default function JobPosting() {
               </div>
               {/* Job Level */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+                <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
                   Job Level
                 </label>
                 <Select
@@ -423,44 +384,10 @@ export default function JobPosting() {
                   showSearch
                 />
               </div>
-            </div>
-          </section>
-
-          <section className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-sm)]">
-            <div className="mb-4 flex items-center gap-3">
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-primary-100)] text-[var(--color-primary-500)]">
-                4
-              </span>
-              <h3 className="text-lg font-semibold text-[var(--color-neutral-900)]">Location</h3>
-            </div>
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
-                    Country
-                  </label>
-                  <input
-                    className="w-full rounded-xl border border-[var(--color-neutral-200)] px-4 py-3 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-100)]"
-                    name="country"
-                    placeholder="Country"
-                    value={form.country}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
-                    City
-                  </label>
-                  <input
-                    className="w-full rounded-xl border border-[var(--color-neutral-200)] px-4 py-3 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-100)]"
-                    name="city"
-                    placeholder="City"
-                    value={form.city}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-              <label className="flex items-center gap-3 rounded-xl border border-[var(--color-neutral-200)] bg-[var(--color-neutral-100)] px-4 py-3">
+              <div>
+                <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
+                  Remote
+                </label>
                 <input
                   type="checkbox"
                   name="remote"
@@ -470,77 +397,51 @@ export default function JobPosting() {
                 <span className="text-sm text-[var(--color-neutral-700)]">
                   Fully Remote Position – <span className="font-semibold">Worldwide</span>
                 </span>
-              </label>
+              </div>
             </div>
           </section>
 
-          <section className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-sm)]">
-            <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
-              Job Description
-            </label>
-            <ReactQuill
-              theme="snow"
-              modules={quillModules}
-              value={form.description}
-              onChange={handleRichTextChange("description")}
-              placeholder="Share job responsibilities, requirements..."
-              className="rounded-xl"
-            />
+          <section>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
+                    Country
+                  </label>
+                  <input
+                    className="w-full rounded-xl border border-[var(--color-neutral-200)] p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-100)] focus:outline-none"
+                    name="country"
+                    placeholder="Country"
+                    value={form.country}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
+                    City
+                  </label>
+                  <input
+                    className="w-full rounded-xl border border-[var(--color-neutral-200)] p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-100)] focus:outline-none"
+                    name="city"
+                    placeholder="City"
+                    value={form.city}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+            </div>
           </section>
-
-          <section className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-sm)]">
+          <section>
             <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
-              Job Requirements
+              Apply Job On
             </label>
-            <ReactQuill
-              theme="snow"
-              modules={quillModules}
-              value={form.requirements}
-              onChange={handleRichTextChange("requirements")}
-              placeholder="Share must-have skills, qualifications..."
-              className="rounded-xl"
-            />
-          </section>
-
-          <section className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-sm)]">
-            <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
-              Job Desirable
-            </label>
-            <ReactQuill
-              theme="snow"
-              modules={quillModules}
-              value={form.desirable}
-              onChange={handleRichTextChange("desirable")}
-              placeholder="Share bonus points, nice-to-have experience..."
-              className="rounded-xl"
-            />
-          </section>
-
-          <section className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-sm)]">
-            <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
-              Job Benefits
-            </label>
-            <ReactQuill
-              theme="snow"
-              modules={quillModules}
-              value={form.benefits}
-              onChange={handleRichTextChange("benefits")}
-              placeholder="Share benefits, perks, and incentives..."
-              className="rounded-xl"
-            />
-          </section>
-
-          <section className="rounded-2xl border border-[var(--color-neutral-200)] bg-[var(--color-neutral-100)] p-6 shadow-[var(--shadow-sm)]">
-            <h3 className="mb-4 text-lg font-semibold text-[var(--color-neutral-900)]">
-              Apply Job on:
-            </h3>
             <div className="flex flex-col gap-4 md:flex-row">
               {["Jobpilot", "external", "email"].map((type) => {
                 const active = form.applyType === type;
                 return (
                   <label
                     key={type}
-                    className={`flex flex-1 items-start gap-3 rounded-xl border bg-white p-4 transition ${
+                    className={`flex flex-1 items-start gap-3 rounded-xl border p-2 transition ${
                       active
                         ? "border-[var(--color-primary-400)] shadow-[var(--shadow-md)]"
                         : "border-transparent hover:border-[var(--color-primary-200)]"
@@ -575,15 +476,70 @@ export default function JobPosting() {
               })}
             </div>
           </section>
+          {/* Job Description */}
+          <section>
+            <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
+              Job Description
+            </label>
+            <ReactQuill
+              theme="snow"
+              modules={quillModules}
+              value={form.description}
+              onChange={handleRichTextChange("description")}
+              placeholder="Share job responsibilities, requirements..."
+              className="rounded-xl"
+            />
+          </section>
+          {/* Job Requirements */}
+          <section>
+            <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
+              Job Requirements
+            </label>
+            <ReactQuill
+              theme="snow"
+              modules={quillModules}
+              value={form.requirements}
+              onChange={handleRichTextChange("requirements")}
+              placeholder="Share must-have skills, qualifications..."
+              className="rounded-xl"
+            />
+          </section>
+          {/* Job Desirable */}
+          <section>
+            <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+              Job Desirable
+            </label>
+            <ReactQuill
+              theme="snow"
+              modules={quillModules}
+              value={form.desirable}
+              onChange={handleRichTextChange("desirable")}
+              placeholder="Share bonus points, nice-to-have experience..."
+              className="rounded-xl"
+            />
+          </section>
+          {/* Job Benefits */}
+          <section>
+            <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+              Job Benefits
+            </label>
+            <ReactQuill
+              theme="snow"
+              modules={quillModules}
+              value={form.benefits}
+              onChange={handleRichTextChange("benefits")}
+              placeholder="Share benefits, perks, and incentives..."
+              className="rounded-xl"
+            />
+          </section>
         </div>
 
-        <div className="mt-8 flex justify-end">
+        <div className="mt-8 flex justify-center">
           <button
             type="submit"
-            className="inline-flex items-center gap-2 rounded-xl bg-[var(--color-primary-500)] px-6 py-3 text-sm font-semibold text-white shadow-[var(--shadow-md)] transition hover:bg-[var(--color-primary-600)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-300)]"
+            className="inline-flex items-center gap-2 rounded-xl bg-[var(--color-primary-500)] px-6 py-3 text-sm font-semibold !text-white shadow-[var(--shadow-md)] transition hover:bg-[var(--color-primary-600)] focus:ring-2 focus:ring-[var(--color-primary-300)] focus:outline-none"
           >
             Post Job
-            <span className="text-lg">→</span>
           </button>
         </div>
       </form>

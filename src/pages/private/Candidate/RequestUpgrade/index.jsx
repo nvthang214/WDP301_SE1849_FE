@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Card, 
-  Form, 
-  Input, 
-  Button, 
-  Upload, 
-  message, 
-  Spin, 
+import {
+  Card,
+  Form,
+  Input,
+  Button,
+  Upload,
+  message,
+  Spin,
   Alert,
   Row,
   Col,
@@ -14,9 +14,9 @@ import {
   Tag,
   Descriptions
 } from 'antd';
-import { 
-  UploadOutlined, 
-  FileTextOutlined, 
+import {
+  UploadOutlined,
+  FileTextOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
   CloseCircleOutlined
@@ -40,7 +40,7 @@ const CandidateRequestUpgrade = () => {
   // Compress image URL to shorter base64
   const compressImageUrl = (url) => {
     if (!url || url.startsWith('data:')) return url;
-    
+
     // For external URLs, we'll just return them as-is
     // In production, you might want to proxy through your backend
     return url;
@@ -78,18 +78,18 @@ const CandidateRequestUpgrade = () => {
   const beforeUpload = (file) => {
     const isPDF = file.type === 'application/pdf';
     const isImage = file.type.startsWith('image/');
-    
+
     if (!isPDF && !isImage) {
       message.error('Chỉ chấp nhận file PDF hoặc hình ảnh!');
       return false;
     }
-    
+
     const isLt10M = file.size / 1024 / 1024 < 10;
     if (!isLt10M) {
       message.error('File phải nhỏ hơn 10MB!');
       return false;
     }
-    
+
     return false; // Prevent auto upload
   };
 
@@ -101,9 +101,9 @@ const CandidateRequestUpgrade = () => {
 
     try {
       setLoading(true);
-      
+
       const formData = new FormData();
-      
+
       // Add company info with simple field names (backend expects these)
       formData.append('companyName', values.companyName);
       formData.append('companyDescription', values.companyDescription || '');
@@ -116,12 +116,12 @@ const CandidateRequestUpgrade = () => {
       formData.append('companyEmail', values.companyEmail || '');
       formData.append('companyPhone', values.companyPhone || '');
       formData.append('companyWebsite', values.companyWebsite || '');
-      
+
       // Add business license file
       formData.append('businessLicense', fileList[0].originFileObj);
-      
+
       await UpgradeRequestService.createUpgradeRequest(formData);
-      
+
       message.success({
         content: 'Đơn yêu cầu nâng cấp đã được gửi thành công! Admin sẽ xem xét và phản hồi trong thời gian sớm nhất.',
         duration: 5,
@@ -131,7 +131,7 @@ const CandidateRequestUpgrade = () => {
       setLogoPreview('');
       setBannerPreview('');
       checkExistingRequest();
-      
+
     } catch (error) {
       console.error('Error submitting request:', error);
       const errorMsg = error?.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại.';
@@ -147,7 +147,7 @@ const CandidateRequestUpgrade = () => {
       approved: { color: 'green', icon: <CheckCircleOutlined />, text: 'Đã duyệt' },
       rejected: { color: 'red', icon: <CloseCircleOutlined />, text: 'Bị từ chối' },
     };
-    
+
     const config = statusConfig[status] || statusConfig.pending;
     return (
       <Tag color={config.color} icon={config.icon}>
@@ -235,7 +235,7 @@ const CandidateRequestUpgrade = () => {
           className="max-w-4xl mx-auto"
         >
           <Divider orientation="left">Thông tin công ty</Divider>
-          
+
           <Row gutter={16}>
             <Col xs={24} md={12}>
               <Form.Item
@@ -260,27 +260,27 @@ const CandidateRequestUpgrade = () => {
             name="companyDescription"
             label="Mô tả công ty"
           >
-            <TextArea 
-              rows={4} 
+            <TextArea
+              rows={4}
               placeholder="Mô tả về công ty, lĩnh vực hoạt động..."
             />
           </Form.Item>
 
-          <Row gutter={16}>
+          {/* <Row gutter={16}>
             <Col xs={24} md={12}>
               <Form.Item
                 name="companyLogo"
                 label="Logo công ty"
               >
-                <Input 
-                  placeholder="URL logo công ty" 
+                <Input
+                  placeholder="URL logo công ty"
                   onChange={handleLogoUrlChange}
                 />
                 {logoPreview && (
                   <div className="mt-2">
-                    <img 
-                      src={logoPreview} 
-                      alt="Logo preview" 
+                    <img
+                      src={logoPreview}
+                      alt="Logo preview"
                       className="w-16 h-16 object-cover rounded border"
                       onError={() => setLogoPreview('')}
                     />
@@ -293,15 +293,15 @@ const CandidateRequestUpgrade = () => {
                 name="companyBanner"
                 label="Banner công ty"
               >
-                <Input 
-                  placeholder="URL banner công ty" 
+                <Input
+                  placeholder="URL banner công ty"
                   onChange={handleBannerUrlChange}
                 />
                 {bannerPreview && (
                   <div className="mt-2">
-                    <img 
-                      src={bannerPreview} 
-                      alt="Banner preview" 
+                    <img
+                      src={bannerPreview}
+                      alt="Banner preview"
                       className="w-full h-20 object-cover rounded border"
                       onError={() => setBannerPreview('')}
                     />
@@ -309,7 +309,7 @@ const CandidateRequestUpgrade = () => {
                 )}
               </Form.Item>
             </Col>
-          </Row>
+          </Row> */}
 
           <Row gutter={16}>
             <Col xs={24} md={12}>
@@ -353,8 +353,8 @@ const CandidateRequestUpgrade = () => {
             name="companyBenefits"
             label="Phúc lợi"
           >
-            <TextArea 
-              rows={3} 
+            <TextArea
+              rows={3}
               placeholder="Mô tả các phúc lợi mà công ty cung cấp..."
             />
           </Form.Item>
@@ -363,8 +363,8 @@ const CandidateRequestUpgrade = () => {
             name="companyVision"
             label="Tầm nhìn"
           >
-            <TextArea 
-              rows={3} 
+            <TextArea
+              rows={3}
               placeholder="Tầm nhìn và sứ mệnh của công ty..."
             />
           </Form.Item>
@@ -392,9 +392,9 @@ const CandidateRequestUpgrade = () => {
           </Form.Item>
 
           <Form.Item className="text-center">
-            <Button 
-              type="primary" 
-              htmlType="submit" 
+            <Button
+              type="primary"
+              htmlType="submit"
               size="large"
               loading={loading}
               icon={<FileTextOutlined />}

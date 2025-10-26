@@ -25,6 +25,8 @@ import { Link } from "react-router-dom";
 import ROUTER from "../../../router/ROUTER";
 import HeroSection from "./components/HeroSection";
 import JobCard from "../../../components/Card/JobCard";
+import { CandidateService } from "../../../services/CandidateService";
+import { notifyError } from "../../../components/Notification";
 import CompanyCard from "../../../components/Card/CompanyCard";
 import { CompanyService } from "../../../services/CompanyService";
 
@@ -82,56 +84,48 @@ const popularCategories = [
   { label: "Data & Science", openings: 57, featured: true, icon: <Database /> },
 ];
 
-const featuredJobs = [
-  {
-    title: "Technical Support Specialist",
-    type: "Full Time",
-    salary: "$20,000 - $25,000",
-    company: "Google Inc.",
-    location: "Dhaka, Bangladesh",
-    tags: ["Google", "Support"],
-  },
-  {
-    title: "Senior UX Designer",
-    type: "Full Time",
-    salary: "$20,000 - $25,000",
-    company: "Google Inc.",
-    location: "Dhaka, Bangladesh",
-    tags: ["Design", "Remote"],
-  },
-  {
-    title: "Marketing Officer",
-    type: "Internship",
-    salary: "$20,000 - $25,000",
-    company: "Google Inc.",
-    location: "Dhaka, Bangladesh",
-    tags: ["Marketing", "Hybrid"],
-  },
-  {
-    title: "Junior Graphic Designer",
-    type: "Part Time",
-    salary: "$20,000 - $25,000",
-    company: "Google Inc.",
-    location: "Dhaka, Bangladesh",
-    tags: ["Design", "Junior"],
-  },
-  {
-    title: "Interaction Designer",
-    type: "Full Time",
-    salary: "$20,000 - $25,000",
-    company: "Google Inc.",
-    location: "Dhaka, Bangladesh",
-    tags: ["UX", "Product"],
-  },
-  {
-    title: "Project Manager",
-    type: "Full Time",
-    salary: "$20,000 - $25,000",
-    company: "Google Inc.",
-    location: "Dhaka, Bangladesh",
-    tags: ["Management", "Leadership"],
-  },
-];
+const formatJobType = (type) => {
+  if (!type) return "N/A";
+  return type.toString().replace(/[_-]/g, " ").toUpperCase();
+};
+
+const formatSalaryRange = (job) => {
+  if (!job) return "Negotiable";
+
+  const formatValue = (value) => {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return null;
+    return `$${numeric.toLocaleString()}`;
+  };
+
+  const { minSalary, maxSalary, salaryType } = job;
+  const suffix = salaryType ? `/${salaryType.toString().toLowerCase()}` : "";
+
+  const minLabel = formatValue(minSalary);
+  const maxLabel = formatValue(maxSalary);
+
+  if (minLabel && maxLabel) return `${minLabel} - ${maxLabel}${suffix}`;
+  if (minLabel) return `${minLabel}+${suffix}`;
+  if (maxLabel) return `Up to ${maxLabel}${suffix}`;
+
+  return "Negotiable";
+};
+
+const formatLocation = (job) => {
+  if (!job) return "Địa điểm đang cập nhật";
+  if (job.location) return job.location;
+
+  const parts = [job.city, job.country]
+    .map((part) => (typeof part === "string" ? part.trim() : ""))
+    .filter(Boolean);
+
+  if (parts.length) return parts.join(", ");
+
+  return job.remote ? "Remote" : "Địa điểm đang cập nhật";
+};
+
+
+
 
 const topCompanies = [
   {
@@ -209,32 +203,42 @@ const dualCtas = [
 ];
 
 const Home = () => {
-  const [companies, setCompanies] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [featuredJobs, setFeaturedJobs] = useState([]);
+  const [isLoadingFeaturedJobs, setIsLoadingFeaturedJobs] = useState(false);
 
   useEffect(() => {
-    const fetchCompanies = async () => {
+    let ignore = false;
+
+    const fetchFeaturedJobs = async () => {
+      setIsLoadingFeaturedJobs(true);
+
       try {
-        setLoading(true);
-        const response = await CompanyService.getAllCompanies({ limit: 6 });
-        console.log('API Response:', response); // Debug log
-        
-        // Handle the response structure: response.data.data.companies
-        const companiesData = response.data?.data?.companies || response.data?.companies || [];
-        setCompanies(companiesData);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching companies:', err);
-        setError('Failed to load companies');
-        // Fallback to static data if API fails
-        setCompanies(topCompanies);
+        const response = await CandidateService.getTopAppliedJobs();
+
+        if (ignore) return;
+
+        if (response?.isError) {
+          throw new Error(response?.msg || "Không thể tải danh sách công việc nổi bật.");
+        }
+
+        const data = Array.isArray(response?.data) ? response.data : [];
+        setFeaturedJobs(data);
+      } catch (error) {
+        if (ignore) return;
+
+        console.error(error);
+        notifyError(error?.message || "Không thể tải danh sách công việc nổi bật.");
+        setFeaturedJobs([]);
       } finally {
-        setLoading(false);
+        if (!ignore) setIsLoadingFeaturedJobs(false);
       }
     };
 
-    fetchCompanies();
+    fetchFeaturedJobs();
+
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   return (
@@ -343,9 +347,38 @@ const Home = () => {
           </header>
 
           <div className="mt-12 grid gap-6 lg:grid-cols-3">
-            {featuredJobs.map((item) => (
-              <JobCard {...item} key={item.title} />
-            ))}
+            {isLoadingFeaturedJobs ? (
+              <div className="lg:col-span-3 text-center text-sm text-neutral-500">
+                Đang tải công việc nổi bật...
+              </div>
+            ) : featuredJobs.length ? (
+              featuredJobs.map((job, index) => {
+                const rawJobId = job?.jobId || job?._id || job?.id || null;
+                const key = rawJobId || `${job?.title || "featured-job"}-${index}`;
+                const companyName = job?.company?.name || "Đang cập nhật";
+                const companyLogo = job?.company?.logo || undefined;
+                const jobDetailPath = rawJobId
+                  ? ROUTER.JOB_DETAIL.replace(":id", encodeURIComponent(rawJobId))
+                  : ROUTER.JOB_LIST;
+
+                return (
+                  <Link to={jobDetailPath} key={key} className="block h-full">
+                    <JobCard
+                      title={job?.title || "Đang cập nhật"}
+                      type={formatJobType(job?.jobType)}
+                      salary={formatSalaryRange(job)}
+                      company={companyName}
+                      location={formatLocation(job)}
+                      logo={companyLogo}
+                    />
+                  </Link>
+                );
+              })
+            ) : (
+              <div className="lg:col-span-3 text-center text-sm text-neutral-500">
+                Chưa có công việc nổi bật.
+              </div>
+            )}
           </div>
         </div>
       </section>

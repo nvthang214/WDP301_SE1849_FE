@@ -41,6 +41,7 @@ export default function CompanyList() {
   const [loading, setLoading] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
+  const [locationSearch, setLocationSearch] = useState("");
   const [showFilter, setShowFilter] = useState(false);
   const [page, setPage] = useState(1);
   const [limit] = useState(15);
@@ -76,7 +77,14 @@ export default function CompanyList() {
         }
       });
 
-      const res = await CompanyService.getCompanies(params);
+      let res;
+      // Sử dụng API getCompaniesByLocation nếu có location search
+      if (filters.location) {
+        res = await CompanyService.getCompaniesByLocation(params);
+      } else {
+        res = await CompanyService.getCompanies(params);
+      }
+      
       setCompanies(res.data.companies || []);
       setPagination(
         res.data.pagination || {
@@ -105,6 +113,18 @@ export default function CompanyList() {
     e.preventDefault();
     setPage(1);
     setSearch(searchInput.trim());
+    // Cập nhật filters để bao gồm location search
+    if (locationSearch.trim()) {
+      setFilters(prev => ({
+        ...prev,
+        location: locationSearch.trim()
+      }));
+    } else {
+      setFilters(prev => ({
+        ...prev,
+        location: ""
+      }));
+    }
   };
 
   // Handle page change
@@ -132,39 +152,28 @@ export default function CompanyList() {
             />
           </div>
 
-          <button
-            type="button"
-            className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 rounded px-3 py-2 ml-2"
-            onClick={() => setShowFilter(true)}
-          >
-            <svg width="20" height="20" fill="none" stroke="currentColor" className="text-gray-600">
-              <path d="M3 6h14M5 12h10M7 18h6" strokeWidth="2" />
+          <div className="flex items-center bg-gray-50 rounded px-3 py-2 ml-2 min-w-[200px]">
+            <svg width="16" height="16" fill="none" stroke="currentColor" className="text-gray-400 mr-2">
+              <path d="M12 2l3 3-3 3M3 14l3-3-3-3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M12 12v3a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h5a2 2 0 012 2v1" strokeWidth="2"/>
             </svg>
-            Filters
-          </button>
+            <input
+              className="flex-1 outline-none bg-transparent text-sm"
+              placeholder="City, state or zip code"
+              value={locationSearch}
+              onChange={(e) => setLocationSearch(e.target.value)}
+            />
+          </div>
           <button
             type="submit"
             className="ml-2 inline-flex items-center gap-2 rounded-[var(--radius-lg)] bg-[var(--color-primary-500)] px-5 py-2 font-semibold text-white shadow-[var(--shadow-md)] transition hover:bg-[var(--color-primary-600)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-300)]"
           >
-            Find Company
+            Find Job
           </button>
         </div>
       </form>
 
-      {/* Sidebar Filter */}
-      <FilterSidebar
-        open={showFilter}
-        onClose={() => setShowFilter(false)}
-        filters={draftFilters}
-        setFilters={setDraftFilters}
-        onApply={() => {
-          setShowFilter(false);
-          setPage(1);
-          setFilters({ ...draftFilters });
-        }}
-        companyTypes={companyTypes}
-        companySizes={companySizes}
-      />
+
 
       {/* Company Cards Grid */}
       {loading ? (
@@ -176,7 +185,7 @@ export default function CompanyList() {
                 <CompanyCard
                   key={company._id || idx}
                   name={company.name}
-                  location={company.location}
+                  location={company.address}
                   openings={company.openPositions || 0}
                   logo={company.logo}
                 />

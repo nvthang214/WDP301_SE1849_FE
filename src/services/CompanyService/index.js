@@ -1,5 +1,5 @@
 import api from "../00-Axios";
-import { getAll, getById, create, update, deleteCompany, getByRecruiter } from "./urls";
+import { getAll, getByLocation, getById, create, update, deleteCompany, getByRecruiter } from "./urls";
 
 export const CompanyService = {
   getCompanies: async (params = {}) => {
@@ -28,6 +28,10 @@ export const CompanyService = {
   },
   getAllCompanies: async (params = {}) => {
     const response = await api.get(getAll, { params });
+    return response;
+  },
+  getCompaniesByLocation: async (params = {}) => {
+    const response = await api.get(getByLocation, { params });
     return response;
   },
 };

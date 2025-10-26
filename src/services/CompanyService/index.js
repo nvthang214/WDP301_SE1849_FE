@@ -1,11 +1,10 @@
 import api from "../00-Axios";
-import { getAll, getById, create, update, deleteCompany, getByRecruiter } from "./urls";
-
+import { getAll, getByLocation, getById, create, update, deleteCompany, getByRecruiter } from "./urls";
 
 export const CompanyService = {
   getCompanies: async (params = {}) => {
     const response = await api.get(getAll, { params });
-    return response; 
+    return response;
   },
   getCompanyById: async (id) => {
     const response = await api.get(getById(id));
@@ -27,4 +26,14 @@ export const CompanyService = {
     const response = await api.delete(deleteCompany(id));
     return response;
   },
+  getAllCompanies: async (params = {}) => {
+    const response = await api.get(getAll, { params });
+    return response;
+  },
+  getCompaniesByLocation: async (params = {}) => {
+    const response = await api.get(getByLocation, { params });
+    return response;
+  },
 };
+
+export default CompanyService;

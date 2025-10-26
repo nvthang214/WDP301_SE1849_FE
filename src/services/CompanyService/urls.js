@@ -1,4 +1,5 @@
 export const getAll = "/companies";
+export const getByLocation = "/companies/location";
 export const getById = (id) => `/companies/${id}`;
 export const create = "/companies/create";
 export const update = (id) => `/companies/edit/${id}`;

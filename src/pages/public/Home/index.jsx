@@ -20,12 +20,13 @@ import {
   Users2,
   Video,
 } from "lucide-react";
-import { createElement } from "react";
+import { createElement, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import ROUTER from "../../../router/ROUTER";
 import HeroSection from "./components/HeroSection";
 import JobCard from "../../../components/Card/JobCard";
 import CompanyCard from "../../../components/Card/CompanyCard";
+import { CompanyService } from "../../../services/CompanyService";
 
 const vacancyList = [
   { title: "Anesthesiologists", openings: "45,004" },
@@ -208,6 +209,34 @@ const dualCtas = [
 ];
 
 const Home = () => {
+  const [companies, setCompanies] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        setLoading(true);
+        const response = await CompanyService.getAllCompanies({ limit: 6 });
+        console.log('API Response:', response); // Debug log
+        
+        // Handle the response structure: response.data.data.companies
+        const companiesData = response.data?.data?.companies || response.data?.companies || [];
+        setCompanies(companiesData);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching companies:', err);
+        setError('Failed to load companies');
+        // Fallback to static data if API fails
+        setCompanies(topCompanies);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCompanies();
+  }, []);
+
   return (
     <div className="space-y-20">
       <HeroSection />
@@ -329,9 +358,39 @@ const Home = () => {
         </header>
 
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {topCompanies.map((item, index) => (
-            <CompanyCard key={`${item.name}-${index}`} {...item} />
-          ))}
+          {loading ? (
+            // Loading skeleton
+            Array.from({ length: 6 }).map((_, index) => (
+              <div key={index} className="animate-pulse">
+                <div className="rounded-lg border border-neutral-200 bg-white p-6 shadow-sm">
+                  <div className="flex items-center space-x-4">
+                    <div className="h-12 w-12 rounded-full bg-neutral-200"></div>
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 w-3/4 rounded bg-neutral-200"></div>
+                      <div className="h-3 w-1/2 rounded bg-neutral-200"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : error ? (
+            // Error state
+            <div className="col-span-full text-center py-8">
+              <p className="text-neutral-500">{error}</p>
+            </div>
+          ) : (
+            // Render companies data
+            companies.map((item, index) => (
+              <CompanyCard 
+                key={item._id || item.id || `${item.name}-${index}`} 
+                name={item.name || item.companyName}
+                location={item.location || item.address}
+                openings={item.openings || item.jobCount || 0}
+                logo={item.logo || item.companyLogo}
+                {...item} 
+              />
+            ))
+          )}
         </div>
       </section>
 

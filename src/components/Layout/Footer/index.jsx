@@ -12,8 +12,8 @@ const productLinks = [
 ];
 
 const candidateLinks = [
-  { label: "Browse Jobs", path: ROUTER.JOBS },
-  { label: "Browse Employers", path: "#" },
+  { label: "Browse Jobs", path: ROUTER.JOB_LIST },
+  { label: "Browse Employers", path: ROUTER.COMPANY_LIST },
   { label: "Candidate Dashboard", path: "#" },
   { label: "Saved Jobs", path: "#" },
 ];

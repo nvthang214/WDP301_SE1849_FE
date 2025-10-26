@@ -12,6 +12,7 @@ import useAuthStore from "../../../store/useAuthStore.js";
 const navItems = [
   { label: ROUTE_META[ROUTER.HOME].breadcrumb, path: ROUTER.HOME },
   { label: ROUTE_META[ROUTER.JOB_LIST].breadcrumb, path: ROUTER.JOB_LIST },
+  { label: ROUTE_META[ROUTER.COMPANY_LIST].breadcrumb, path: ROUTER.COMPANY_LIST },
 ];
 
 const HeaderMain = ({ className }) => {

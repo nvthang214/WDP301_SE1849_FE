@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { JobService } from "../../../../services/JobService";
 import { CategoryService } from "../../../../services/CategoryService";
 import { useResponsive } from "../../../../hook/useResponsive";
@@ -28,6 +28,9 @@ const initialFilters = {
 
 // Main Job List Component
 export default function JobList() {
+  const [searchParams] = useSearchParams();
+  const urlSearch = searchParams.get("search") || "";
+  
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -57,10 +60,18 @@ export default function JobList() {
   }, []);
 
   // Search & filter states
-  const [search, setSearch] = useState("");
-  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState(urlSearch);
+  const [searchInput, setSearchInput] = useState(urlSearch);
   const [filters, setFilters] = useState(() => ({ ...initialFilters }));
   const [draftFilters, setDraftFilters] = useState(() => ({ ...initialFilters }));
+
+  // Sync URL search param with state when component mounts
+  useEffect(() => {
+    if (urlSearch) {
+      setSearch(urlSearch);
+      setSearchInput(urlSearch);
+    }
+  }, [urlSearch]);
 
   // Sidebar state
   const [showFilter, setShowFilter] = useState(false);

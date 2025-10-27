@@ -270,7 +270,7 @@ export default function JobList() {
                 title={job.title}
                 type={job.jobType}
                 salary={`$${job.minSalary.toLocaleString()} - $${job.maxSalary.toLocaleString()}`}
-                company={job.company.name}
+                company={job.company?.name}
                 location={job.city}
                 logo={job.company?.logo}
                 isFavorite={job.isFavorite}

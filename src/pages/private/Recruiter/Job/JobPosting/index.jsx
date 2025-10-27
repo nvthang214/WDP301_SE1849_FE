@@ -406,27 +406,41 @@ export default function JobPosting() {
           <section>
             <div className="space-y-4">
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <div>
-                  <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
-                    Country
-                  </label>
-                  <input
-                    className="w-full rounded-xl border border-[var(--color-neutral-200)] p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-100)] focus:outline-none"
-                    name="country"
-                    placeholder="Country"
-                    value={form.country}
-                    onChange={handleChange}
-                  />
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
+                      Country
+                    </label>
+                    <input
+                      className="w-full rounded-xl border border-[var(--color-neutral-200)] p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-100)] focus:outline-none"
+                      name="country"
+                      placeholder="Country"
+                      value={form.country}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
+                      City
+                    </label>
+                    <input
+                      className="w-full rounded-xl border border-[var(--color-neutral-200)] p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-100)] focus:outline-none"
+                      name="city"
+                      placeholder="City"
+                      value={form.city}
+                      onChange={handleChange}
+                    />
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
-                    City
+                    Location (Not contain city and country name)
                   </label>
                   <input
                     className="w-full rounded-xl border border-[var(--color-neutral-200)] p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-100)] focus:outline-none"
-                    name="city"
-                    placeholder="City"
-                    value={form.city}
+                    name="location"
+                    placeholder="Location"
+                    value={form.location}
                     onChange={handleChange}
                   />
                 </div>

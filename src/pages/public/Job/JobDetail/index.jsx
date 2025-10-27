@@ -338,7 +338,7 @@ export default function JobDetails() {
           {/* Salary & Location */}
           <div className="flex flex-col gap-4 sm:flex-row">
             <div className="flex flex-1 flex-col gap-2 rounded-xl bg-white p-5 shadow-sm">
-              <div className="flex items-center gap-1 text-xs text-gray-400">
+              <div className="flex items-center gap-1 text-gray-400">
                 <DollarSign size={16} className="text-green-600" />
                 Salary (USD)
               </div>
@@ -352,13 +352,13 @@ export default function JobDetails() {
               </div>
             </div>
             <div className="flex flex-1 flex-col gap-2 rounded-xl bg-white p-5 shadow-sm">
-              <div className="flex items-center gap-1 text-xs text-gray-400">
+              <div className="flex items-center gap-1 text-gray-400">
                 <MapPin size={16} className="text-blue-600" />
                 Job Location
               </div>
               <div className="flex items-center gap-1 font-medium text-gray-700">
                 {job.city && job.country
-                  ? `${job.city}, ${job.country}`
+                  ? `${job.location}, ${job.city}, ${job.country}`
                   : job.city || job.country || "N/A"}
                 {job.remote && (
                   <span className="ml-2 text-xs font-semibold text-green-600">(Remote)</span>

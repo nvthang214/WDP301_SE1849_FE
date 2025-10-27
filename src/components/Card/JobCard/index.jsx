@@ -25,7 +25,7 @@ const JobCard = ({
           <JobToggleFavorite isFavorite={isFavorite} jobId={jobId} />
         </div>
 
-        <div className="mt-1 flex items-center gap-3 text-sm">
+        <div className="flex items-center gap-3 text-sm">
           <Tag color="green" className="m-0 rounded px-2 py-0.5 text-xs font-medium">
             {type}
           </Tag>
@@ -36,9 +36,9 @@ const JobCard = ({
       </div>
 
       {/* Company + location */}
-      <Link to={`/jobs/${jobId}`} className="mt-4 flex items-center gap-3">
-        <div className="mt-4 flex items-center gap-3">
-          <img src={logo} alt={company} className="h-10 w-10 rounded object-contain" />
+      <Link to={`/jobs/${jobId}`} className="mt-2 flex items-center gap-3">
+        <div className="flex items-center gap-3">
+          <img src={logo} alt={company} className="h-15 w-15 rounded object-cover" />
           <div>
             <p className="font-medium text-gray-800">{company}</p>
             <p className="flex items-center gap-1 text-sm text-gray-500">

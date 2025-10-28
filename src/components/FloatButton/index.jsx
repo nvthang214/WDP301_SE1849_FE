@@ -11,7 +11,7 @@ const FloatButtonContainer = () => {
           bottom: 12,
         }}
       />
-      {user && <AIFloatButton />}
+      {user && user.role?.name === "candidate" && <AIFloatButton />}
     </>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { CandidateService } from "../../../services/CandidateService";
 import { notifyError } from "../../../components/Notification";
@@ -46,6 +46,26 @@ const presetTagColors = [
   "geekblue",
   "purple",
 ];
+
+const sanitizeRichText = (value = "") =>
+  value
+    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "")
+    .replace(/on\w+="[^"]*"/gi, "")
+    .replace(/on\w+='[^']*'/gi, "")
+    .replace(/javascript:/gi, "");
+
+const extractTextLines = (value = "") => {
+  if (!value) return [];
+  const normalized = sanitizeRichText(value)
+    .replace(/<br\s*\/?>(\s)*/gi, "\n")
+    .replace(/<\/(p|div|li|ul|ol)>/gi, "\n")
+    .replace(/<[^>]+>/g, "");
+
+  return normalized
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+};
 
 // Apply Modal Component
 function ApplyModal({ open, onClose, jobTitle }) {
@@ -134,6 +154,11 @@ export default function JobDetails() {
   const [job, setJob] = useState(null);
   const [showApply, setShowApply] = useState(false);
 
+  const requirementItems = useMemo(() => extractTextLines(job?.requirements), [job?.requirements]);
+  const desirableItems = useMemo(() => extractTextLines(job?.desirable), [job?.desirable]);
+  const benefitItems = useMemo(() => extractTextLines(job?.benefits), [job?.benefits]);
+  const sanitizedDescription = useMemo(() => sanitizeRichText(job?.description || ""), [job?.description]);
+
   useEffect(() => {
     async function fetchJob() {
       try {
@@ -209,40 +234,45 @@ export default function JobDetails() {
               <ListChevronsUpDown size={20} className="text-green-600" />
               Job Description
             </h2>
-            <div className="text-gray-700 whitespace-pre-line break-all">{job.description}</div>
-            {job.requirements && (
+            <div
+              className="prose prose-sm max-w-none text-gray-700"
+              dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
+            />
+            {!!requirementItems.length && (
               <>
                 <h2 className="font-semibold text-lg mt-6 mb-2 flex items-center gap-2">
                   <FileUp size={20} className="text-green-600" />
                   Requirements
                 </h2>
                 <ul className="list-disc list-inside text-gray-700 space-y-1 break-all">
-                  {job.requirements.split("\n").map((line, idx) => (
+                  {requirementItems.map((line, idx) => (
                     <li key={idx}>{line}</li>
                   ))}
                 </ul>
               </>
             )}
-            {job.desirable && (
+            {!!desirableItems.length && (
               <>
                 <h2 className="font-semibold text-lg mt-6 mb-2 flex items-center gap-2">
                   <HandCoins size={20} className="text-green-600" />
                   Desirable
                 </h2>
                 <ul className="list-disc list-inside text-gray-700 space-y-1 break-all">
-                  {job.desirable.split("\n").map((line, idx) => (
+                  {desirableItems.map((line, idx) => (
                     <li key={idx}>{line}</li>
                   ))}
                 </ul>
               </>
             )}
-            {job.benefits && (
+            {!!benefitItems.length && (
               <>
                 <h2 className="font-semibold text-lg mt-6 mb-2 flex items-center gap-2">
                   <Gift size={20} className="text-green-600" /> Benefits
                 </h2>
                 <ul className="list-disc list-inside text-gray-700 space-y-1 break-all">
-                  {job.benefits}
+                  {benefitItems.map((line, idx) => (
+                    <li key={idx}>{line}</li>
+                  ))}
                 </ul>
               </>
             )}

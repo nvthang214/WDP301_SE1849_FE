@@ -6,8 +6,7 @@ import {
   ShareAltOutlined,
   UserOutlined
 } from '@ant-design/icons';
-import CompanyInfo from './CompanyInfo';
-import SocialMediaProfile from './SocialMediaProfile';
+
 import AccountSetting from './AccountSetting';
 
 const { Title } = Typography;

@@ -6,7 +6,7 @@ import useAuthStore from "../../../store/useAuthStore";
 import { CandidateService } from "../../../services/CandidateService";
 import { notifyError } from "../../../components/Notification";
 import { EnvironmentOutlined } from "@ant-design/icons";
-import { Briefcase, Bookmark, Bell,ArrowRight } from "lucide-react";
+import { BriefcaseBusiness, Bookmark, Bell,ArrowRight } from "lucide-react";
 import ROUTER from "../../../router/ROUTER";
 
 
@@ -232,7 +232,7 @@ const CandidateOverview = () => {
                 <p className="text-sm text-neutral-500">Applied jobs</p>
               </div>
               <div className="p-2 bg-white rounded-lg shadow-sm">
-                <Briefcase className="w-6 h-6 text-blue-600" />
+                <BriefcaseBusiness className="w-6 h-6 text-blue-600" />
               </div>
             </div>
 

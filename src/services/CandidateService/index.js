@@ -10,6 +10,7 @@ import {
 	getInfoCandidate,
 	updateInfoCandidate,
 	applyJob,
+	getJobById,
 	getCandidateAppliedJobs
 } from "./urls";
 
@@ -28,5 +29,6 @@ export const CandidateService = {
 
 	getCandidateAppliedJobs: async (userId) => await api.get(getCandidateAppliedJobs(userId)),
 	applyJob: async (userId, payload) => await api.post(applyJob(userId), payload),
+	getJobById: async (id) => await api.get(getJobById(id)),
 
 };

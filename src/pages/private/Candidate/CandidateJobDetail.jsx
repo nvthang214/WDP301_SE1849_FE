@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { JobService } from "../../../services/JobService";
+import { CandidateService } from "../../../services/CandidateService";
+import { notifyError } from "../../../components/Notification";
 import { Tag } from "antd";
 import {
-  Bookmark,
   DollarSign,
   MapPin,
   Gift,
@@ -137,9 +137,17 @@ export default function JobDetails() {
   useEffect(() => {
     async function fetchJob() {
       try {
-        const res = await JobService.getJobById(id);
-        setJob(res.data);
-      } catch {
+        const res = await CandidateService.getJobById(id);
+
+        if (res?.isError) {
+          throw new Error(res?.msg || "Không thể tải thông tin công việc.");
+        }
+
+        const data = res?.data || res;
+        setJob(data || null);
+      } catch (error) {
+        console.error(error);
+        notifyError(error?.message || "Không thể tải thông tin công việc.");
         setJob(null);
       }
     }

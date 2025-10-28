@@ -14,3 +14,5 @@ export const applyJob = (userId) => `/candidates/applied-jobs/${userId}`;
 export const getInfoCandidate = (userId) => `/candidates/info/${userId}`;
 export const updateInfoCandidate = (userId) => `/candidates/info/${userId}`;
 
+export const getJobById = (id) => `/candidates/jobs/${id}`;
+

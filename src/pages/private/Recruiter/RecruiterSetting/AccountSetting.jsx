@@ -36,7 +36,7 @@ const AccountSetting = () => {
   const [changingPassword, setChangingPassword] = useState(false);
   
   // Sử dụng auth store
-  const { user: userData, loading, fetchMe } = useAuthStore();
+  const { user: userData, loading, fetchMe, logout } = useAuthStore();
 
   useEffect(() => {
     if (!userData) {
@@ -121,8 +121,8 @@ const AccountSetting = () => {
           const response = await UserService.deleteUser(userData._id);
           if (response.isOk) {
             notifySuccess('Tài khoản đã được xóa thành công!');
-            // Redirect to login page
-            localStorage.clear();
+            // Clear auth state and redirect to login page
+            await logout();
             window.location.href = '/login';
           } else {
             notifyError(response.msg || 'Tài khoản không thể được xóa!');

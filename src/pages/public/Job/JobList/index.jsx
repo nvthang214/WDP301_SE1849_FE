@@ -269,8 +269,8 @@ export default function JobList() {
                 jobId={job._id}
                 title={job.title}
                 type={job.jobType}
-                salary={`$${job.minSalary.toLocaleString()} - $${job.maxSalary.toLocaleString()}`}
-                company={job.company.name}
+                salary={job.minSalary && job.maxSalary ? `$${job.minSalary.toLocaleString()} - $${job.maxSalary.toLocaleString()}` : 'Negotiable'}
+                company={job.company?.name}
                 location={job.city}
                 logo={job.company?.logo}
                 isFavorite={job.isFavorite}

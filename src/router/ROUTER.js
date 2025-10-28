@@ -49,6 +49,7 @@ const ROUTER = {
   CANDIDATE_SOCIAL: `${candidate}/social`,
   CANDIDATE_ACCOUNT: `${candidate}/account`,
   CANDIDATE_APPLY_JOB: `${candidate}/applied-jobs`,
+  CANDIDATE_FAVORITE_JOBS: `${candidate}/favorite-jobs`,
   CANDIDATE_JOB_DETAIL: `${candidate}/detail/:id`,
   CANDIDATE_REQUEST_UPGRADE: `${candidate}/request-upgrade`,
   // Recruiter routes

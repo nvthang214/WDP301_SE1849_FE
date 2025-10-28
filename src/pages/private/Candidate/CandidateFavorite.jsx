@@ -56,7 +56,30 @@ const getVisibleTags = (job) => {
 
 const formatFavoritedAt = (value) => {
   if (!value) return "--";
-  return dayjs(value).format("MMM D, YYYY");
+  return dayjs(value).format("MMM D, YYYY HH:mm");
+};
+
+const getApplicationStatusLabel = (application) => {
+  const rawStatus = application?.status || application?.state || "Pending";
+  return toTitleCase(rawStatus);
+};
+
+const getJobStatusClass = (statusLabel) => {
+  const normalized = statusLabel?.toLowerCase?.() || "";
+
+  if (["pending", "processing"].includes(normalized)) {
+    return "rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-600";
+  }
+
+  if (["accepted", "approved", "active", "open", "hired"].includes(normalized)) {
+    return "rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-600";
+  }
+
+  if (["rejected", "closed", "cancelled", "expired"].includes(normalized)) {
+    return "rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-600";
+  }
+
+  return "rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs font-semibold text-neutral-600";
 };
 
 const CandidateFavorite = () => {
@@ -118,7 +141,7 @@ const CandidateFavorite = () => {
   };
 
   const navigateToJobDetail = (jobId) => {
-    navigate(ROUTER.CANDIDATE_JOB_DETAIL.replace(":id", jobId));
+    navigate(ROUTER.JOB_DETAIL.replace(":id", jobId));
   };
 
   const renderSkeleton = () => (
@@ -153,83 +176,109 @@ const CandidateFavorite = () => {
     }
 
     return (
-      <div className="grid gap-4 px-1 sm:grid-cols-2 xl:grid-cols-3">
-        {visibleFavorites.map(({ favoriteId, job, favoritedAt }) => {
-          const favoriteKey = favoriteId || job._id;
-          const salaryLabel = formatSalaryRange(job);
-          const locationLabel = formatLocation(job);
-          const visibleTags = getVisibleTags(job);
-          const jobTypeLabel = job.jobType ? toTitleCase(job.jobType) : null;
+      <div className="overflow-hidden rounded-2xl border border-neutral-100 bg-white shadow-sm">
+        <div className="hidden bg-neutral-50 px-6 py-4 text-xs font-semibold uppercase tracking-wide text-neutral-500 sm:grid sm:grid-cols-[minmax(0,1fr)_12rem_9rem_9rem] sm:items-center sm:gap-6">
+          <div>Jobs</div>
+          <div className="text-center">Date Saved</div>
+          <div className="text-center">Status</div>
+          <div className="text-right">Action</div>
+        </div>
+        <div className="flex items-center justify-between bg-neutral-50 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-neutral-500 sm:hidden">
+          <span>Jobs</span>
+          <span>Date Saved</span>
+          <span>Status</span>
+        </div>
+        <div className="divide-y divide-neutral-100">
+          {visibleFavorites.map(({ favoriteId, job, favoritedAt, application }) => {
+            const favoriteKey = favoriteId || job._id;
+            const salaryLabel = formatSalaryRange(job);
+            const locationLabel = formatLocation(job);
+            const visibleTags = getVisibleTags(job);
+            const jobTypeLabel = job.jobType ? toTitleCase(job.jobType) : null;
+            const statusLabel = getApplicationStatusLabel(application);
+            const statusClass = getJobStatusClass(statusLabel);
 
-          return (
-            <div
-              key={favoriteKey}
-              className="flex flex-col gap-4 rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-primary-200 hover:shadow-md"
-            >
-              <div className="flex items-start gap-3">
-                <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-neutral-200 bg-white text-base font-semibold text-neutral-600">
-                  {job.company?.logo ? (
-                    <img
-                      src={job.company.logo}
-                      alt={job.company?.name || job.title}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <span>{getCompanyInitials(job)}</span>
-                  )}
-                </div>
-                <div className="flex flex-1 flex-col gap-1">
-                  <span className="text-base font-semibold text-neutral-900">
-                    {job.title || "Untitled Job"}
-                  </span>
-                  {job.company?.name && (
-                    <span className="text-sm font-medium text-neutral-500">{job.company.name}</span>
-                  )}
-                  <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-500">
-                    <span className="flex items-center gap-1">
-                      <EnvironmentOutlined className="text-neutral-300" />
-                      {locationLabel}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="text-neutral-300">$</span>
-                      {salaryLabel}
-                    </span>
+            return (
+              <div
+                key={favoriteKey}
+                className="flex flex-col gap-4 px-6 py-5 sm:grid sm:grid-cols-[minmax(0,1fr)_12rem_9rem_9rem] sm:items-center sm:gap-6"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-neutral-200 bg-white text-base font-semibold text-neutral-600">
+                    {job.company?.logo ? (
+                      <img
+                        src={job.company.logo}
+                        alt={job.company?.name || job.title}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <span>{getCompanyInitials(job)}</span>
+                    )}
+                  </div>
+                  <div className="flex flex-1 flex-col gap-2">
+                    <div className="flex flex-col gap-[2px]">
+                      <span className="text-base font-semibold text-neutral-900">
+                        {job.title || "Untitled Job"}
+                      </span>
+                      {job.company?.name && (
+                        <span className="text-sm font-medium text-neutral-500">
+                          {job.company.name}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-500">
+                      <span className="flex items-center gap-1">
+                        <EnvironmentOutlined className="text-neutral-300" />
+                        {locationLabel}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="text-neutral-300"></span>
+                        {salaryLabel}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {jobTypeLabel && (
+                        <Tag
+                          color="blue"
+                          className="!m-0 !rounded-full !border-blue-200 !bg-blue-50 !px-3 !py-[2px] !text-[11px] !font-semibold !text-blue-600"
+                        >
+                          {jobTypeLabel}
+                        </Tag>
+                      )}
+                      {visibleTags.map((tag) => (
+                        <Tag
+                          key={`${favoriteKey}-${tag}`}
+                          color="default"
+                          className="!m-0 !rounded-full !border-neutral-200 !bg-neutral-50 !px-3 !py-[2px] !text-[11px] !text-neutral-600"
+                        >
+                          {tag}
+                        </Tag>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex flex-wrap gap-2">
-                {jobTypeLabel && (
-                  <Tag
-                    color="blue"
-                    className="!m-0 !rounded-full !border-blue-200 !bg-blue-50 !px-3 !py-[2px] !text-[11px] !font-semibold !text-blue-600"
-                  >
-                    {jobTypeLabel}
-                  </Tag>
-                )}
-                {visibleTags.map((tag) => (
-                  <Tag
-                    key={`${favoriteKey}-${tag}`}
-                    color="default"
-                    className="!m-0 !rounded-full !border-neutral-200 !bg-neutral-50 !px-3 !py-[2px] !text-[11px] !text-neutral-600"
-                  >
-                    {tag}
-                  </Tag>
-                ))}
+                <div className="flex items-center justify-between text-sm text-neutral-500 sm:justify-center sm:text-center">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-neutral-400 sm:hidden">
+                      Date Saved
+                    </span>
+                  <span>{formatFavoritedAt(favoritedAt)}</span>
+                </div>
+                <div className="flex items-center justify-between sm:justify-center">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-neutral-400 sm:hidden">
+                      Status
+                    </span>
+                  <span className={statusClass}>{statusLabel}</span>
+                </div>
+                <div className="flex justify-end sm:justify-end">
+                  <Button onClick={() => navigateToJobDetail(job._id)}>
+                    Apply Now
+                  </Button>
+                </div>
               </div>
-
-              <div className="flex items-center justify-between text-xs text-neutral-500">
-                <span className="flex items-center gap-1">
-                  <ClockCircleOutlined />
-                  {formatFavoritedAt(favoritedAt)}
-                </span>
-                <Button type="primary" onClick={() => navigateToJobDetail(job._id)}>
-                  View Details
-                </Button>
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     );
   };

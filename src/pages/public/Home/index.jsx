@@ -25,11 +25,11 @@ import { Link } from "react-router-dom";
 import ROUTER from "../../../router/ROUTER";
 import HeroSection from "./components/HeroSection";
 import JobCard from "../../../components/Card/JobCard";
-import { CandidateService } from "../../../services/CandidateService";
 import { notifyError } from "../../../components/Notification";
 import CompanyCard from "../../../components/Card/CompanyCard";
 import { CompanyService } from "../../../services/CompanyService";
 import { CategoryService } from "../../../services/CategoryService";
+import { fetchTopAppliedJobs } from "../../../services/PublicService";
 
 const vacancyList = [
   { title: "Anesthesiologists", openings: "45,004" },
@@ -215,15 +215,11 @@ const Home = () => {
       setIsLoadingFeaturedJobs(true);
 
       try {
-        const response = await CandidateService.getTopAppliedJobs();
+        const response = await fetchTopAppliedJobs();
 
         if (ignore) return;
 
-        if (response?.isError) {
-          throw new Error(response?.msg || "Không thể tải danh sách công việc nổi bật.");
-        }
-
-        const data = Array.isArray(response?.data) ? response.data : [];
+        const data = Array.isArray(response) ? response : [];
         setFeaturedJobs(data);
       } catch (error) {
         if (ignore) return;
@@ -425,6 +421,7 @@ const Home = () => {
                       company={companyName}
                       location={formatLocation(job)}
                       logo={companyLogo}
+                      totalApplicants={job?.totalApplicants ?? null}
                     />
                   </Link>
                 );

@@ -20,7 +20,7 @@ const HeaderMain = ({ className }) => {
   const [searchValue, setSearchValue] = useState("");
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  
+
   const showDrawer = () => {
     setOpen(true);
   };
@@ -53,7 +53,7 @@ const HeaderMain = ({ className }) => {
             </span>
             <span className="flex items-center gap-2">
               <Mail className="text-primary-600 h-4 w-4" />
-              support@jobpilot.com
+              nguyenvanthang520527@gmail.com
             </span>
           </div>
         </div>

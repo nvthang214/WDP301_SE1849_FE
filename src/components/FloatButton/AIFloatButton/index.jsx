@@ -124,7 +124,7 @@ const AIFloatButton = () => {
 
   //  UI chat popup
   const chatContent = (
-    <div className="flex h-[460px] w-[400px] flex-col">
+    <div className="flex h-[500px] w-[500px] flex-col">
       {/* Header */}
       <div className="mb-2 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">

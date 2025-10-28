@@ -42,6 +42,7 @@ const CandidateProfile = React.lazy(() => import("../pages/private/Candidate/Can
 const CandidateSocial = React.lazy(() => import("../pages/private/Candidate/CandidateSocial"));
 const CandidateAccount = React.lazy(() => import("../pages/private/Candidate/CandidateAccount"));
 const CandidateApplyJob = React.lazy(() => import("../pages/private/Candidate/CandidateApplyJob"));
+const CandidateFavorite = React.lazy(() => import("../pages/private/Candidate/CandidateFavorite"));
 const CandidateJobDetail = React.lazy(
   () => import("../pages/private/Candidate/CandidateJobDetail")
 );
@@ -236,6 +237,15 @@ const router = createBrowserRouter([
               </LazyLoad>
             ),
             handle: ROUTE_META[ROUTER.CANDIDATE_APPLY_JOB],
+          },
+          {
+            path: ROUTER.CANDIDATE_FAVORITE_JOBS,
+            element: (
+              <LazyLoad>
+                <CandidateFavorite />
+              </LazyLoad>
+            ),
+            handle: ROUTE_META[ROUTER.CANDIDATE_FAVORITE_JOBS],
           },
           {
             path: ROUTER.CANDIDATE_PERSONAL,

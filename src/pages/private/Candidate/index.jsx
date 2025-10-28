@@ -6,7 +6,7 @@ import useAuthStore from "../../../store/useAuthStore";
 import { CandidateService } from "../../../services/CandidateService";
 import { notifyError } from "../../../components/Notification";
 import { EnvironmentOutlined } from "@ant-design/icons";
-import { Briefcase, Bookmark, Bell,ArrowRight } from "lucide-react";
+import { BriefcaseBusiness, Bookmark, Bell,ArrowRight } from "lucide-react";
 import ROUTER from "../../../router/ROUTER";
 
 
@@ -144,6 +144,7 @@ const CandidateOverview = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [isProfileMissing, setIsProfileMissing] = useState(false);
+  const [favoriteCount, setFavoriteCount] = useState(0);
 
   const userId = useMemo(
     () => user?._id || user?.id || user?.userId || null,
@@ -177,6 +178,23 @@ const CandidateOverview = () => {
     }
   };
 
+  const fetchFavoriteJobsCount = async (candidateId) => {
+    if (!candidateId) return;
+
+    try {
+      const response = await CandidateService.getCandidateFavoriteJobs(candidateId);
+      if (!response || response.isError) {
+        throw new Error(response?.msg || "Không thể lấy danh sách công việc yêu thích.");
+      }
+      const data = Array.isArray(response.data) ? response.data : [];
+      const total = data.filter((item) => item && item.job).length;
+      setFavoriteCount(total);
+    } catch (error) {
+      console.error(error);
+      setFavoriteCount(0);
+    }
+  };
+
   useEffect(() => {
     if (loading) return;
 
@@ -200,6 +218,7 @@ const CandidateOverview = () => {
       });
 
     fetchAppliedJobs(userId, true);
+    fetchFavoriteJobsCount(userId);
   }, [loading, userId]);
 
   const handleViewDetails = (jobId) => {
@@ -232,13 +251,13 @@ const CandidateOverview = () => {
                 <p className="text-sm text-neutral-500">Applied jobs</p>
               </div>
               <div className="p-2 bg-white rounded-lg shadow-sm">
-                <Briefcase className="w-6 h-6 text-blue-600" />
+                <BriefcaseBusiness className="w-6 h-6 text-blue-600" />
               </div>
             </div>
 
             <div className="flex items-center justify-between w-52 rounded-xl bg-yellow-50 px-6 py-5 shadow-sm">
               <div>
-                <p className="text-2xl font-semibold text-neutral-900">{0}</p>
+                <p className="text-2xl font-semibold text-neutral-900">{favoriteCount}</p>
                 <p className="text-sm text-neutral-500">Favorite jobs</p>
               </div>
               <div className="p-2 bg-white rounded-lg shadow-sm">

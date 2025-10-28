@@ -110,12 +110,20 @@ const ROUTE_META = {
     requiresAuth: true,
   },
   [ROUTER.CANDIDATE_ACCOUNT]: {
-    breadcrumb: "Account Settings",
+    breadcrumb: "Settings",
     title: "Candidate Account",
+  },
+  [ROUTER.CANDIDATE_OVERVIEW]: {
+    breadcrumb: "Overview",
+    title: "Candidate Overview",
   },
   [ROUTER.CANDIDATE_APPLY_JOB]: {
     breadcrumb: "Applied Jobs",
     title: "Candidate Applied Jobs",
+  },
+  [ROUTER.CANDIDATE_FAVORITE_JOBS]: {
+    breadcrumb: "Favorite Jobs",
+    title: "Candidate Favorite Jobs",
   },
   
   // Candidate routes

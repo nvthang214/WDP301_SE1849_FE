@@ -24,7 +24,7 @@ const CandidateSideBar = () => {
     {
       key: ROUTER.CANDIDATE_OVERVIEW,
       icon: <LayoutDashboard size={20} />,
-      label: "Overview",
+      label: ROUTE_META[ROUTER.CANDIDATE_OVERVIEW]?.breadcrumb || "Overview",
       onClick: ({ key }) => navigate(key),
     },
 
@@ -35,7 +35,13 @@ const CandidateSideBar = () => {
     {
       key: ROUTER.CANDIDATE_APPLY_JOB,
       icon: <BriefcaseBusiness size={20} />,
-      label: "Applied Jobs",
+      label: ROUTE_META[ROUTER.CANDIDATE_APPLY_JOB]?.breadcrumb || "Applied Jobs",
+      onClick: ({ key }) => navigate(key),
+    },
+    {
+      key: ROUTER.CANDIDATE_FAVORITE_JOBS,
+      icon: <Bookmark size={20} />,
+      label: ROUTE_META[ROUTER.CANDIDATE_FAVORITE_JOBS]?.breadcrumb || "Favorite Jobs",
       onClick: ({ key }) => navigate(key),
     },
     {
@@ -47,7 +53,7 @@ const CandidateSideBar = () => {
     {
       key: ROUTER.CANDIDATE_PROFILE,
       icon: <Settings size={20} />,
-      label: "Settings",
+      label: ROUTE_META[ROUTER.CANDIDATE_ACCOUNT]?.breadcrumb,
       onClick: ({ key }) => navigate(key),
     },
     //======================= End Menu Items ========================

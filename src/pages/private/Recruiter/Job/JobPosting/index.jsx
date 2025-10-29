@@ -388,6 +388,18 @@ export default function JobPosting() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
+                  Role
+                </label>
+                <input
+                  className="w-full rounded-xl border border-[var(--color-neutral-200)] p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-100)] focus:outline-none"
+                  name="role"
+                  placeholder="Role"
+                  value={form.role}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
                   Remote
                 </label>
                 <input

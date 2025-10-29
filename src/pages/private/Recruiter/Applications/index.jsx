@@ -1,20 +1,61 @@
-import React from 'react';
-import { Layout, Row, Col, Card, Button, Dropdown, Menu } from 'antd';
+import React, { useState, useEffect } from "react";
+import { Layout, Row, Col, Card, Button, Dropdown, Menu } from "antd";
 import {
   FilterOutlined,
   SortAscendingOutlined,
   PlusOutlined,
   MoreOutlined,
-} from '@ant-design/icons';
+} from "@ant-design/icons";
+import { JobService } from "../../../../services/JobService";
+import { useSearchParams } from "react-router-dom";
 
 const { Content } = Layout;
 
 const Applications = () => {
+  const [applications, setApplications] = useState([]);
+  const [numberOfApplications, setNumberOfApplications] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [searchParams] = useSearchParams();
+  const jobId = searchParams.get("jobId");
+
+  // Fetch number of applications from API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await JobService.getNumberOfApplicationsByJobId(jobId);
+        setNumberOfApplications(response.data.count);
+      } catch (error) {
+        console.error("Error fetching applications:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [jobId]);
+
+  // Fetch applications when component mounts
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await JobService.getApplicationsByJobId(jobId);
+        setApplications(response.data);
+        console.log("Fetched applications:", response.data);
+      } catch (error) {
+        console.error("Error fetching applications:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [jobId]);
+
   const sortMenu = (
     <Menu
       items={[
-        { key: 'newest', label: 'Newest' },
-        { key: 'oldest', label: 'Oldest' },
+        { key: "newest", label: "Newest" },
+        { key: "oldest", label: "Oldest" },
       ]}
     />
   );
@@ -22,46 +63,46 @@ const Applications = () => {
   const columnMenu = (
     <Menu
       items={[
-        { key: 'edit', label: 'Edit Column' },
-        { key: 'delete', label: 'Delete' },
+        { key: "edit", label: "Edit Column" },
+        { key: "delete", label: "Delete" },
       ]}
     />
   );
 
   const ApplicationCard = ({ candidateName, role, experience, education, appliedDate, avatar }) => (
     <Card
-      className="shadow-md hover:shadow-lg transition-shadow duration-200 rounded-2xl mb-6"
-      bodyStyle={{ padding: '16px 20px' }}
+      className="mb-6 rounded-2xl shadow-md transition-shadow duration-200 hover:shadow-lg"
+      bodyStyle={{ padding: "16px 20px" }}
     >
-      <div className="flex items-center mb-3">
+      <div className="mb-3 flex items-center">
         <img
           src={avatar}
           alt={candidateName}
-          className="w-12 h-12 rounded-full mr-4 border border-gray-200 object-cover"
+          className="mr-4 h-12 w-12 rounded-full border border-gray-200 object-cover"
         />
         <div>
-          <h4 className="font-semibold text-base">{candidateName}</h4>
-          <p className="text-gray-500 text-sm">{role}</p>
+          <h4 className="text-base font-semibold">{candidateName}</h4>
+          <p className="text-sm text-gray-500">{role}</p>
         </div>
       </div>
 
-      <ul className="text-gray-600 text-sm space-y-1 mb-2">
+      <ul className="mb-2 space-y-1 text-sm text-gray-600">
         <li>• {experience} Years Experience</li>
         <li>• Education: {education}</li>
         <li>• Applied: {appliedDate}</li>
       </ul>
 
-      <Button type="link" className="p-0 mt-2 text-blue-600 hover:text-blue-800">
+      <Button type="link" className="mt-2 p-0 text-blue-600 hover:text-blue-800">
         Download Cv
       </Button>
     </Card>
   );
 
   return (
-    <Layout className="p-8 bg-white rounded-xl shadow-lg">
+    <Layout className="rounded-xl bg-white p-8 shadow-lg">
       <Content>
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="mb-8 flex items-center justify-between">
           <h2 className="text-2xl font-bold">Job Applications</h2>
           <div className="flex space-x-3">
             <Button icon={<FilterOutlined />}>Filter</Button>
@@ -75,59 +116,42 @@ const Applications = () => {
         <Row gutter={24}>
           {/* All Applications */}
           <Col span={12}>
-            <div className="flex justify-between items-center mb-5">
-              <h3 className="text-xl font-semibold">All Application (213)</h3>
+            <div className="mb-5 flex items-center justify-between">
+              <h3 className="text-xl font-semibold">All Application ({numberOfApplications})</h3>
               <Dropdown overlay={columnMenu} placement="bottomRight">
                 <Button type="text" icon={<MoreOutlined />} />
               </Dropdown>
             </div>
 
-            <div className="bg-gray-50 p-6 rounded-xl min-h-[500px] shadow-inner">
-              <ApplicationCard
-                candidateName="Ronald Richards"
-                role="UI/UX Designer"
-                experience="7"
-                education="Master Degree"
-                appliedDate="Jan 23, 2022"
-                avatar="https://via.placeholder.com/150/FF0000/FFFFFF?text=RR"
-              />
-              <ApplicationCard
-                candidateName="Theresa Webb"
-                role="Product Designer"
-                experience="7"
-                education="High School Degree"
-                appliedDate="Jan 23, 2022"
-                avatar="https://via.placeholder.com/150/0000FF/FFFFFF?text=TW"
-              />
-              <ApplicationCard
-                candidateName="Devon Lane"
-                role="User Experience Designer"
-                experience="7"
-                education="Master Degree"
-                appliedDate="Jan 23, 2022"
-                avatar="https://via.placeholder.com/150/008000/FFFFFF?text=DL"
-              />
-              <ApplicationCard
-                candidateName="Kathryn Murphy"
-                role="UI/UX Designer"
-                experience="7"
-                education="Master Degree"
-                appliedDate="Jan 23, 2022"
-                avatar="https://via.placeholder.com/150/FFFF00/000000?text=KM"
-              />
+            <div className="min-h-[500px] rounded-xl bg-gray-50 p-6 shadow-inner">
+              {loading ? (
+                <p>Loading applications...</p>
+              ) : (
+                applications.map((app) => (
+                  <ApplicationCard
+                    key={app._id}
+                    candidateName={app.candidateName}
+                    role={app.role}
+                    experience={app.experience}
+                    education={app.education}
+                    appliedDate={app.appliedDate}
+                    avatar={app.avatar}
+                  />
+                ))
+              )}
             </div>
           </Col>
 
           {/* Shortlisted */}
-          <Col span={12}>
-            <div className="flex justify-between items-center mb-5">
-              <h3 className="text-xl font-semibold">Shortlisted (2)</h3>
+          {/* <Col span={12}>
+            <div className="mb-5 flex items-center justify-between">
+              <h3 className="text-xl font-semibold">Shortlisted ({numberOfApplications})</h3>
               <Dropdown overlay={columnMenu} placement="bottomRight">
                 <Button type="text" icon={<MoreOutlined />} />
               </Dropdown>
             </div>
 
-            <div className="bg-gray-50 p-6 rounded-xl min-h-[500px] shadow-inner">
+            <div className="min-h-[500px] rounded-xl bg-gray-50 p-6 shadow-inner">
               <ApplicationCard
                 candidateName="Darrell Steward"
                 role="UI/UX"
@@ -149,12 +173,12 @@ const Applications = () => {
                 type="dashed"
                 block
                 icon={<PlusOutlined />}
-                className="mt-6 py-2 rounded-xl border-gray-300 hover:border-blue-500 hover:text-blue-600 transition-colors"
+                className="mt-6 rounded-xl border-gray-300 py-2 transition-colors hover:border-blue-500 hover:text-blue-600"
               >
                 Create New Column
               </Button>
             </div>
-          </Col>
+          </Col> */}
         </Row>
       </Content>
     </Layout>

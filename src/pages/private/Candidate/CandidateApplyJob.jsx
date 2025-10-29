@@ -151,7 +151,7 @@ const CandidateApplyJob = () => {
     }
   }, []);
   // lấy user từ authstore
-  const { user,loading } = useAuthStore();
+  const { user, loading } = useAuthStore();
   const userId = useMemo(() => user?._id || user?.id || user?.userId || null, [user]);
 
   useEffect(() => {
@@ -197,7 +197,7 @@ const CandidateApplyJob = () => {
   );
 
   const navigateToJobDetail = (jobId) => {
-    navigate(ROUTER.CANDIDATE_JOB_DETAIL.replace(":id", jobId));
+    navigate(ROUTER.JOB_DETAIL.replace(":id", jobId));
   };
 
   const renderJobRow = (application) => {

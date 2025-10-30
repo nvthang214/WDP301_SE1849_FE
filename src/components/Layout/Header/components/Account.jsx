@@ -17,7 +17,7 @@ const Account = () => {
         <Space size="large" align="center">
           <NotificationPopover />
           <Link to={PAGE[user?.role?.name]}>
-            <Avatar className="bg-primary-600" src={user?.avatar?.url || null}>
+            <Avatar className="bg-primary-600" src={user?.avatar || null}>
               {user?.lastName?.charAt(0).toUpperCase()}
             </Avatar>
           </Link>

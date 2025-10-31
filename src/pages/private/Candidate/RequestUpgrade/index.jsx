@@ -5,7 +5,6 @@ import {
   Input,
   Button,
   Upload,
-  message,
   Spin,
   Alert,
   Row,
@@ -22,6 +21,7 @@ import {
   CloseCircleOutlined
 } from '@ant-design/icons';
 import { UpgradeRequestService } from '../../../../services/UpgradeRequestService';
+import { notifySuccess, notifyError } from '../../../../components/Notification';
 
 const { TextArea } = Input;
 
@@ -52,9 +52,10 @@ const CandidateRequestUpgrade = () => {
       if (response?.data?.data) {
         setExistingRequest(response.data.data);
       }
+      // If data is null, no action needed - user has no request
     } catch (error) {
-      // No existing request - this is normal
-      console.log('No existing request found');
+      // Only log actual errors
+      console.error('Error fetching upgrade request:', error);
     }
   };
 
@@ -80,13 +81,13 @@ const CandidateRequestUpgrade = () => {
     const isImage = file.type.startsWith('image/');
 
     if (!isPDF && !isImage) {
-      message.error('Chỉ chấp nhận file PDF hoặc hình ảnh!');
+      notifyError('Only PDF files or images are accepted!');
       return false;
     }
 
     const isLt10M = file.size / 1024 / 1024 < 10;
     if (!isLt10M) {
-      message.error('File phải nhỏ hơn 10MB!');
+      notifyError('File must be smaller than 10MB!');
       return false;
     }
 
@@ -95,7 +96,7 @@ const CandidateRequestUpgrade = () => {
 
   const handleSubmit = async (values) => {
     if (fileList.length === 0) {
-      message.error('Vui lòng tải lên giấy phép kinh doanh!');
+      notifyError('Please upload a business license!');
       return;
     }
 
@@ -122,10 +123,7 @@ const CandidateRequestUpgrade = () => {
 
       await UpgradeRequestService.createUpgradeRequest(formData);
 
-      message.success({
-        content: 'Đơn yêu cầu nâng cấp đã được gửi thành công! Admin sẽ xem xét và phản hồi trong thời gian sớm nhất.',
-        duration: 5,
-      });
+      notifySuccess('Upgrade request submitted successfully! Admin will review and respond soon.');
       form.resetFields();
       setFileList([]);
       setLogoPreview('');
@@ -134,8 +132,8 @@ const CandidateRequestUpgrade = () => {
 
     } catch (error) {
       console.error('Error submitting request:', error);
-      const errorMsg = error?.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại.';
-      message.error(errorMsg);
+      const errorMsg = error?.response?.data?.message || 'An error occurred. Please try again.';
+      notifyError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -143,9 +141,9 @@ const CandidateRequestUpgrade = () => {
 
   const getStatusTag = (status) => {
     const statusConfig = {
-      pending: { color: 'orange', icon: <ClockCircleOutlined />, text: 'Đang chờ duyệt' },
-      approved: { color: 'green', icon: <CheckCircleOutlined />, text: 'Đã duyệt' },
-      rejected: { color: 'red', icon: <CloseCircleOutlined />, text: 'Bị từ chối' },
+      pending: { color: 'orange', icon: <ClockCircleOutlined />, text: 'Pending' },
+      approved: { color: 'green', icon: <CheckCircleOutlined />, text: 'Approved' },
+      rejected: { color: 'red', icon: <CloseCircleOutlined />, text: 'Rejected' },
     };
 
     const config = statusConfig[status] || statusConfig.pending;
@@ -163,39 +161,39 @@ const CandidateRequestUpgrade = () => {
           <div className="text-center mb-6">
             <FileTextOutlined className="text-4xl text-blue-500 mb-4" />
             <h1 className="text-2xl font-bold text-gray-800">
-              Yêu cầu nâng cấp thành Recruiter
+              Upgrade Request to Recruiter
             </h1>
             <p className="text-gray-600 mt-2">
-              Bạn đã có một yêu cầu nâng cấp đang được xử lý
+              You already have an upgrade request being processed
             </p>
           </div>
 
-          <Descriptions title="Thông tin yêu cầu" bordered column={1}>
-            <Descriptions.Item label="Trạng thái">
+          <Descriptions title="Request Information" bordered column={1}>
+            <Descriptions.Item label="Status">
               {getStatusTag(existingRequest.status)}
             </Descriptions.Item>
-            <Descriptions.Item label="Ngày gửi">
-              {new Date(existingRequest.createdAt).toLocaleDateString('vi-VN')}
+            <Descriptions.Item label="Submitted Date">
+              {new Date(existingRequest.createdAt).toLocaleDateString('en-US')}
             </Descriptions.Item>
-            <Descriptions.Item label="Tên công ty">
-              {existingRequest.companyInfo?.name || 'Chưa cập nhật'}
+            <Descriptions.Item label="Company Name">
+              {existingRequest.companyInfo?.name || 'Not updated'}
             </Descriptions.Item>
-            <Descriptions.Item label="Mô tả công ty">
-              {existingRequest.companyInfo?.description || 'Chưa cập nhật'}
+            <Descriptions.Item label="Company Description">
+              {existingRequest.companyInfo?.description || 'Not updated'}
             </Descriptions.Item>
-            <Descriptions.Item label="Ngành nghề">
-              {existingRequest.companyInfo?.industry || 'Chưa cập nhật'}
+            <Descriptions.Item label="Industry">
+              {existingRequest.companyInfo?.industry || 'Not updated'}
             </Descriptions.Item>
-            <Descriptions.Item label="Địa chỉ">
-              {existingRequest.companyInfo?.address || 'Chưa cập nhật'}
+            <Descriptions.Item label="Address">
+              {existingRequest.companyInfo?.address || 'Not updated'}
             </Descriptions.Item>
             {existingRequest.reviewedAt && (
-              <Descriptions.Item label="Ngày duyệt">
-                {new Date(existingRequest.reviewedAt).toLocaleDateString('vi-VN')}
+              <Descriptions.Item label="Reviewed Date">
+                {new Date(existingRequest.reviewedAt).toLocaleDateString('en-US')}
               </Descriptions.Item>
             )}
             {existingRequest.adminNote && (
-              <Descriptions.Item label="Ghi chú từ admin">
+              <Descriptions.Item label="Admin Note">
                 {existingRequest.adminNote}
               </Descriptions.Item>
             )}
@@ -203,8 +201,8 @@ const CandidateRequestUpgrade = () => {
 
           {existingRequest.status === 'approved' && (
             <Alert
-              message="Chúc mừng!"
-              description="Yêu cầu nâng cấp của bạn đã được duyệt. Bạn giờ đây có thể đăng nhập với vai trò Recruiter."
+              message="Congratulations!"
+              description="Your upgrade request has been approved. You can now log in with the Recruiter role."
               type="success"
               showIcon
               className="mt-6"
@@ -221,10 +219,10 @@ const CandidateRequestUpgrade = () => {
         <div className="text-center mb-6">
           <FileTextOutlined className="text-4xl text-blue-500 mb-4" />
           <h1 className="text-2xl font-bold text-gray-800">
-            Yêu cầu nâng cấp thành Recruiter
+            Upgrade Request to Recruiter
           </h1>
           <p className="text-gray-600 mt-2">
-            Điền thông tin công ty để yêu cầu nâng cấp tài khoản thành Recruiter
+            Fill in company information to request an account upgrade to Recruiter
           </p>
         </div>
 
@@ -234,35 +232,35 @@ const CandidateRequestUpgrade = () => {
           onFinish={handleSubmit}
           className="max-w-4xl mx-auto"
         >
-          <Divider orientation="left">Thông tin công ty</Divider>
+          <Divider orientation="left">Company Information</Divider>
 
           <Row gutter={16}>
             <Col xs={24} md={12}>
               <Form.Item
                 name="companyName"
-                label="Tên công ty *"
-                rules={[{ required: true, message: 'Vui lòng nhập tên công ty!' }]}
+                label="Company Name *"
+                rules={[{ required: true, message: 'Please enter company name!' }]}
               >
-                <Input placeholder="Nhập tên công ty" />
+                <Input placeholder="Enter company name" />
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
               <Form.Item
                 name="companyIndustry"
-                label="Ngành nghề"
+                label="Industry"
               >
-                <Input placeholder="Ví dụ: Công nghệ thông tin, Tài chính..." />
+                <Input placeholder="e.g. Information Technology, Finance..." />
               </Form.Item>
             </Col>
           </Row>
 
           <Form.Item
             name="companyDescription"
-            label="Mô tả công ty"
+            label="Company Description"
           >
             <TextArea
               rows={4}
-              placeholder="Mô tả về công ty, lĩnh vực hoạt động..."
+              placeholder="Describe the company, business areas..."
             />
           </Form.Item>
 
@@ -315,15 +313,15 @@ const CandidateRequestUpgrade = () => {
             <Col xs={24} md={12}>
               <Form.Item
                 name="companyAddress"
-                label="Địa chỉ"
+                label="Address"
               >
-                <Input placeholder="Địa chỉ công ty" />
+                <Input placeholder="Company address" />
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
               <Form.Item
                 name="companyEmail"
-                label="Email công ty"
+                label="Company Email"
               >
                 <Input placeholder="contact@company.com" />
               </Form.Item>
@@ -334,7 +332,7 @@ const CandidateRequestUpgrade = () => {
             <Col xs={24} md={12}>
               <Form.Item
                 name="companyPhone"
-                label="Số điện thoại"
+                label="Phone Number"
               >
                 <Input placeholder="0123456789" />
               </Form.Item>
@@ -351,28 +349,28 @@ const CandidateRequestUpgrade = () => {
 
           <Form.Item
             name="companyBenefits"
-            label="Phúc lợi"
+            label="Benefits"
           >
             <TextArea
               rows={3}
-              placeholder="Mô tả các phúc lợi mà công ty cung cấp..."
+              placeholder="Describe the benefits the company provides..."
             />
           </Form.Item>
 
           <Form.Item
             name="companyVision"
-            label="Tầm nhìn"
+            label="Vision"
           >
             <TextArea
               rows={3}
-              placeholder="Tầm nhìn và sứ mệnh của công ty..."
+              placeholder="Company vision and mission..."
             />
           </Form.Item>
 
-          <Divider orientation="left">Tài liệu</Divider>
+          <Divider orientation="left">Documents</Divider>
 
           <Form.Item
-            label="Giấy phép kinh doanh *"
+            label="Business License *"
             required
           >
             <Upload
@@ -383,11 +381,11 @@ const CandidateRequestUpgrade = () => {
               accept=".pdf,.jpg,.jpeg,.png"
             >
               <Button icon={<UploadOutlined />}>
-                Tải lên giấy phép kinh doanh
+                Upload Business License
               </Button>
             </Upload>
             <div className="text-sm text-gray-500 mt-2">
-              Chấp nhận file PDF hoặc hình ảnh, tối đa 10MB
+              Accept PDF files or images, maximum 10MB
             </div>
           </Form.Item>
 
@@ -399,7 +397,7 @@ const CandidateRequestUpgrade = () => {
               loading={loading}
               icon={<FileTextOutlined />}
             >
-              Gửi yêu cầu nâng cấp
+              Submit Upgrade Request
             </Button>
           </Form.Item>
         </Form>

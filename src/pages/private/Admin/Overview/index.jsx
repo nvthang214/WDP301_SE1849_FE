@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Card, 
-  Row, 
-  Col, 
-  Statistic, 
-  Spin, 
+import {
+  Card,
+  Row,
+  Col,
+  Statistic,
+  Spin,
   Alert,
   Typography,
   DatePicker
 } from 'antd';
-import { 
-  UserOutlined, 
-  TeamOutlined, 
-  CrownOutlined, 
-  LockOutlined, 
+import {
+  UserOutlined,
+  TeamOutlined,
+  LockOutlined,
   FileTextOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
@@ -53,7 +52,7 @@ const AdminOverview = () => {
       setStats(statsData);
     } catch (err) {
       console.error('Error fetching data:', err);
-      setError('Không thể tải dữ liệu. Vui lòng thử lại.');
+      setError('Unable to load data. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -110,7 +109,7 @@ const AdminOverview = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <Spin size="large" />
+        <Spin size="large" tip="Loading data..." />
       </div>
     );
   }
@@ -118,7 +117,7 @@ const AdminOverview = () => {
   if (error) {
     return (
       <Alert
-        message="Lỗi"
+        message="Error"
         description={error}
         type="error"
         showIcon
@@ -130,8 +129,8 @@ const AdminOverview = () => {
   if (!stats) {
     return (
       <Alert
-        message="Không có dữ liệu"
-        description="Không thể tải dữ liệu thống kê."
+        message="No Data"
+        description="Failed to load statistics."
         type="warning"
         showIcon
       />
@@ -139,159 +138,175 @@ const AdminOverview = () => {
   }
 
   return (
-    <div className="p-6">
-      <Title level={2} className="mb-6">Admin Dashboard</Title>
-      
-      {/* User Statistics */}
-      <div className="mb-6">
-        <Title level={4} className="mb-4">Thống kê người dùng</Title>
-        <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} lg={8}>
-            <Card>
-              <Statistic
-                title="Tổng người dùng"
-                value={stats.users?.total || 0}
-                prefix={<UserOutlined />}
-                valueStyle={{ color: '#1890ff' }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} lg={8}>
-            <Card>
-              <Statistic
-                title="Người dùng hoạt động"
-                value={stats.users?.active || 0}
-                prefix={<TeamOutlined />}
-                valueStyle={{ color: '#52c41a' }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} lg={8}>
-            <Card>
-              <Statistic
-                title="Người dùng bị khóa"
-                value={stats.users?.banned || 0}
-                prefix={<LockOutlined />}
-                valueStyle={{ color: '#ff4d4f' }}
-              />
-            </Card>
-          </Col>
-        </Row>
-      </div>
-
-      {/* Upgrade Request Statistics */}
-      <div className="mb-6">
-        <Title level={4} className="mb-4">Thống kê yêu cầu nâng cấp</Title>
-        <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} lg={6}>
-            <Card>
-              <Statistic
-                title="Tổng yêu cầu"
-                value={stats.upgradeRequests?.total || 0}
-                prefix={<FileTextOutlined />}
-                valueStyle={{ color: '#1890ff' }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <Card>
-              <Statistic
-                title="Chờ duyệt"
-                value={stats.upgradeRequests?.pending || 0}
-                prefix={<ClockCircleOutlined />}
-                valueStyle={{ color: '#faad14' }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <Card>
-              <Statistic
-                title="Đã duyệt"
-                value={stats.upgradeRequests?.approved || 0}
-                prefix={<CheckCircleOutlined />}
-                valueStyle={{ color: '#52c41a' }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <Card>
-              <Statistic
-                title="Đã từ chối"
-                value={stats.upgradeRequests?.rejected || 0}
-                prefix={<CloseCircleOutlined />}
-                valueStyle={{ color: '#ff4d4f' }}
-              />
-            </Card>
-          </Col>
-        </Row>
-      </div>
-
-      {/* Job and Company Statistics */}
-      <div className="mb-6">
-        <Title level={4} className="mb-4">Thống kê công việc và công ty</Title>
-        <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} lg={8}>
-            <Card>
-              <Statistic
-                title="Tổng công việc"
-                value={stats.jobs?.total || 0}
-                prefix={<ShoppingOutlined />}
-                valueStyle={{ color: '#1890ff' }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} lg={8}>
-            <Card>
-              <Statistic
-                title="Công việc đang hoạt động"
-                value={stats.jobs?.active || 0}
-                prefix={<FileTextOutlined />}
-                valueStyle={{ color: '#52c41a' }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} lg={8}>
-            <Card>
-              <Statistic
-                title="Tổng công ty"
-                value={stats.companies?.total || 0}
-                prefix={<BuildOutlined />}
-                valueStyle={{ color: '#722ed1' }}
-              />
-            </Card>
-          </Col>
-        </Row>
-      </div>
-
-      {/* User Registration Chart */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <Title level={4} className="mb-0">Biểu đồ đăng ký người dùng theo tháng</Title>
-          <DatePicker
-            picker="year"
-            value={selectedYear}
-            onChange={handleYearChange}
-            style={{ width: 150 }}
-            size="large"
-            format="YYYY"
-          />
-        </div>
-        <Row gutter={[16, 16]}>
-          <Col xs={24} lg={12}>
-            <Card>
-              <Line {...chartConfig} height={300} />
-            </Card>
-          </Col>
-          <Col xs={24} lg={12}>
-            <Card>
-              <Column {...columnConfig} height={300} />
-            </Card>
-          </Col>
-        </Row>
-      </div>
+  <div className="p-0 m-0">
+    {/* 🔹 User Statistics Banner */}
+    <div className="bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg shadow-md mb-6 p-4 flex items-center">
+      <UserOutlined className="mr-3 text-2xl text-white" />
+      <h2 className="text-xl font-semibold mb-0">User Statistics</h2>
     </div>
-  );
+
+    {/* User Statistics Section */}
+    <div className="mb-8">
+      <Row gutter={[16, 16]}>
+        <Col xs={24} sm={12} lg={8}>
+          <Card bordered={false} className="shadow-sm rounded-lg border border-gray-300">
+            <Statistic
+              title="Total Users"
+              value={stats.users?.total || 0}
+              prefix={<UserOutlined />}
+              valueStyle={{ color: '#1677ff', fontWeight: 600 }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} lg={8}>
+          <Card bordered={false} className="shadow-sm rounded-lg border border-gray-300">
+            <Statistic
+              title="Active Users"
+              value={stats.users?.active || 0}
+              prefix={<TeamOutlined />}
+              valueStyle={{ color: '#52c41a', fontWeight: 600 }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} lg={8}>
+          <Card bordered={false} className="shadow-sm rounded-lg border border-gray-300">
+            <Statistic
+              title="Banned Users"
+              value={stats.users?.banned || 0}
+              prefix={<LockOutlined />}
+              valueStyle={{ color: '#ff4d4f', fontWeight: 600 }}
+            />
+          </Card>
+        </Col>
+      </Row>
+    </div>
+
+    {/* 🔹 Upgrade Request Statistics Banner */}
+    <div className="bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg shadow-md mb-6 p-4 flex items-center">
+      <FileTextOutlined className="mr-3 text-2xl text-white" />
+      <h2 className="text-xl font-semibold mb-0">Upgrade Request Statistics</h2>
+    </div>
+
+    {/* Upgrade Request Section */}
+    <div className="mb-8">
+      <Row gutter={[16, 16]}>
+        <Col xs={24} sm={12} lg={6}>
+          <Card bordered={false} className="shadow-sm rounded-lg border border-gray-300">
+            <Statistic
+              title="Total Requests"
+              value={stats.upgradeRequests?.total || 0}
+              prefix={<FileTextOutlined />}
+              valueStyle={{ color: '#1677ff', fontWeight: 600 }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <Card bordered={false} className="shadow-sm rounded-lg border border-gray-300">
+            <Statistic
+              title="Pending"
+              value={stats.upgradeRequests?.pending || 0}
+              prefix={<ClockCircleOutlined />}
+              valueStyle={{ color: '#faad14', fontWeight: 600 }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <Card bordered={false} className="shadow-sm rounded-lg border border-gray-300">
+            <Statistic
+              title="Approved"
+              value={stats.upgradeRequests?.approved || 0}
+              prefix={<CheckCircleOutlined />}
+              valueStyle={{ color: '#52c41a', fontWeight: 600 }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <Card bordered={false} className="shadow-sm rounded-lg border border-gray-300">
+            <Statistic
+              title="Rejected"
+              value={stats.upgradeRequests?.rejected || 0}
+              prefix={<CloseCircleOutlined />}
+              valueStyle={{ color: '#ff4d4f', fontWeight: 600 }}
+            />
+          </Card>
+        </Col>
+      </Row>
+    </div>
+
+    {/* 🔹 Job and Company Statistics Banner */}
+    <div className="bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg shadow-md mb-6 p-4 flex items-center">
+      <BuildOutlined className="mr-3 text-2xl text-white" />
+      <h2 className="text-xl font-semibold mb-0">Job and Company Statistics</h2>
+    </div>
+
+    {/* Job and Company Section */}
+    <div className="mb-8">
+      <Row gutter={[16, 16]}>
+        <Col xs={24} sm={12} lg={8}>
+          <Card bordered={false} className="shadow-sm rounded-lg border border-gray-300">
+            <Statistic
+              title="Total Jobs"
+              value={stats.jobs?.total || 0}
+              prefix={<ShoppingOutlined />}
+              valueStyle={{ color: '#1677ff', fontWeight: 600 }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} lg={8}>
+          <Card bordered={false} className="shadow-sm rounded-lg border border-gray-300">
+            <Statistic
+              title="Active Jobs"
+              value={stats.jobs?.active || 0}
+              prefix={<FileTextOutlined />}
+              valueStyle={{ color: '#52c41a', fontWeight: 600 }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} lg={8}>
+          <Card bordered={false} className="shadow-sm rounded-lg border border-gray-300">
+            <Statistic
+              title="Total Companies"
+              value={stats.companies?.total || 0}
+              prefix={<BuildOutlined />}
+              valueStyle={{ color: '#722ed1', fontWeight: 600 }}
+            />
+          </Card>
+        </Col>
+      </Row>
+    </div>
+
+    {/* 🔹 User Registration Banner */}
+    <div className="bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg shadow-md mb-6 p-4 flex items-center justify-between">
+      <div className="flex items-center">
+        <TeamOutlined className="mr-3 text-2xl text-white" />
+        <h2 className="text-xl font-semibold mb-0">User Registration by Month</h2>
+      </div>
+      <DatePicker
+        picker="year"
+        value={selectedYear}
+        onChange={handleYearChange}
+        style={{ width: 150 }}
+        size="large"
+        format="YYYY"
+      />
+    </div>
+
+    {/* User Registration Section */}
+    <Row gutter={[16, 16]}>
+      <Col xs={24} lg={12}>
+        <Card bordered={false} className="shadow-sm rounded-lg border border-gray-300" title="Line Chart">
+          <Line {...chartConfig} height={300} />
+        </Card>
+      </Col>
+      <Col xs={24} lg={12}>
+        <Card bordered={false} className="shadow-sm rounded-lg border border-gray-300" title="Column Chart">
+          <Column {...columnConfig} height={300} />
+        </Card>
+      </Col>
+    </Row>
+  </div>
+);
+
 };
 
 export default AdminOverview;
-

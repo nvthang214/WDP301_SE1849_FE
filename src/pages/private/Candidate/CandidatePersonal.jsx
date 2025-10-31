@@ -166,16 +166,16 @@ const CandidatePersonal = () => {
       const nextAvatar = response?.data || null;
       setAvatarData(nextAvatar);
 
-      useAuthStore.setState((state) =>
-        state.user
-          ? {
-              user: {
-                ...state.user,
-                avatar: nextAvatar?.url || "",
-              },
-            }
-          : {}
-      );
+      useAuthStore.setState((state) => {
+        if (!state.user) return {};
+        const serializedAvatar = nextAvatar ? JSON.stringify(nextAvatar) : null;
+        return {
+          user: {
+            ...state.user,
+            avatar: serializedAvatar,
+          },
+        };
+      });
 
       notifySuccess(response?.msg || "Đã cập nhật avatar.");
     } catch (error) {
@@ -204,16 +204,15 @@ const CandidatePersonal = () => {
       }
 
       setAvatarData(null);
-      useAuthStore.setState((state) =>
-        state.user
-          ? {
-              user: {
-                ...state.user,
-                avatar: "",
-              },
-            }
-          : {}
-      );
+      useAuthStore.setState((state) => {
+        if (!state.user) return {};
+        return {
+          user: {
+            ...state.user,
+            avatar: null,
+          },
+        };
+      });
 
       notifySuccess(response?.msg || "Đã xóa avatar.");
     } catch (error) {

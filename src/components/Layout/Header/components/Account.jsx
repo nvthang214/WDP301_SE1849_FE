@@ -5,7 +5,16 @@ import useAuthStore from "../../../../store/useAuthStore";
 import NotificationPopover from "./NotificationPopover";
 
 const Account = () => {
+ 
   const user = useAuthStore((state) => state.user);
+  const avatar = (() => {
+    if (!user?.avatar) return null;
+    try {
+      return typeof user.avatar === "string" ? JSON.parse(user.avatar) : user.avatar;
+    } catch {
+      return null;
+    }
+  })();
   const PAGE = {
     admin: ROUTER.ADMIN_OVERVIEW,
     recruiter: ROUTER.RECRUITER_OVERVIEW,
@@ -17,7 +26,7 @@ const Account = () => {
         <Space size="large" align="center">
           <NotificationPopover />
           <Link to={PAGE[user?.role?.name]}>
-            <Avatar className="bg-primary-600" src={user?.avatar || null}>
+            <Avatar className="bg-primary-600" src={avatar?.url|| null}>
               {user?.lastName?.charAt(0).toUpperCase()}
             </Avatar>
           </Link>

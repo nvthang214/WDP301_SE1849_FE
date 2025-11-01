@@ -2,8 +2,8 @@ import api from "../00-Axios";
 import { adminUrls } from "./urls";
 
 // User Management Services
-const getAllUsers = async () => {
-  return await api.get(adminUrls.getAllUsers);
+const getAllUsers = async (params = {}) => {
+  return await api.get(adminUrls.getAllUsers, { params });
 };
 
 const getUserById = async (userId) => {
@@ -24,8 +24,8 @@ const getAllRoles = async () => {
 };
 
 // Job Management Services
-const getAllJobs = async () => {
-  return await api.get(adminUrls.getAllJobs);
+const getAllJobs = async (params = {}) => {
+  return await api.get(adminUrls.getAllJobs, { params });
 };
 
 const toggleJobVisibility = async (jobId, isActive) => {

@@ -261,12 +261,19 @@ const Home = () => {
             ? response.data
             : [];
 
+        // Không set error nếu không có companies - đây là trường hợp bình thường
         setCompanies(data);
       } catch (error) {
         if (ignore) return;
 
-        console.error(error);
-        setCompaniesError(error?.message || "Không thể tải danh sách công ty.");
+        // Chỉ set error nếu là lỗi thực sự (không phải empty result)
+        const isNotFoundError = error?.response?.status === 404 || 
+                               error?.message?.includes('No companies found');
+        
+        if (!isNotFoundError) {
+          console.error(error);
+          setCompaniesError(error?.message || "Không thể tải danh sách công ty.");
+        }
         setCompanies([]);
       } finally {
         if (!ignore) setIsLoadingCompanies(false);

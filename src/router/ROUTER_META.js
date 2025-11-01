@@ -150,6 +150,18 @@ const ROUTE_META = {
     breadcrumb: "Upgrade Requests",
     title: "Upgrade Requests Management",
   },
+  [ROUTER.ADMIN_TAG_MANAGEMENT]: {
+    breadcrumb: "Tag Management",
+    title: "Tag Management",
+  },
+  [ROUTER.ADMIN_CATEGORY_MANAGEMENT]: {
+    breadcrumb: "Category Management",
+    title: "Category Management",
+  },
+  [ROUTER.ADMIN_SETTINGS]: {
+    breadcrumb: "Settings",
+    title: "Admin Settings",
+  },
 };
 
 export default ROUTE_META;

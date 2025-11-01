@@ -325,6 +325,7 @@ const AdminUpgradeRequests = () => {
           Upgrade Requests Management
         </h1>
         <div>
+          Status : 
           <Space>
             <Select
               value={statusFilter}

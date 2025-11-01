@@ -215,16 +215,25 @@ const CandidateRequestUpgrade = () => {
 
   return (
     <div className="p-6">
-      <Card>
-        <div className="text-center mb-6">
-          <FileTextOutlined className="text-4xl text-blue-500 mb-4" />
-          <h1 className="text-2xl font-bold text-gray-800">
+      <Card
+        bordered={false}
+        className="shadow-none bg-transparent border-none p-0"
+        style={{
+          boxShadow: 'none',
+          background: 'transparent',
+        }}
+      >
+
+        <div className="text-center mb-6 bg-blue-600 text-white py-6 rounded-lg shadow-md">
+          <FileTextOutlined className="text-5xl mb-3" />
+          <h1 className="text-3xl font-semibold">
             Upgrade Request to Recruiter
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="mt-2 text-lg">
             Fill in company information to request an account upgrade to Recruiter
           </p>
         </div>
+
 
         <Form
           form={form}

@@ -67,6 +67,9 @@ const ROUTER = {
   ADMIN_OVERVIEW: `${admin}/overview`,
   ADMIN_USER_MANAGEMENT: `${admin}/users`,
   ADMIN_UPGRADE_REQUESTS: `${admin}/upgrade-requests`,
+  ADMIN_TAG_MANAGEMENT: `${admin}/tags`,
+  ADMIN_CATEGORY_MANAGEMENT: `${admin}/categories`,
+  ADMIN_SETTINGS: `${admin}/settings`,
   // ========================= End private routes ======================
 };
 

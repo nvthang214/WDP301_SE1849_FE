@@ -370,7 +370,7 @@ const UserManagement = () => {
                 className="w-full"
               />
             </Col>
-
+            Role :
             <Col xs={24} sm={12} md={4}>
               <Select
                 placeholder="Filter by Role"
@@ -385,7 +385,7 @@ const UserManagement = () => {
                 <Option value="candidate">Candidate</Option>
               </Select>
             </Col>
-
+            Status :
             <Col xs={24} sm={12} md={4}>
               <Select
                 placeholder="Filter by Status"

@@ -485,6 +485,7 @@ const Home = () => {
                 openings={item.openings || item.jobCount || 0}
                 logo={item.logo || item.companyLogo}
                 companyType={item.industry || "Technology"}
+                linkTo={ROUTER.COMPANY_LIST}
                 {...item}
               />
             ))

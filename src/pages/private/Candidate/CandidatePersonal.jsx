@@ -12,7 +12,6 @@ import dayjs from "dayjs";
 import SettingsHeader from "./components/Header";
 import { CandidateService } from "../../../services/CandidateService";
 import { UploadService } from "../../../services/UploadService";
-import { UserService } from "../../../services/UserService";
 import { notifyError, notifySuccess } from "../../../components/Notification";
 import useAuthStore from "../../../store/useAuthStore";
 
@@ -164,18 +163,19 @@ const CandidatePersonal = () => {
         throw new Error(response?.msg || "Không thể tải avatar.");
       }
 
-      // Cập nhật local state
-      setAvatarData(response?.data || null);
+      const nextAvatar = response?.data || null;
+      setAvatarData(nextAvatar);
 
-      // Lấy lại thông tin user mới từ server
-      const userResponse = await UserService.fetchMe();
-      if (!userResponse?.isError && userResponse?.data) {
-        // Cập nhật user trong auth store với dữ liệu mới nhất
-        useAuthStore.setState({ user: userResponse.data });
-
-        // Lưu vào localStorage để duy trì sau khi refresh
-        localStorage.setItem('userData', JSON.stringify(userResponse.data));
-      }
+      useAuthStore.setState((state) => {
+        if (!state.user) return {};
+        const serializedAvatar = nextAvatar ? JSON.stringify(nextAvatar) : null;
+        return {
+          user: {
+            ...state.user,
+            avatar: serializedAvatar,
+          },
+        };
+      });
 
       notifySuccess(response?.msg || "Đã cập nhật avatar.");
     } catch (error) {
@@ -203,18 +203,16 @@ const CandidatePersonal = () => {
         throw new Error(response?.msg || "Không thể xóa avatar.");
       }
 
-      // Cập nhật local state
       setAvatarData(null);
-
-      // Lấy lại thông tin user mới từ server
-      const userResponse = await UserService.fetchMe();
-      if (!userResponse?.isError && userResponse?.data) {
-        // Cập nhật user trong auth store với dữ liệu mới nhất
-        useAuthStore.setState({ user: userResponse.data });
-
-        // Lưu vào localStorage để duy trì sau khi refresh
-        localStorage.setItem('userData', JSON.stringify(userResponse.data));
-      }
+      useAuthStore.setState((state) => {
+        if (!state.user) return {};
+        return {
+          user: {
+            ...state.user,
+            avatar: null,
+          },
+        };
+      });
 
       notifySuccess(response?.msg || "Đã xóa avatar.");
     } catch (error) {

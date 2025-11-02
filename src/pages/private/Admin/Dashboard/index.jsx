@@ -12,10 +12,11 @@ import {
   Tag, 
   Modal, 
   Select, 
-  message, 
   Popconfirm,
-  Input
+  Input,
+  Pagination
 } from 'antd';
+import { notifySuccess, notifyError } from '../../../../components/Notification';
 import { 
   UserOutlined, 
   TeamOutlined, 
@@ -50,10 +51,20 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [jobs, setJobs] = useState([]);
   const [searchText, setSearchText] = useState('');
-  const [filteredUsers, setFilteredUsers] = useState([]);
   const [jobSearchText, setJobSearchText] = useState('');
-  const [filteredJobs, setFilteredJobs] = useState([]);
   const { user } = useAuthStore();
+  
+  // Pagination states
+  const [userPagination, setUserPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+  });
+  const [jobPagination, setJobPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+  });
   
   // Modal states
   const [isRoleModalVisible, setIsRoleModalVisible] = useState(false);
@@ -63,76 +74,95 @@ const AdminDashboard = () => {
   // Available roles - sẽ được load từ API
   const [availableRoles, setAvailableRoles] = useState([]);
 
+  // Track search to detect changes
+  const prevUserSearchRef = React.useRef(searchText);
+  const prevJobSearchRef = React.useRef(jobSearchText);
+  
+  // Fetch data when pagination or search changes
   useEffect(() => {
+    // Reset to page 1 when user search changes
+    if (searchText !== prevUserSearchRef.current) {
+      prevUserSearchRef.current = searchText;
+      if (userPagination.current !== 1) {
+        setUserPagination(prev => ({ ...prev, current: 1 }));
+        return; // fetchDashboardData will be called when current changes to 1
+      }
+    }
+    
+    // Reset to page 1 when job search changes
+    if (jobSearchText !== prevJobSearchRef.current) {
+      prevJobSearchRef.current = jobSearchText;
+      if (jobPagination.current !== 1) {
+        setJobPagination(prev => ({ ...prev, current: 1 }));
+        return; // fetchDashboardData will be called when current changes to 1
+      }
+    }
+    
+    // Fetch data
     fetchDashboardData();
-  }, []);
-
-  useEffect(() => {
-    // Filter users based on search text
-    if (searchText) {
-        const filtered = users.filter(user => 
-        `${user.firstName || ''} ${user.lastName || ''}`.toLowerCase().includes(searchText.toLowerCase()) ||
-        user.email?.toLowerCase().includes(searchText.toLowerCase()) ||
-        user.role?.name?.toLowerCase().includes(searchText.toLowerCase())
-      );
-      setFilteredUsers(filtered);
-    } else {
-      setFilteredUsers(users);
-    }
-  }, [searchText, users]);
-
-  useEffect(() => {
-    // Filter jobs based on search text
-    if (jobSearchText) {
-      const filtered = jobs.filter(job => 
-        job.title?.toLowerCase().includes(jobSearchText.toLowerCase()) ||
-        job.company_id?.name?.toLowerCase().includes(jobSearchText.toLowerCase()) ||
-        job.location?.toLowerCase().includes(jobSearchText.toLowerCase())
-      );
-      setFilteredJobs(filtered);
-    } else {
-      setFilteredJobs(jobs);
-    }
-  }, [jobSearchText, jobs]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userPagination.current, jobPagination.current, userPagination.pageSize, jobPagination.pageSize, searchText, jobSearchText]);
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Fetch users, jobs, and roles data
+      // Fetch users, jobs, and roles data with pagination
       const [usersResponse, jobsResponse, rolesResponse] = await Promise.all([
-        AdminService.getAllUsers(),
-        AdminService.getAllJobs(),
+        AdminService.getAllUsers({
+          page: userPagination.current,
+          limit: userPagination.pageSize,
+          search: searchText,
+        }),
+        AdminService.getAllJobs({
+          page: jobPagination.current,
+          limit: jobPagination.pageSize,
+          search: jobSearchText,
+        }),
         AdminService.getAllRoles()
       ]);
 
-      const usersData = usersResponse.data || [];
-      const jobs = jobsResponse.data || [];
-      const roles = rolesResponse.data || [];
+      const usersData = usersResponse?.data || [];
+      const usersPaginationData = usersResponse?.pagination || {};
+      const jobsData = jobsResponse?.data || [];
+      const jobsPaginationData = jobsResponse?.pagination || {};
+      const roles = rolesResponse?.data || [];
 
-      // Calculate statistics
-      const activeUsers = usersData.filter(user => user.isActive).length;
-      const bannedUsers = usersData.filter(user => !user.isActive).length;
-      const activeJobs = jobs.filter(job => job.isActive).length;
+      // Update pagination states
+      if (usersPaginationData.total !== undefined) {
+        setUserPagination(prev => ({
+          ...prev,
+          total: usersPaginationData.total || 0,
+        }));
+      }
+      
+      if (jobsPaginationData.total !== undefined) {
+        setJobPagination(prev => ({
+          ...prev,
+          total: jobsPaginationData.total || 0,
+        }));
+      }
 
+      // Fetch stats separately (using overview stats endpoint)
+      const statsResponse = await AdminService.getOverviewStats();
+      const statsData = statsResponse?.data || {};
+      
       setStats({
-        totalUsers: usersData.length,
-        activeUsers,
-        bannedUsers,
-        totalJobs: jobs.length,
-        activeJobs
+        totalUsers: statsData.users?.total || 0,
+        activeUsers: statsData.users?.active || 0,
+        bannedUsers: statsData.users?.banned || 0,
+        totalJobs: statsData.jobs?.total || 0,
+        activeJobs: statsData.jobs?.active || 0
       });
 
       setUsers(usersData);
-      setFilteredUsers(usersData);
-      setJobs(jobs);
-      setFilteredJobs(jobs);
+      setJobs(jobsData);
       setAvailableRoles(roles);
 
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
-      setError('Không thể tải dữ liệu dashboard. Vui lòng thử lại.');
+      setError('Failed to load dashboard data. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -141,25 +171,25 @@ const AdminDashboard = () => {
   const handleBanUser = async (userId, isActive) => {
     try {
       await AdminService.banUser(userId, isActive);
-      message.success(isActive ? 'Mở khóa người dùng thành công!' : 'Khóa người dùng thành công!');
+      notifySuccess(isActive ? 'User unbanned successfully!' : 'User banned successfully!');
       fetchDashboardData(); // Refresh data
     } catch (err) {
       console.error('Error banning user:', err);
-      message.error('Có lỗi xảy ra. Vui lòng thử lại.');
+      notifyError('An error occurred. Please try again.');
     }
   };
 
   const handleUpdateRole = async () => {
     try {
       await AdminService.updateUserRole(selectedUser._id, selectedRoleId);
-      message.success('Cập nhật vai trò thành công!');
+      notifySuccess('Role updated successfully!');
       setIsRoleModalVisible(false);
       setSelectedUser(null);
       setSelectedRoleId('');
       fetchDashboardData(); // Refresh data
     } catch (err) {
       console.error('Error updating role:', err);
-      message.error('Có lỗi xảy ra. Vui lòng thử lại.');
+      notifyError('An error occurred. Please try again.');
     }
   };
 
@@ -173,38 +203,38 @@ const AdminDashboard = () => {
   const handleToggleJobVisibility = async (jobId, isActive) => {
     try {
       await AdminService.toggleJobVisibility(jobId, isActive);
-      message.success(isActive ? 'Hiển thị công việc thành công!' : 'Ẩn công việc thành công!');
+      notifySuccess(isActive ? 'Job shown successfully!' : 'Job hidden successfully!');
       fetchDashboardData(); // Refresh data
     } catch (err) {
       console.error('Error toggling job visibility:', err);
-      message.error('Có lỗi xảy ra. Vui lòng thử lại.');
+      notifyError('An error occurred. Please try again.');
     }
   };
 
   const handleDeleteJob = async (jobId) => {
     try {
       await AdminService.deleteJob(jobId);
-      message.success('Xóa công việc thành công!');
+      notifySuccess('Job deleted successfully!');
       fetchDashboardData(); // Refresh data
     } catch (err) {
       console.error('Error deleting job:', err);
-      message.error('Có lỗi xảy ra. Vui lòng thử lại.');
+      notifyError('An error occurred. Please try again.');
     }
   };
 
   const columns = [
     {
-      title: 'Tên',
+      title: 'Name',
       dataIndex: 'firstName',
       key: 'fullName',
-      render: (text, record) => `${record.firstName || ''} ${record.lastName || ''}`.trim() || 'Chưa cập nhật',
+      render: (text, record) => `${record.firstName || ''} ${record.lastName || ''}`.trim() || 'Not updated',
     },
     {
       title: 'Role',
       dataIndex: 'role',
       key: 'role',
       render: (role, record) => {
-        const roleName = record.role?.name || 'Chưa xác định';
+        const roleName = record.role?.name || 'Undefined';
         const color = roleName === 'admin' ? 'red' : 
                      roleName === 'recruiter' ? 'blue' : 
                      roleName === 'user' ? 'green' : 'default';
@@ -224,20 +254,20 @@ const AdminDashboard = () => {
       title: 'Phone',
       dataIndex: 'phoneNumber',
       key: 'phoneNumber',
-      render: (text) => text || 'Chưa cập nhật',
+      render: (text) => text || 'Not updated',
     },
     {
-      title: 'Trạng thái',
+      title: 'Status',
       dataIndex: 'isActive',
       key: 'isActive',
       render: (isActive) => (
         <Tag color={isActive ? 'green' : 'red'} className="font-medium">
-          {isActive ? 'Đang hoạt động' : 'Đang bị ban'}
+          {isActive ? 'Active' : 'Banned'}
         </Tag>
       ),
     },
     {
-      title: 'Hành động',
+      title: 'Actions',
       key: 'actions',
       render: (_, record) => (
         <Space size="small" wrap>
@@ -248,16 +278,16 @@ const AdminDashboard = () => {
             onClick={() => openRoleModal(record)}
             className="text-xs"
           >
-            Chỉnh sửa role
+            Change Role
           </Button>
           
           {record.isActive ? (
             <Popconfirm
-              title="Xác nhận khóa người dùng"
-              description={`Bạn có chắc chắn muốn khóa người dùng "${`${record.firstName || ''} ${record.lastName || ''}`.trim() || record.email}"?`}
+              title="Confirm Ban User"
+              description={`Are you sure you want to ban user "${`${record.firstName || ''} ${record.lastName || ''}`.trim() || record.email}"?`}
               onConfirm={() => handleBanUser(record._id, false)}
-              okText="Có"
-              cancelText="Không"
+              okText="Yes"
+              cancelText="No"
             >
               <Button
                 danger
@@ -265,16 +295,16 @@ const AdminDashboard = () => {
                 icon={<StopOutlined />}
                 className="text-xs"
               >
-                Chỉnh sửa trạng thái
+                Ban User
               </Button>
             </Popconfirm>
           ) : (
             <Popconfirm
-              title="Xác nhận mở khóa người dùng"
-              description={`Bạn có chắc chắn muốn mở khóa người dùng "${`${record.firstName || ''} ${record.lastName || ''}`.trim() || record.email}"?`}
+              title="Confirm Unban User"
+              description={`Are you sure you want to unban user "${`${record.firstName || ''} ${record.lastName || ''}`.trim() || record.email}"?`}
               onConfirm={() => handleBanUser(record._id, true)}
-              okText="Có"
-              cancelText="Không"
+              okText="Yes"
+              cancelText="No"
             >
               <Button
                 type="primary"
@@ -282,7 +312,7 @@ const AdminDashboard = () => {
                 icon={<UnlockOutlined />}
                 className="text-xs"
               >
-                Chỉnh sửa trạng thái
+                Unban User
               </Button>
             </Popconfirm>
           )}
@@ -293,7 +323,7 @@ const AdminDashboard = () => {
 
   const jobColumns = [
     {
-      title: 'Tiêu đề',
+      title: 'Title',
       dataIndex: 'title',
       key: 'title',
       render: (text) => (
@@ -303,74 +333,74 @@ const AdminDashboard = () => {
       ),
     },
     {
-      title: 'Công ty',
-      dataIndex: 'company_id',
-      key: 'company_id',
+      title: 'Company',
+      dataIndex: 'company',
+      key: 'company',
       render: (company) => (
         <span className="text-blue-600 font-medium">
-          {company?.name || 'Chưa xác định'}
+          {company?.name || 'Undefined'}
         </span>
       ),
     },
     {
-      title: 'Địa điểm',
+      title: 'Location',
       dataIndex: 'location',
       key: 'location',
-      render: (text) => text || 'Chưa xác định',
+      render: (text) => text || 'Undefined',
     },
     {
-      title: 'Mức lương',
-      dataIndex: 'salary_min',
+      title: 'Salary',
+      dataIndex: 'minSalary',
       key: 'salary',
       render: (_, record) => {
-        if (record.salary_min && record.salary_max) {
+        if (record.minSalary && record.maxSalary) {
           return (
             <span className="text-green-600 font-medium">
-              {record.salary_min.toLocaleString('vi-VN')} - {record.salary_max.toLocaleString('vi-VN')} VNĐ
+              ${record.minSalary.toLocaleString()} - ${record.maxSalary.toLocaleString()}
             </span>
           );
         }
-        return 'Thỏa thuận';
+        return 'Negotiable';
       },
     },
     {
-      title: 'Trạng thái',
+      title: 'Status',
       dataIndex: 'isActive',
       key: 'isActive',
       render: (isActive) => (
         <Tag color={isActive ? 'green' : 'red'} className="font-medium">
-          {isActive ? 'Đang hiển thị' : 'Đã ẩn'}
+          {isActive ? 'Active' : 'Hidden'}
         </Tag>
       ),
     },
     {
-      title: 'Hành động',
+      title: 'Actions',
       key: 'actions',
       render: (_, record) => (
         <Space size="small" wrap>
           {record.isActive ? (
             <Popconfirm
-              title="Xác nhận ẩn công việc"
-              description={`Bạn có chắc chắn muốn ẩn công việc "${record.title}"?`}
+              title="Confirm Hide Job"
+              description={`Are you sure you want to hide job "${record.title}"?`}
               onConfirm={() => handleToggleJobVisibility(record._id, false)}
-              okText="Có"
-              cancelText="Không"
+              okText="Yes"
+              cancelText="No"
             >
               <Button
                 size="small"
                 icon={<EyeInvisibleOutlined />}
                 className="text-xs"
               >
-                Ẩn
+                Hide
               </Button>
             </Popconfirm>
           ) : (
             <Popconfirm
-              title="Xác nhận hiển thị công việc"
-              description={`Bạn có chắc chắn muốn hiển thị công việc "${record.title}"?`}
+              title="Confirm Show Job"
+              description={`Are you sure you want to show job "${record.title}"?`}
               onConfirm={() => handleToggleJobVisibility(record._id, true)}
-              okText="Có"
-              cancelText="Không"
+              okText="Yes"
+              cancelText="No"
             >
               <Button
                 type="primary"
@@ -378,17 +408,17 @@ const AdminDashboard = () => {
                 icon={<EyeOutlined />}
                 className="text-xs"
               >
-                Hiển thị
+                Show
               </Button>
             </Popconfirm>
           )}
           
           <Popconfirm
-            title="Xác nhận xóa công việc"
-            description={`Bạn có chắc chắn muốn xóa công việc "${record.title}"? Hành động này không thể hoàn tác!`}
+            title="Confirm Delete Job"
+            description={`Are you sure you want to delete job "${record.title}"? This action cannot be undone!`}
             onConfirm={() => handleDeleteJob(record._id)}
-            okText="Xóa"
-            cancelText="Hủy"
+            okText="Delete"
+            cancelText="Cancel"
           >
             <Button
               danger
@@ -396,7 +426,7 @@ const AdminDashboard = () => {
               icon={<DeleteOutlined />}
               className="text-xs"
             >
-              Xóa
+              Delete
             </Button>
           </Popconfirm>
         </Space>
@@ -415,7 +445,7 @@ const AdminDashboard = () => {
   if (error) {
     return (
       <Alert
-        message="Lỗi"
+        message="Error"
         description={error}
         type="error"
         showIcon
@@ -433,7 +463,7 @@ const AdminDashboard = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="Số người dùng"
+              title="Total Users"
               value={stats.totalUsers}
               prefix={<UserOutlined />}
               valueStyle={{ color: '#1890ff' }}
@@ -444,7 +474,7 @@ const AdminDashboard = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="Số người còn hoạt động"
+              title="Active Users"
               value={stats.activeUsers}
               prefix={<TeamOutlined />}
               valueStyle={{ color: '#52c41a' }}
@@ -455,7 +485,7 @@ const AdminDashboard = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="Tổng số công việc"
+              title="Total Jobs"
               value={stats.totalJobs}
               prefix={<FileTextOutlined />}
               valueStyle={{ color: '#fa8c16' }}
@@ -466,7 +496,7 @@ const AdminDashboard = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Statistic
-              title="Tổng số công việc còn hoạt động"
+              title="Active Jobs"
               value={stats.activeJobs}
               prefix={<FileTextOutlined />}
               valueStyle={{ color: '#13c2c2' }}
@@ -481,17 +511,19 @@ const AdminDashboard = () => {
           <Row justify="space-between" align="middle">
             <Col>
               <h2 className="text-xl font-bold text-gray-800 mb-0">
-                Danh sách người dùng
+                User List
               </h2>
             </Col>
             <Col>
               <Space>
                 <Search
-                  placeholder="Search người dùng"
+                  placeholder="Search users..."
                   allowClear
                   enterButton={<SearchOutlined />}
                   size="middle"
-                  onSearch={setSearchText}
+                  onSearch={(value) => {
+                    setSearchText(value);
+                  }}
                   onChange={(e) => setSearchText(e.target.value)}
                   className="w-64"
                 />
@@ -500,7 +532,7 @@ const AdminDashboard = () => {
                   icon={<ReloadOutlined />}
                   onClick={fetchDashboardData}
                 >
-                  Làm mới
+                  Refresh
                 </Button>
               </Space>
             </Col>
@@ -509,14 +541,31 @@ const AdminDashboard = () => {
 
         <Table
           columns={columns}
-          dataSource={filteredUsers}
+          dataSource={users}
           rowKey="_id"
+          loading={loading}
           pagination={{
-            pageSize: 10,
+            current: userPagination.current,
+            pageSize: userPagination.pageSize,
+            total: userPagination.total,
             showSizeChanger: true,
             showQuickJumper: true,
             showTotal: (total, range) => 
-              `${range[0]}-${range[1]} của ${total} người dùng`,
+              `${range[0]}-${range[1]} of ${total} users`,
+            onChange: (page, pageSize) => {
+              setUserPagination(prev => ({
+                ...prev,
+                current: page,
+                pageSize: pageSize || prev.pageSize,
+              }));
+            },
+            onShowSizeChange: (current, size) => {
+              setUserPagination(prev => ({
+                ...prev,
+                current: 1,
+                pageSize: size,
+              }));
+            },
           }}
         />
       </Card>
@@ -527,17 +576,19 @@ const AdminDashboard = () => {
           <Row justify="space-between" align="middle">
             <Col>
               <h2 className="text-xl font-bold text-gray-800 mb-0">
-                Quản lý công việc
+                Job Management
               </h2>
             </Col>
             <Col>
               <Space>
                 <Search
-                  placeholder="Tìm kiếm công việc..."
+                  placeholder="Search jobs..."
                   allowClear
                   enterButton={<SearchOutlined />}
                   size="middle"
-                  onSearch={setJobSearchText}
+                  onSearch={(value) => {
+                    setJobSearchText(value);
+                  }}
                   onChange={(e) => setJobSearchText(e.target.value)}
                   className="w-64"
                 />
@@ -546,7 +597,7 @@ const AdminDashboard = () => {
                   icon={<ReloadOutlined />}
                   onClick={fetchDashboardData}
                 >
-                  Làm mới
+                  Refresh
                 </Button>
               </Space>
             </Col>
@@ -555,14 +606,31 @@ const AdminDashboard = () => {
 
         <Table
           columns={jobColumns}
-          dataSource={filteredJobs}
+          dataSource={jobs}
           rowKey="_id"
+          loading={loading}
           pagination={{
-            pageSize: 10,
+            current: jobPagination.current,
+            pageSize: jobPagination.pageSize,
+            total: jobPagination.total,
             showSizeChanger: true,
             showQuickJumper: true,
             showTotal: (total, range) => 
-              `${range[0]}-${range[1]} của ${total} công việc`,
+              `${range[0]}-${range[1]} of ${total} jobs`,
+            onChange: (page, pageSize) => {
+              setJobPagination(prev => ({
+                ...prev,
+                current: page,
+                pageSize: pageSize || prev.pageSize,
+              }));
+            },
+            onShowSizeChange: (current, size) => {
+              setJobPagination(prev => ({
+                ...prev,
+                current: 1,
+                pageSize: size,
+              }));
+            },
           }}
         />
       </Card>
@@ -572,7 +640,7 @@ const AdminDashboard = () => {
         title={
           <div className="flex items-center">
             <EditOutlined className="mr-2 text-blue-500" />
-            <span>Cập nhật vai trò người dùng</span>
+            <span>Update User Role</span>
           </div>
         }
         open={isRoleModalVisible}
@@ -582,22 +650,22 @@ const AdminDashboard = () => {
           setSelectedUser(null);
           setSelectedRoleId('');
         }}
-        okText="Cập nhật"
-        cancelText="Hủy"
+        okText="Update"
+        cancelText="Cancel"
         width={500}
       >
         {selectedUser && (
           <div className="space-y-4">
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium text-gray-800 mb-2">Thông tin người dùng</h4>
+              <h4 className="font-medium text-gray-800 mb-2">User Information</h4>
               <div className="space-y-1 text-sm">
-                <p><span className="font-medium">Tên:</span> {selectedUser.FullName || 'Chưa cập nhật'}</p>
-                <p><span className="font-medium">Email:</span> {selectedUser.Email}</p>
-                <p><span className="font-medium">Số điện thoại:</span> {selectedUser.phone_number || 'Chưa cập nhật'}</p>
+                <p><span className="font-medium">Name:</span> {[selectedUser.firstName, selectedUser.lastName].filter(Boolean).join(' ') || 'Not updated'}</p>
+                <p><span className="font-medium">Email:</span> {selectedUser.email}</p>
+                <p><span className="font-medium">Phone:</span> {selectedUser.phoneNumber || 'Not updated'}</p>
                 <p>
-                  <span className="font-medium">Vai trò hiện tại:</span> 
-                  <Tag color={selectedUser.role_id?.name === 'admin' ? 'red' : selectedUser.role_id?.name === 'recruiter' ? 'blue' : 'green'} className="ml-2">
-                    {selectedUser.role_id?.name || selectedUser.Role || 'Chưa xác định'}
+                  <span className="font-medium">Current Role:</span> 
+                  <Tag color={selectedUser.role?.name === 'admin' ? 'red' : selectedUser.role?.name === 'recruiter' ? 'blue' : 'green'} className="ml-2">
+                    {selectedUser.role?.name || 'Undefined'}
                   </Tag>
                 </p>
               </div>
@@ -605,13 +673,13 @@ const AdminDashboard = () => {
             
             <div>
               <label className="block text-sm font-medium mb-2 text-gray-700">
-                Chọn vai trò mới:
+                Select New Role:
               </label>
               <Select
                 value={selectedRoleId}
                 onChange={setSelectedRoleId}
                 className="w-full"
-                placeholder="Chọn vai trò mới"
+                placeholder="Select new role"
                 size="large"
               >
                 {availableRoles.map(role => (
@@ -633,7 +701,7 @@ const AdminDashboard = () => {
             {selectedRoleId && (
               <div className="bg-blue-50 p-3 rounded-lg">
                 <p className="text-sm text-blue-700">
-                  <strong>Lưu ý:</strong> Thay đổi vai trò sẽ ảnh hưởng đến quyền truy cập của người dùng này trong hệ thống.
+                  <strong>Note:</strong> Changing the role will affect this user's access permissions in the system.
                 </p>
               </div>
             )}

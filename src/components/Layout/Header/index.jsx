@@ -35,6 +35,12 @@ const HeaderMain = ({ className }) => {
       navigate(ROUTER.JOB_LIST);
     }
   };
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    handleSearch(searchValue);
+  };
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-neutral-200 bg-white/95 backdrop-blur">
       <div className="hidden border-b border-neutral-100 bg-neutral-100 text-xs text-neutral-500 lg:block">
@@ -61,7 +67,7 @@ const HeaderMain = ({ className }) => {
 
       <div className={`flex items-center justify-between gap-3 px-4 py-3 ${className}`}>
         <Logo />
-        <form className="flex flex-1 items-center justify-center">
+        <form className="flex flex-1 items-center justify-center" onSubmit={handleFormSubmit}>
           <div className="relative w-full max-w-2xl">
             <Input.Search
               placeholder="Search jobs, companies..."
@@ -88,7 +94,7 @@ const HeaderMain = ({ className }) => {
           open={open}
           height="fit-content"
         >
-          <form className="flex-1 items-center justify-center">
+          <form className="flex-1 items-center justify-center" onSubmit={handleFormSubmit}>
             <div className="relative w-full">
               <Input.Search
                 placeholder="Search jobs, companies..."

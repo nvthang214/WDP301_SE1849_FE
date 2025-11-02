@@ -33,8 +33,8 @@ const initialFilters = {
 };
 
 export default function CompanyList() {
-  // Responsive grid layout with 4 items per row on desktop
-  const gridCols = "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5";
+  // Responsive grid layout like JobList
+  const gridCols = "grid-cols-1 sm:grid-cols-2 lg:grid-cols-2";
   
   // State management
   const [companies, setCompanies] = useState([]);
@@ -135,17 +135,17 @@ export default function CompanyList() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 md:px-8 py-6 relative">
+    <div className="min-h-screen bg-gray-50 px-4 md:px-8 py-6 relative max-w-7xl mx-auto">
       {/* Search bar */}
-      <form className="flex flex-col gap-2 mb-4" onSubmit={handleSearch}>
-        <div className="flex items-center bg-white rounded-xl shadow-sm px-3 py-2 gap-2 border">
-          <div className="flex items-center flex-1 gap-2">
+      <form className="mb-8 flex flex-col gap-2" onSubmit={handleSearch}>
+        <div className="flex items-center gap-2 rounded-xl border bg-white px-3 py-2 shadow-sm">
+          <div className="flex flex-1 items-center gap-2">
             <svg width="20" height="20" fill="none" stroke="currentColor" className="text-gray-400">
               <circle cx="9" cy="9" r="7" strokeWidth="2" />
               <path d="M16 16L13.5 13.5" strokeWidth="2" />
             </svg>
             <input
-              className="flex-1 outline-none bg-transparent text-base"
+              className="flex-1 bg-transparent text-base outline-none"
               placeholder="Search by: Company name, Industry, Location..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
@@ -165,10 +165,20 @@ export default function CompanyList() {
             />
           </div>
           <button
+            type="button"
+            className="ml-2 flex items-center gap-2 rounded bg-gray-100 px-3 py-2 hover:bg-gray-200"
+            onClick={() => setShowFilter(true)}
+          >
+            <svg width="20" height="20" fill="none" stroke="currentColor" className="text-gray-600">
+              <path d="M3 6h14M5 12h10M7 18h6" strokeWidth="2" />
+            </svg>
+            Filters
+          </button>
+          <button
             type="submit"
             className="ml-2 inline-flex items-center gap-2 rounded-[var(--radius-lg)] bg-[var(--color-primary-500)] px-5 py-2 font-semibold text-white shadow-[var(--shadow-md)] transition hover:bg-[var(--color-primary-600)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-300)]"
           >
-            Find Job
+            Find Company
           </button>
         </div>
       </form>
@@ -178,18 +188,28 @@ export default function CompanyList() {
       {/* Company Cards Grid */}
       {loading ? (
         <div className="text-center w-full py-10 text-gray-400">Loading...</div>
+      ) : companies.length === 0 ? (
+        <div className="text-center w-full py-20">
+          <div className="text-gray-400 text-lg mb-2">
+            <svg className="mx-auto mb-4 w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
+          </div>
+          <h3 className="text-xl font-semibold text-gray-600 mb-2">Chưa có công ty nào</h3>
+          <p className="text-gray-500">Không tìm thấy công ty nào phù hợp với tiêu chí tìm kiếm của bạn.</p>
+        </div>
       ) : (
         <div className={`grid ${gridCols} gap-6 mt-6`}>
             {companies.map((company, idx) => (
-              <Link to={`/companies/${company._id}`} key={idx} className="block">
                 <CompanyCard
                   key={company._id || idx}
+                  companyId={company._id}
                   name={company.name}
                   location={company.address}
                   openings={company.openPositions || 0}
                   logo={company.logo}
+                  companyType={company.companyType || "Technology"}
                 />
-              </Link>
             ))}
           </div>
         )}
@@ -238,6 +258,21 @@ export default function CompanyList() {
           </svg>
         </button>
       </div>
+
+      {/* Filter Sidebar */}
+      <FilterSidebar
+        open={showFilter}
+        onClose={() => setShowFilter(false)}
+        filters={draftFilters}
+        setFilters={setDraftFilters}
+        onApply={() => {
+          setFilters(draftFilters);
+          setPage(1);
+          setShowFilter(false);
+        }}
+        companyTypes={companyTypes}
+        companySizes={companySizes}
+      />
     </div>
   );
 }

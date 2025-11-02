@@ -463,14 +463,21 @@ const Home = () => {
             <div className="col-span-full py-8 text-center">
               <p className="text-neutral-500">{companiesError}</p>
             </div>
+          ) : companies.length === 0 ? (
+            // No companies found from API
+            <div className="col-span-full py-8 text-center">
+              <p className="text-neutral-500">Chưa có công ty nào</p>
+            </div>
           ) : companiesToRender.length ? (
             companiesToRender.map((item, index) => (
               <CompanyCard
                 key={item._id || item.id || `${item.name}-${index}`}
+                companyId={item._id || item.id}
                 name={item.name || item.companyName}
                 location={item.location || item.address}
                 openings={item.openings || item.jobCount || 0}
                 logo={item.logo || item.companyLogo}
+                companyType={item.industry || "Technology"}
                 {...item}
               />
             ))

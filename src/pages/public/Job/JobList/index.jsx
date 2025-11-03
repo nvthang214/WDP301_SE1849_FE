@@ -129,10 +129,11 @@ export default function JobList() {
 
         try {
           const { fetchMe } = useAuthStore.getState();
-          flag = fetchMe ? "isFavorite" : "";
+          flag = fetchMe == null ? "isFavorite" : "";
         } catch (error) {
           // Do nothing
           console.log("Error: ", error);
+          flag = "";
         }
 
         const res = await JobService.getJobs(flag, params);

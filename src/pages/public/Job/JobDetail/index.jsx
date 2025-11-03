@@ -164,7 +164,7 @@ export default function JobDetails() {
         let flag = "";
         try {
           const { fetchMe } = useAuthStore.getState();
-          flag = fetchMe ? "isFavorite" : "";
+          flag = fetchMe == null ? "isFavorite" : "";
         } catch (error) {
           // Do nothing
           console.error("Error fetching user:", error);

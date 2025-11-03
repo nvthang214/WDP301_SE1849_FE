@@ -224,7 +224,7 @@ const CandidateRequestUpgrade = () => {
         }}
       >
 
-        <div className="text-center mb-6 bg-blue-600 text-white py-6 rounded-lg shadow-md">
+        <div className="text-center mb-6 bg-blue-400 text-white py-6 rounded-lg shadow-md">
           <FileTextOutlined className="text-5xl mb-3" />
           <h1 className="text-3xl font-semibold">
             Upgrade Request to Recruiter

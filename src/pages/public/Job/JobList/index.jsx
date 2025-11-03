@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { JobService } from "../../../../services/JobService";
-import { UserService } from "../../../../services/UserService";
 import { CategoryService } from "../../../../services/CategoryService";
 import { useResponsive } from "../../../../hook/useResponsive";
 import JobCard from "../../../../components/Card/JobCard";
 import FilterSidebar from "../JobList/components/FilterSidebar";
 import { useSearchParams, useLocation } from "react-router-dom";
+import useAuthStore from "../../../../store/useAuthStore";
 
 const jobTypes = ["FULL-TIME", "PART-TIME", "INTERNSHIP", "TEMPORARY", "CONTRACT BASE"];
 
@@ -41,7 +41,6 @@ export default function JobList() {
 
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const category = searchParams.get("category");
 
   // Pagination state
   const [page, setPage] = useState(1);
@@ -69,7 +68,7 @@ export default function JobList() {
   }, []);
 
   // Search & filter states
-  const [search, setSearch] = useState(category || "");
+  const [search, setSearch] = useState(urlSearch || "");
   const [searchInput, setSearchInput] = useState("");
   const [filters, setFilters] = useState(() => ({ ...initialFilters }));
   const [draftFilters, setDraftFilters] = useState(() => ({ ...initialFilters }));
@@ -101,59 +100,59 @@ export default function JobList() {
 
   //////////////////////////////////////////
   // Fetch jobs with filters & pagination
-  const fetchJobs = async () => {
-    setLoading(true);
-    try {
-      const params = {
-        page,
-        limit,
-      };
-      if (search) params.search = search;
-      if (location) params.location = location;
-      if (filters.jobType) params.jobType = filters.jobType;
-      if (filters.experience) params.experience = filters.experience;
-      if (filters.categoryId) params.categoryId = filters.categoryId;
-      if (filters.minSalary !== undefined) params.minSalary = filters.minSalary;
-      if (filters.maxSalary !== undefined) params.maxSalary = filters.maxSalary;
-      if (filters.isActive !== undefined) params.isActive = filters.isActive;
-      if (filters.remote !== undefined) params.remote = filters.remote ? "true" : "false";
-      // Xóa các param undefined/null/rỗng
-      Object.keys(params).forEach((key) => {
-        if (params[key] === undefined || params[key] === "") {
-          delete params[key];
-        }
-      });
-
-      let flag = "";
-
-      try {
-        const currentUser = await UserService.fetchMe();
-        flag = currentUser.data ? "isFavorite" : "";
-      } catch (error) {
-        // Do nothing
-        console.log("Error: ", error);
-      }
-
-      const res = await JobService.getJobs(flag, params);
-      setJobs(res.data.jobs || []);
-      setPagination(
-        res.data.pagination || {
-          total: 0,
-          page: 1,
-          limit: 15,
-          totalPages: res.data.totalPages || 1,
-        }
-      );
-    } catch (error) {
-      console.error("Error fetching jobs:", error);
-      setJobs([]);
-      setPagination({ total: 0, page: 1, limit: 15, totalPages: 1 });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
+    const fetchJobs = async () => {
+      setLoading(true);
+      try {
+        const params = {
+          page,
+          limit,
+        };
+        if (search) params.search = search;
+        if (location) params.location = location;
+        if (filters.jobType) params.jobType = filters.jobType;
+        if (filters.experience) params.experience = filters.experience;
+        if (filters.categoryId) params.categoryId = filters.categoryId;
+        if (filters.minSalary !== undefined) params.minSalary = filters.minSalary;
+        if (filters.maxSalary !== undefined) params.maxSalary = filters.maxSalary;
+        if (filters.isActive !== undefined) params.isActive = filters.isActive;
+        if (filters.remote !== undefined) params.remote = filters.remote ? "true" : "false";
+        // Xóa các param undefined/null/rỗng
+        Object.keys(params).forEach((key) => {
+          if (params[key] === undefined || params[key] === "") {
+            delete params[key];
+          }
+        });
+
+        let flag = "";
+
+        try {
+          const { fetchMe } = useAuthStore.getState();
+          flag = fetchMe ? "isFavorite" : "";
+        } catch (error) {
+          // Do nothing
+          console.log("Error: ", error);
+        }
+
+        const res = await JobService.getJobs(flag, params);
+        setJobs(res.data.jobs || []);
+        setPagination(
+          res.data.pagination || {
+            total: 0,
+            page: 1,
+            limit: 15,
+            totalPages: res.data.totalPages || 1,
+          }
+        );
+      } catch (error) {
+        console.error("Error fetching jobs:", error);
+        setJobs([]);
+        setPagination({ total: 0, page: 1, limit: 15, totalPages: 1 });
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchJobs();
     // eslint-disable-next-line
   }, [search, location, filters, page, limit]);
@@ -269,7 +268,11 @@ export default function JobList() {
                 jobId={job._id}
                 title={job.title}
                 type={job.jobType}
-                salary={job.minSalary && job.maxSalary ? `$${job.minSalary.toLocaleString()} - $${job.maxSalary.toLocaleString()}` : 'Negotiable'}
+                salary={
+                  job.minSalary && job.maxSalary
+                    ? `$${job.minSalary.toLocaleString()} - $${job.maxSalary.toLocaleString()}`
+                    : "Negotiable"
+                }
                 company={job.company?.name}
                 location={job.city}
                 logo={job.company?.logo}

@@ -84,24 +84,7 @@ function ApplyModal({ open, onClose, jobTitle, onSubmit, submitting }) {
             <path d="M6 6l10 10M6 16L16 6" strokeWidth="2" />
           </svg>
         </button>
-        <h3 className="mb-4 text-lg font-semibold">Apply Job: {jobTitle}</h3>
-        <div className="mb-4">
-          <div className="mb-4">
-            <label className="mb-1 block text-sm font-medium">Upload Resume (PDF)</label>
-            <label className="flex cursor-pointer items-center justify-between gap-3 rounded border border-dashed border-gray-300 px-3 py-2 text-sm text-gray-500 hover:border-blue-400 hover:text-blue-500">
-              <span>{resume ? resume.name : "Choose file..."}</span>
-              <input
-                type="file"
-                accept=".pdf"
-                className="hidden"
-                onChange={(e) => setResume(e.target.files?.[0] ?? null)}
-              />
-              <span className="rounded bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-600">
-                Browse
-              </span>
-            </label>
-          </div>
-        </div>
+        <div className="mb-4 text-lg font-semibold">Apply Job: {jobTitle}</div>
         <div className="mb-4">
           <label className="mb-1 block text-sm font-medium">Cover Letter</label>
           <textarea

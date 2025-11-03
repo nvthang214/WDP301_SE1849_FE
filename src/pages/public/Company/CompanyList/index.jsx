@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import CompanyService from "../../../../services/CompanyService";
 import { useResponsive } from "../../../../hook/useResponsive";
 import CompanyCard from "../../../../components/Card/CompanyCard";
@@ -33,11 +32,13 @@ const initialFilters = {
 };
 
 export default function CompanyList() {
-  // Responsive grid layout like JobList
   const { isMobile, isTablet } = useResponsive();
-  const gridCols = isMobile ? "grid-cols-1" : isTablet ? "grid-cols-2" : "grid-cols-2";
-  
-  // State management
+  const gridCols = isMobile
+    ? "grid-cols-1"
+    : isTablet
+    ? "grid-cols-2"
+    : "grid-cols-3"; 
+
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchInput, setSearchInput] = useState("");
@@ -52,12 +53,9 @@ export default function CompanyList() {
     limit: 15,
     totalPages: 1,
   });
-  
-  // Filters
   const [filters, setFilters] = useState(initialFilters);
   const [draftFilters, setDraftFilters] = useState(initialFilters);
 
-  // Fetch companies function
   const fetchCompanies = async () => {
     setLoading(true);
     try {
@@ -71,21 +69,16 @@ export default function CompanyList() {
         ...(filters.hasOpenings !== undefined && { hasOpenings: filters.hasOpenings }),
       };
 
-      // Remove undefined/null/empty params
       Object.keys(params).forEach((key) => {
         if (params[key] === undefined || params[key] === "") {
           delete params[key];
         }
       });
 
-      let res;
-      // Sử dụng API getCompaniesByLocation nếu có location search
-      if (filters.location) {
-        res = await CompanyService.getCompaniesByLocation(params);
-      } else {
-        res = await CompanyService.getCompanies(params);
-      }
-      
+      const res = filters.location
+        ? await CompanyService.getCompaniesByLocation(params)
+        : await CompanyService.getCompanies(params);
+
       setCompanies(res.data.companies || []);
       setPagination(
         res.data.pagination || {
@@ -106,29 +99,18 @@ export default function CompanyList() {
 
   useEffect(() => {
     fetchCompanies();
-    // eslint-disable-next-line
   }, [search, filters, page, limit]);
 
-  // Handle search submit
   const handleSearch = (e) => {
     e.preventDefault();
     setPage(1);
     setSearch(searchInput.trim());
-    // Cập nhật filters để bao gồm location search
-    if (locationSearch.trim()) {
-      setFilters(prev => ({
-        ...prev,
-        location: locationSearch.trim()
-      }));
-    } else {
-      setFilters(prev => ({
-        ...prev,
-        location: ""
-      }));
-    }
+    setFilters((prev) => ({
+      ...prev,
+      location: locationSearch.trim() || "",
+    }));
   };
 
-  // Handle page change
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= pagination.totalPages) {
       setPage(newPage);
@@ -136,12 +118,11 @@ export default function CompanyList() {
   };
 
   return (
-    <div className="relative min-h-screen bg-gray-50 px-0 py-6">
-      <div className="mx-auto w-full max-w-[1200px] px-6 md:px-8">
-        {/* Search bar */}
+    <div className="relative min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-10">
+      <div className="w-full">
         <form className="mb-8 flex w-full flex-col gap-2" onSubmit={handleSearch}>
-          <div className="w-full flex items-center gap-3 rounded-xl border bg-white px-5 py-3 shadow-sm">
-            <div className="flex flex-1 items-center gap-2">
+          <div className="w-full flex flex-wrap items-center gap-3 rounded-xl border bg-white px-5 py-3 shadow-sm">
+            <div className="flex flex-1 items-center gap-2 min-w-[200px]">
               <svg width="20" height="20" fill="none" stroke="currentColor" className="text-gray-400">
                 <circle cx="9" cy="9" r="7" strokeWidth="2" />
                 <path d="M16 16L13.5 13.5" strokeWidth="2" />
@@ -154,7 +135,7 @@ export default function CompanyList() {
               />
             </div>
 
-            <div className="flex items-center bg-gray-50 rounded px-3 py-2 ml-2 min-w-[240px] md:min-w-[280px]">
+            <div className="flex items-center bg-gray-50 rounded px-3 py-2 min-w-[220px] md:min-w-[280px]">
               <svg width="16" height="16" fill="none" stroke="currentColor" className="text-gray-400 mr-2">
                 <path d="M12 2l3 3-3 3M3 14l3-3-3-3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M12 12v3a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h5a2 2 0 012 2v1" strokeWidth="2"/>
@@ -166,26 +147,29 @@ export default function CompanyList() {
                 onChange={(e) => setLocationSearch(e.target.value)}
               />
             </div>
-            <button
-              type="button"
-              className="ml-2 flex items-center gap-2 rounded bg-gray-100 px-3 py-2 hover:bg-gray-200"
-              onClick={() => setShowFilter(true)}
-            >
-              <svg width="20" height="20" fill="none" stroke="currentColor" className="text-gray-600">
-                <path d="M3 6h14M5 12h10M7 18h6" strokeWidth="2" />
-              </svg>
-              Filters
-            </button>
-            <button
-              type="submit"
-              className="ml-2 inline-flex items-center gap-2 rounded-[var(--radius-lg)] bg-[var(--color-primary-500)] px-5 py-2 font-semibold text-white shadow-[var(--shadow-md)] transition hover:bg-[var(--color-primary-600)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-300)]"
-            >
-              Find Company
-            </button>
+
+            <div className="flex items-center gap-2 ml-auto">
+              <button
+                type="button"
+                className="flex items-center gap-2 rounded bg-gray-100 px-3 py-2 hover:bg-gray-200"
+                onClick={() => setShowFilter(true)}
+              >
+                <svg width="20" height="20" fill="none" stroke="currentColor" className="text-gray-600">
+                  <path d="M3 6h14M5 12h10M7 18h6" strokeWidth="2" />
+                </svg>
+                Filters
+              </button>
+              <button
+                type="submit"
+                className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-primary-500)] px-5 py-2 font-semibold text-white shadow-md transition hover:bg-[var(--color-primary-600)]"
+              >
+                Find Company
+              </button>
+            </div>
           </div>
         </form>
 
-        {/* Company Cards Grid */}
+     
         {loading ? (
           <div className="text-center w-full py-10 text-gray-400">Loading...</div>
         ) : companies.length === 0 ? (
@@ -199,69 +183,59 @@ export default function CompanyList() {
             <p className="text-gray-500">Không tìm thấy công ty nào phù hợp với tiêu chí tìm kiếm của bạn.</p>
           </div>
         ) : (
-          <div className="mx-auto w-full max-w-[1200px]">
-            <div className={`grid ${gridCols} gap-8 mt-6`}>
-              {companies.map((company, idx) => (
-                <CompanyCard
-                  key={company._id || idx}
-                  companyId={company._id}
-                  name={company.name}
-                  location={company.address}
-                  openings={company.openPositions || 0}
-                  logo={company.logo}
-                  companyType={company.companyType || "Technology"}
-                />
-              ))}
-            </div>
+         
+          <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 mt-6`}>
+            {companies.map((company, idx) => (
+              <CompanyCard
+                key={company._id || idx}
+                companyId={company._id}
+                name={company.name}
+                location={company.address}
+                openings={company.openPositions || 0}
+                logo={company.logo}
+                companyType={company.companyType || "Technology"}
+              />
+            ))}
           </div>
         )}
 
-        {/* Pagination */}
+        
         <div className="mt-10 flex items-center justify-center gap-3">
           <button
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--color-neutral-200)] text-[var(--color-neutral-500)] transition hover:border-[var(--color-primary-300)] hover:text-[var(--color-primary-600)] disabled:cursor-not-allowed disabled:opacity-30"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 text-gray-500 transition hover:border-blue-300 hover:text-blue-600 disabled:opacity-30"
             onClick={() => handlePageChange(page - 1)}
             disabled={page === 1}
           >
             <svg width="18" height="18" fill="none" stroke="currentColor">
-              <path
-                d="M11 15L7 11L11 7"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
+              <path d="M11 15L7 11L11 7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
+
           {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((n) => (
             <button
               key={n}
               className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition ${
                 n === page
-                  ? "bg-[var(--color-primary-500)] text-white shadow-[var(--shadow-md)]"
-                  : "border border-transparent bg-white text-[var(--color-neutral-600)] hover:border-[var(--color-primary-200)] hover:text-[var(--color-primary-600)]"
+                  ? "bg-[var(--color-primary-500)] text-white shadow-md"
+                  : "bg-white text-gray-600 hover:border-blue-200 hover:text-blue-600"
               }`}
               onClick={() => handlePageChange(n)}
             >
               {n.toString().padStart(2, "0")}
             </button>
           ))}
+
           <button
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--color-neutral-200)] text-[var(--color-neutral-500)] transition hover:border-[var(--color-primary-300)] hover:text-[var(--color-primary-600)] disabled:cursor-not-allowed disabled:opacity-30"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 text-gray-500 transition hover:border-blue-300 hover:text-blue-600 disabled:opacity-30"
             onClick={() => handlePageChange(page + 1)}
             disabled={page === pagination.totalPages}
           >
             <svg width="18" height="18" fill="none" stroke="currentColor">
-              <path
-                d="M7 7L11 11L7 15"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
+              <path d="M7 7L11 11L7 15" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
         </div>
 
-        {/* Filter Sidebar */}
         <FilterSidebar
           open={showFilter}
           onClose={() => setShowFilter(false)}
@@ -276,6 +250,6 @@ export default function CompanyList() {
           companySizes={companySizes}
         />
       </div>
-     </div>
-   );
- }
+    </div>
+  );
+}

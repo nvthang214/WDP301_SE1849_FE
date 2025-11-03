@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Card, Row, Col, Table, Button, Typography, Space, Tag, Dropdown, Menu } from "antd";
 import { EyeOutlined, EditOutlined, MoreOutlined, UserOutlined, SettingOutlined } from "@ant-design/icons";
 import { RecruiterService } from '../../../services/RecruiterService';
+import { useNavigate } from "react-router-dom";
+import ROUTER from '../../../router/ROUTER.js';
 
 const { Title, Text } = Typography;
 
@@ -13,6 +15,8 @@ const RecruiterOverview = () => {
   const [recentJobs, setRecentJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchData();
@@ -102,7 +106,7 @@ const RecruiterOverview = () => {
       key: 'actions',
       render: (_, record) => (
         <Space>
-          <Button type="primary" size="small" className="bg-blue-600 hover:bg-blue-700 border-blue-600">
+          <Button  type="primary" size="small" className="bg-blue-600 hover:bg-blue-700 border-blue-600" onClick={() => navigate(`${ROUTER.RECRUITER_APPLICATIONS}?jobId=${record._id}`)}>
             View Applications
           </Button>
           <Dropdown overlay={getActionMenu(record)} trigger={['click']}>
@@ -188,7 +192,7 @@ const RecruiterOverview = () => {
         title={
           <div className="flex justify-between items-center">
             <span className="text-lg font-semibold text-gray-900">Recently Posted Jobs</span>
-            <Button type="link" className="!p-0 text-blue-600 hover:text-blue-700">
+            <Button type="link" className="!p-0 text-blue-600 hover:text-blue-700" onClick={() => navigate(ROUTER.RECRUITER_APPLICATIONS)}>
               View all →
             </Button>
           </div>

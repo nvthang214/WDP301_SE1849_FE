@@ -16,21 +16,42 @@ import {
 import {
   FilterOutlined,
   SortAscendingOutlined,
-  PlusOutlined,
   MoreOutlined,
   UserOutlined,
+} from '@ant-design/icons';
+import { ApplicationService } from '../../../../services/ApplicationService';
+import { useLocation } from 'react-router-dom';
+import { notifySuccess } from '../../../../components/Notification';
   DownOutlined,
 } from "@ant-design/icons";
 import { ApplicationService } from "../../../../services/ApplicationService";
 import { useLocation } from "react-router-dom";
 
 const { Content } = Layout;
-const { Title, Text } = Typography;
+const { Title } = Typography;
+
+const allowedStatuses = [
+  { value: 'pending', label: 'Đang chờ' },
+  { value: 'shortlisted', label: 'Đã shortlist' },
+  { value: 'interview', label: 'Phỏng vấn' },
+  { value: 'rejected', label: 'Từ chối' },
+  { value: 'hired', label: 'Đã nhận' },
+];
+
+const transitionMap = {
+  pending: ['shortlisted', 'interview', 'rejected'],
+  shortlisted: ['interview', 'rejected'],
+  interview: ['hired', 'rejected'],
+  hired: [],
+  rejected: [],
+};
 
 const Applications = () => {
   const [applications, setApplications] = useState([]);
   const [shortlistedApplications, setShortlistedApplications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [sortOrder, setSortOrder] = useState('newest');
   const location = useLocation();
 
   // Get jobId from URL params
@@ -179,10 +200,20 @@ const Applications = () => {
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <h2 className="text-2xl font-bold">Job Applications</h2>
-          <div className="flex space-x-3">
-            <Button icon={<FilterOutlined />}>Filter</Button>
+          <div className="flex items-center gap-3">
+            <Select
+              value={filterStatus}
+              onChange={(val) => setFilterStatus(val)}
+              options={[
+                { value: 'all', label: 'Tất cả' },
+                ...allowedStatuses,
+              ]}
+              size="middle"
+              style={{ minWidth: 160 }}
+              suffixIcon={<FilterOutlined />}
+            />
             <Dropdown overlay={sortMenu} placement="bottomRight">
-              <Button icon={<SortAscendingOutlined />}>Sort</Button>
+              <Button icon={<SortAscendingOutlined />}>Sắp xếp</Button>
             </Dropdown>
           </div>
         </div>

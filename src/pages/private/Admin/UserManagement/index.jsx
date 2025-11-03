@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  Table, 
-  Button, 
-  Space, 
-  Tag, 
-  Modal, 
-  Select, 
-  message, 
+import {
+  Table,
+  Button,
+  Space,
+  Tag,
+  Modal,
+  Select,
   Popconfirm,
   Card,
   Input,
@@ -16,13 +15,13 @@ import {
   Alert,
   Statistic
 } from 'antd';
-import { 
-  UserOutlined, 
-  EditOutlined, 
-  StopOutlined, 
+import { notifySuccess, notifyError, notifyWarning } from '../../../../components/Notification';
+import {
+  UserOutlined,
+  EditOutlined,
+  StopOutlined,
   UnlockOutlined,
   SearchOutlined,
-  ReloadOutlined,
   TeamOutlined,
   LockOutlined
 } from '@ant-design/icons';
@@ -37,57 +36,69 @@ const UserManagement = () => {
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchText, setSearchText] = useState('');
-  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [searchInput, setSearchInput] = useState(''); // Input value for typing
+  const [searchText, setSearchText] = useState(''); // Actual search value sent to API
   const [roleFilter, setRoleFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const { user } = useAuthStore();
-  
+
+  // Pagination state
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+  });
+
   // Modal states
   const [isRoleModalVisible, setIsRoleModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedRoleId, setSelectedRoleId] = useState('');
 
+  // Track filters to detect changes
+  const prevFiltersRef = React.useRef(`${searchText}|${roleFilter}|${statusFilter}`);
+
+  // Fetch data when pagination, search, or filters change
   useEffect(() => {
+    // Always reset to page 1 when filters change (not pagination)
+    const filtersKey = `${searchText}|${roleFilter}|${statusFilter}`;
+    if (filtersKey !== prevFiltersRef.current) {
+      prevFiltersRef.current = filtersKey;
+      if (pagination.current !== 1) {
+        setPagination(prev => ({ ...prev, current: 1 }));
+        return; // fetchData will be called when current changes to 1
+      }
+    }
+
+    // Fetch data
     fetchData();
-  }, []);
-
-  useEffect(() => {
-    // Filter users based on search text, role filter, and status filter
-    let filtered = users;
-
-    // Apply search filter
-    if (searchText.trim()) {
-      const q = searchText.trim().toLowerCase();
-      filtered = filtered.filter(user => {
-        const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ').toLowerCase();
-        const email = (user.email || '').toLowerCase();
-        const roleName = (user.role?.name || '').toLowerCase();
-        return fullName.includes(q) || email.includes(q) || roleName.includes(q);
-      });
-    }
-
-    // Apply role filter
-    if (roleFilter) {
-      filtered = filtered.filter(user => user.role?.name === roleFilter);
-    }
-
-    // Apply status filter
-    if (statusFilter !== '') {
-      const isActive = statusFilter === 'active';
-      filtered = filtered.filter(user => user.isActive === isActive);
-    }
-
-    setFilteredUsers(filtered);
-  }, [searchText, users, roleFilter, statusFilter]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagination.current, pagination.pageSize, searchText, roleFilter, statusFilter]);
 
   const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
 
+      // Build query params
+      const params = {
+        page: pagination.current,
+        limit: pagination.pageSize,
+      };
+
+      if (searchText.trim()) {
+        params.search = searchText.trim();
+      }
+
+      if (roleFilter) {
+        params.role = roleFilter;
+      }
+
+      if (statusFilter !== '') {
+        params.status = statusFilter;
+      }
+
       const [usersResponse, rolesResponse] = await Promise.all([
-        AdminService.getAllUsers(),
+        AdminService.getAllUsers(params),
         AdminService.getAllRoles(),
       ]);
 
@@ -104,18 +115,26 @@ const UserManagement = () => {
 
       const usersData = normalize(usersResponse);
       const rolesData = normalize(rolesResponse);
+      const usersPaginationData = usersResponse?.pagination || {};
+
+      // Update pagination
+      if (usersPaginationData.total !== undefined) {
+        setPagination(prev => ({
+          ...prev,
+          total: usersPaginationData.total || 0,
+        }));
+      }
 
       setUsers(usersData);
       setRoles(rolesData);
-      setFilteredUsers(usersData);
 
     } catch (err) {
       console.error('Error fetching data:', err);
       const status = err?.response?.status;
       if (status === 401 || status === 403) {
-        setError('Phiên đăng nhập hết hạn hoặc không đủ quyền. Vui lòng đăng nhập lại bằng tài khoản admin.');
+        setError('Session expired or insufficient permissions. Please log in again with an admin account.');
       } else {
-        setError('Không thể tải dữ liệu. Vui lòng thử lại.');
+        setError('Failed to load data. Please try again.');
       }
     } finally {
       setLoading(false);
@@ -125,19 +144,19 @@ const UserManagement = () => {
   const handleBanUser = async (userId, isActive) => {
     try {
       if (user && userId === user._id && isActive === false) {
-        message.warning('Bạn không thể tự khóa tài khoản của chính mình.');
+        notifyWarning('You cannot ban your own account.');
         return;
       }
       await AdminService.banUser(userId, isActive);
-      message.success(isActive ? 'Mở khóa người dùng thành công!' : 'Khóa người dùng thành công!');
+      notifySuccess(isActive ? 'User unbanned successfully!' : 'User banned successfully!');
       fetchData(); // Refresh data
     } catch (err) {
       console.error('Error banning user:', err);
       const status = err?.response?.status;
       if (status === 401 || status === 403) {
-        message.error('Bạn không đủ quyền hoặc đã bị khóa. Đăng nhập lại bằng tài khoản admin.');
+        notifyError('Insufficient permissions or account is locked. Please log in again with an admin account.');
       } else {
-        message.error('Có lỗi xảy ra. Vui lòng thử lại.');
+        notifyError('An error occurred. Please try again.');
       }
     }
   };
@@ -145,14 +164,14 @@ const UserManagement = () => {
   const handleUpdateRole = async () => {
     try {
       await AdminService.updateUserRole(selectedUser._id, selectedRoleId);
-      message.success('Cập nhật vai trò thành công!');
+      notifySuccess('Role updated successfully!');
       setIsRoleModalVisible(false);
       setSelectedUser(null);
       setSelectedRoleId('');
       fetchData(); // Refresh data
     } catch (err) {
       console.error('Error updating role:', err);
-      message.error('Có lỗi xảy ra. Vui lòng thử lại.');
+      notifyError('An error occurred. Please try again.');
     }
   };
 
@@ -164,36 +183,36 @@ const UserManagement = () => {
 
   const columns = [
     {
-      title: 'Tên đầy đủ',
+      title: 'Full Name',
       key: 'fullName',
       render: (_, record) => {
         const fullName = [record.firstName, record.lastName].filter(Boolean).join(' ');
         return (
           <div>
-            <div className="font-medium">{fullName || 'Chưa cập nhật'}</div>
+            <div className="font-medium">{fullName || 'Not updated'}</div>
             <div className="text-xs text-gray-500">{record.email}</div>
           </div>
         );
       },
     },
     {
-      title: 'Số điện thoại',
+      title: 'Phone Number',
       dataIndex: 'phoneNumber',
       key: 'phoneNumber',
       render: (text) => (
         <span className={text ? 'text-gray-800' : 'text-gray-400 italic'}>
-          {text || 'Chưa cập nhật'}
+          {text || 'Not updated'}
         </span>
       ),
     },
     {
-      title: 'Vai trò hiện tại',
+      title: 'Current Role',
       key: 'role',
       render: (_, record) => {
-        const roleName = record.role?.name || 'Chưa xác định';
-        const color = roleName === 'admin' ? 'red' : 
-                     roleName === 'recruiter' ? 'blue' : 
-                     roleName === 'user' ? 'green' : 'default';
+        const roleName = record.role?.name || 'Undefined';
+        const color = roleName === 'admin' ? 'red' :
+          roleName === 'recruiter' ? 'blue' :
+            roleName === 'user' ? 'green' : 'default';
         return (
           <Tag color={color} className="font-medium">
             {roleName}
@@ -202,17 +221,17 @@ const UserManagement = () => {
       },
     },
     {
-      title: 'Trạng thái',
+      title: 'Status',
       dataIndex: 'isActive',
       key: 'isActive',
       render: (isActive) => (
         <Tag color={isActive ? 'green' : 'red'} className="font-medium">
-          {isActive ? 'Hoạt động' : 'Bị khóa'}
+          {isActive ? 'Active' : 'Banned'}
         </Tag>
       ),
     },
     {
-      title: 'Hành động',
+      title: 'Actions',
       key: 'actions',
       width: 200,
       render: (_, record) => (
@@ -224,16 +243,16 @@ const UserManagement = () => {
             onClick={() => openRoleModal(record)}
             className="text-xs"
           >
-            Đổi vai trò
+            Change Role
           </Button>
-          
+
           {record.isActive ? (
             <Popconfirm
-              title="Xác nhận khóa người dùng"
-              description={`Bạn có chắc chắn muốn khóa người dùng "${[record.firstName, record.lastName].filter(Boolean).join(' ') || record.email}"?`}
+              title="Confirm Ban User"
+              description={`Are you sure you want to ban user "${[record.firstName, record.lastName].filter(Boolean).join(' ') || record.email}"?`}
               onConfirm={() => handleBanUser(record._id, false)}
-              okText="Có"
-              cancelText="Không"
+              okText="Yes"
+              cancelText="No"
             >
               <Button
                 danger
@@ -241,16 +260,16 @@ const UserManagement = () => {
                 icon={<StopOutlined />}
                 className="text-xs"
               >
-                Khóa
+                Ban
               </Button>
             </Popconfirm>
           ) : (
             <Popconfirm
-              title="Xác nhận mở khóa người dùng"
-              description={`Bạn có chắc chắn muốn mở khóa người dùng "${[record.firstName, record.lastName].filter(Boolean).join(' ') || record.email}"?`}
+              title="Confirm Unban User"
+              description={`Are you sure you want to unban user "${[record.firstName, record.lastName].filter(Boolean).join(' ') || record.email}"?`}
               onConfirm={() => handleBanUser(record._id, true)}
-              okText="Có"
-              cancelText="Không"
+              okText="Yes"
+              cancelText="No"
             >
               <Button
                 type="primary"
@@ -258,7 +277,7 @@ const UserManagement = () => {
                 icon={<UnlockOutlined />}
                 className="text-xs"
               >
-                Mở khóa
+                Unban
               </Button>
             </Popconfirm>
           )}
@@ -278,7 +297,7 @@ const UserManagement = () => {
   if (error) {
     return (
       <Alert
-        message="Lỗi"
+        message="Error"
         description={error}
         type="error"
         showIcon
@@ -288,79 +307,73 @@ const UserManagement = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-0 m-0">
       {/* Statistics Cards */}
       <Row gutter={[16, 16]} className="mb-6">
         <Col xs={24} sm={8}>
-          <Card>
+          <Card bordered={false} className="shadow-sm rounded-lg border border-gray-300">
             <Statistic
-              title="Tổng người dùng"
+              title={<span className="text-gray-600 font-medium">Total Users</span>}
               value={users.length}
               prefix={<UserOutlined />}
-              valueStyle={{ color: '#1890ff' }}
+              valueStyle={{ color: '#1677ff', fontWeight: 600 }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={8}>
-          <Card>
+          <Card bordered={false} className="shadow-sm rounded-lg border border-gray-300">
             <Statistic
-              title="Đang hoạt động"
+              title={<span className="text-gray-600 font-medium">Active</span>}
               value={users.filter(user => user.isActive).length}
               prefix={<TeamOutlined />}
-              valueStyle={{ color: '#52c41a' }}
+              valueStyle={{ color: '#52c41a', fontWeight: 600 }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={8}>
-          <Card>
+          <Card bordered={false} className="shadow-sm rounded-lg border border-gray-300">
             <Statistic
-              title="Bị khóa"
+              title={<span className="text-gray-600 font-medium">Banned</span>}
               value={users.filter(user => !user.isActive).length}
               prefix={<LockOutlined />}
-              valueStyle={{ color: '#ff4d4f' }}
+              valueStyle={{ color: '#ff4d4f', fontWeight: 600 }}
             />
           </Card>
         </Col>
       </Row>
 
-      <Card>
-        <div className="mb-4">
-          <Row justify="space-between" align="middle">
-            <Col>
-              <h1 className="text-2xl font-bold text-gray-800 mb-0">
-                <UserOutlined className="mr-2" />
-                Quản lý người dùng
-              </h1>
-            </Col>
-            <Col>
-              <Button
-                type="primary"
-                icon={<ReloadOutlined />}
-                onClick={fetchData}
-              >
-                Làm mới
-              </Button>
-            </Col>
-          </Row>
-        </div>
+      {/* 🔹 Banner Header */}
+      <div className="bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg shadow-md mb-6 p-5 flex items-center justify-between">
+        <h1 className="text-2xl font-semibold flex items-center mb-0">
+          <UserOutlined className="mr-3 text-3xl text-white" />
+          User Management
+        </h1>
+      </div>
 
-        <div className="mb-4">
+      {/* 🔹 Filter + Table Section */}
+      <div className="p-0">
+        {/* Search & Filters */}
+        <div className="mb-6">
           <Row gutter={[16, 16]} align="middle">
             <Col xs={24} sm={12} md={8}>
               <Search
-                placeholder="Tìm kiếm theo tên, email hoặc vai trò..."
+                placeholder="Search by name, email or role..."
                 allowClear
                 enterButton={<SearchOutlined />}
                 size="large"
-                onSearch={setSearchText}
-                onChange={(e) => setSearchText(e.target.value)}
+                value={searchInput}
+                onSearch={(value) => {
+                  setSearchText(value);
+                  setPagination(prev => ({ ...prev, current: 1 }));
+                }}
+                onChange={(e) => setSearchInput(e.target.value)}
                 className="w-full"
               />
             </Col>
-            Role:
+            Role :
             <Col xs={24} sm={12} md={4}>
               <Select
-                placeholder="Lọc theo vai trò"
+                placeholder="Filter by Role"
                 allowClear
                 size="large"
                 className="w-full"
@@ -372,83 +385,79 @@ const UserManagement = () => {
                 <Option value="candidate">Candidate</Option>
               </Select>
             </Col>
-            Status:
+            Status :
             <Col xs={24} sm={12} md={4}>
               <Select
-                placeholder="Lọc theo trạng thái"
+                placeholder="Filter by Status"
                 allowClear
                 size="large"
                 className="w-full"
                 value={statusFilter}
                 onChange={setStatusFilter}
               >
-                <Option value="active">Hoạt động</Option>
-                <Option value="inactive">Bị khóa</Option>
+                <Option value="active">Active</Option>
+                <Option value="inactive">Banned</Option>
               </Select>
             </Col>
+
             <Col xs={24} sm={12} md={4}>
               <Button
                 size="large"
                 onClick={() => {
+                  setSearchInput('');
                   setSearchText('');
                   setRoleFilter('');
                   setStatusFilter('');
+                  setPagination(prev => ({ ...prev, current: 1 }));
                 }}
                 className="w-full"
               >
-                Xóa bộ lọc
+                Clear Filters
               </Button>
             </Col>
           </Row>
         </div>
 
-        {/* Filter Results Summary */}
-        {/* {(searchText || roleFilter || statusFilter) && (
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <span className="text-blue-700 font-medium">
-                  Hiển thị {filteredUsers.length} trong tổng số {users.length} người dùng
-                </span>
-                {(searchText || roleFilter || statusFilter) && (
-                  <span className="ml-2 text-blue-600 text-sm">
-                    (Đã lọc theo: {[
-                      searchText && `"${searchText}"`,
-                      roleFilter && `vai trò: ${roleFilter}`,
-                      statusFilter && `trạng thái: ${statusFilter === 'active' ? 'hoạt động' : 'bị khóa'}`
-                    ].filter(Boolean).join(', ')})
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-        )} */}
-
+        {/* 🔹 Table with Clear Border */}
         <Table
           columns={columns}
-          dataSource={filteredUsers}
+          dataSource={users}
           rowKey="_id"
+          bordered
+          loading={loading}
           pagination={{
-            pageSize: 10,
+            current: pagination.current,
+            pageSize: pagination.pageSize,
+            total: pagination.total,
             showSizeChanger: true,
             showQuickJumper: true,
-            showTotal: (total, range) => 
-              `${range[0]}-${range[1]} của ${total} người dùng`,
+            onChange: (page, pageSize) => {
+              setPagination(prev => ({
+                ...prev,
+                current: page,
+                pageSize: pageSize || prev.pageSize,
+              }));
+            },
+            onShowSizeChange: (current, size) => {
+              setPagination(prev => ({
+                ...prev,
+                current: 1,
+                pageSize: size,
+              }));
+            },
+            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} users`,
             pageSizeOptions: ['10', '20', '50', '100'],
-            size: 'default',
             position: ['bottomRight'],
-            showLessItems: true,
-            responsive: true,
           }}
         />
-      </Card>
+      </div>
 
       {/* Role Update Modal */}
       <Modal
         title={
           <div className="flex items-center">
             <EditOutlined className="mr-2 text-blue-500" />
-            <span>Cập nhật vai trò người dùng</span>
+            <span>Update User Role</span>
           </div>
         }
         open={isRoleModalVisible}
@@ -458,42 +467,45 @@ const UserManagement = () => {
           setSelectedUser(null);
           setSelectedRoleId('');
         }}
-        okText="Cập nhật"
-        cancelText="Hủy"
+        okText="Update"
+        cancelText="Cancel"
         width={500}
       >
         {selectedUser && (
           <div className="space-y-4">
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium text-gray-800 mb-2">Thông tin người dùng</h4>
+              <h4 className="font-medium text-gray-800 mb-2">User Information</h4>
               <div className="space-y-1 text-sm">
-                <p><span className="font-medium">Tên:</span> {selectedUser.FullName || 'Chưa cập nhật'}</p>
-                <p><span className="font-medium">Email:</span> {selectedUser.Email}</p>
-                <p><span className="font-medium">Số điện thoại:</span> {selectedUser.phone_number || 'Chưa cập nhật'}</p>
                 <p>
-                  <span className="font-medium">Vai trò hiện tại:</span> 
-                  <Tag color={selectedUser.Role === 'admin' ? 'red' : selectedUser.Role === 'recruiter' ? 'blue' : 'green'} className="ml-2">
-                    {selectedUser.Role || selectedUser.role_id?.name || 'Chưa xác định'}
+                  <span className="font-medium">Name:</span>{' '}
+                  {[selectedUser.firstName, selectedUser.lastName].filter(Boolean).join(' ') || 'Not updated'}
+                </p>
+                <p><span className="font-medium">Email:</span> {selectedUser.email}</p>
+                <p><span className="font-medium">Phone:</span> {selectedUser.phoneNumber || 'Not updated'}</p>
+                <p>
+                  <span className="font-medium">Current Role:</span>{' '}
+                  <Tag color={selectedUser.role?.name === 'admin' ? 'red' : selectedUser.role?.name === 'recruiter' ? 'blue' : 'green'}>
+                    {selectedUser.role?.name || 'Undefined'}
                   </Tag>
                 </p>
               </div>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium mb-2 text-gray-700">
-                Chọn vai trò mới:
+                Select New Role:
               </label>
               <Select
                 value={selectedRoleId}
                 onChange={setSelectedRoleId}
                 className="w-full"
-                placeholder="Chọn vai trò mới"
+                placeholder="Select new role"
                 size="large"
               >
                 {roles.map(role => (
                   <Option key={role._id} value={role._id}>
                     <div className="flex items-center">
-                      <Tag 
+                      <Tag
                         color={role.name === 'admin' ? 'red' : role.name === 'recruiter' ? 'blue' : 'green'}
                         className="mr-2"
                       >
@@ -505,11 +517,11 @@ const UserManagement = () => {
                 ))}
               </Select>
             </div>
-            
+
             {selectedRoleId && (
               <div className="bg-blue-50 p-3 rounded-lg">
                 <p className="text-sm text-blue-700">
-                  <strong>Lưu ý:</strong> Thay đổi vai trò sẽ ảnh hưởng đến quyền truy cập của người dùng này trong hệ thống.
+                  <strong>Note:</strong> Changing the role will affect this user's access permissions in the system.
                 </p>
               </div>
             )}
@@ -518,6 +530,8 @@ const UserManagement = () => {
       </Modal>
     </div>
   );
+
+
 };
 
 export default UserManagement;

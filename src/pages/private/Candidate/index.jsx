@@ -98,7 +98,7 @@ const AppliedJobRow = ({ application, onViewDetails }) => {
               {location}
             </span>
             <span className="inline-flex items-center gap-1">
-              <span className="text-neutral-300">$</span>
+              <span className="text-neutral-300"></span>
               {salaryLabel}
             </span>
           </div>

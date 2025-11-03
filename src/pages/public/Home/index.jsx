@@ -261,12 +261,19 @@ const Home = () => {
             ? response.data
             : [];
 
+        // Không set error nếu không có companies - đây là trường hợp bình thường
         setCompanies(data);
       } catch (error) {
         if (ignore) return;
 
-        console.error(error);
-        setCompaniesError(error?.message || "Không thể tải danh sách công ty.");
+        // Chỉ set error nếu là lỗi thực sự (không phải empty result)
+        const isNotFoundError = error?.response?.status === 404 || 
+                               error?.message?.includes('No companies found');
+        
+        if (!isNotFoundError) {
+          console.error(error);
+          setCompaniesError(error?.message || "Không thể tải danh sách công ty.");
+        }
         setCompanies([]);
       } finally {
         if (!ignore) setIsLoadingCompanies(false);
@@ -463,14 +470,22 @@ const Home = () => {
             <div className="col-span-full py-8 text-center">
               <p className="text-neutral-500">{companiesError}</p>
             </div>
+          ) : companies.length === 0 ? (
+            // No companies found from API
+            <div className="col-span-full py-8 text-center">
+              <p className="text-neutral-500">Chưa có công ty nào</p>
+            </div>
           ) : companiesToRender.length ? (
             companiesToRender.map((item, index) => (
               <CompanyCard
                 key={item._id || item.id || `${item.name}-${index}`}
+                companyId={item._id || item.id}
                 name={item.name || item.companyName}
                 location={item.location || item.address}
                 openings={item.openings || item.jobCount || 0}
                 logo={item.logo || item.companyLogo}
+                companyType={item.industry || "Technology"}
+                linkTo={ROUTER.COMPANY_LIST}
                 {...item}
               />
             ))

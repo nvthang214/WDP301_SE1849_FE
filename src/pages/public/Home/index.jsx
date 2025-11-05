@@ -422,6 +422,7 @@ const Home = () => {
                 return (
                   <Link to={jobDetailPath} key={key} className="block h-full">
                     <JobCard
+                      jobId={rawJobId}
                       title={job?.title || "Đang cập nhật"}
                       type={formatJobType(job?.jobType)}
                       salary={formatSalaryRange(job)}

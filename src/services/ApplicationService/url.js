@@ -5,3 +5,4 @@ export const getApplicationsByJobId = (jobId) => `/applications/jobs/${jobId}/ca
 export const filterApplicationsByStatus = (jobId) => `/applications/jobs/${jobId}/candidates/filter`;
 export const getAllApplicationsByRecruiter = "/applications";
 export const getShortlistedApplicationsByRecruiter = "/applications/shortlisted";
+export const downloadCvByApplicationId = (applicationId) => `/applications/${applicationId}/cv`;

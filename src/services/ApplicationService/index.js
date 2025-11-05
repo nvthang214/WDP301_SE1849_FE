@@ -1,5 +1,5 @@
 import api from "../00-Axios";
-import { getAll, getById, updateApplicationStatus, getApplicationsByJobId, filterApplicationsByStatus, getAllApplicationsByRecruiter, getShortlistedApplicationsByRecruiter } from "./url";
+import { getAll, getById, updateApplicationStatus, getApplicationsByJobId, filterApplicationsByStatus, getAllApplicationsByRecruiter, getShortlistedApplicationsByRecruiter, downloadCvByApplicationId } from "./url";
 
 export const ApplicationService = {
   getAll: async () => {
@@ -32,5 +32,14 @@ export const ApplicationService = {
   getShortlistedApplicationsByRecruiter: async () => {
     const response = await api.get(getShortlistedApplicationsByRecruiter);
     return response.data;
+  },
+
+  downloadCvByApplicationId: async (applicationId) => {
+    // Lấy blob từ backend để tải file trực tiếp
+    const response = await api.get(downloadCvByApplicationId(applicationId), {
+      responseType: "blob",
+      skipNotify: true,
+    });
+    return response; // interceptor trả về response.data (blob)
   },
 };

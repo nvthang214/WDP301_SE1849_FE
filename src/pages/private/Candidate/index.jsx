@@ -145,6 +145,14 @@ const CandidateOverview = () => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [isProfileMissing, setIsProfileMissing] = useState(false);
   const [favoriteCount, setFavoriteCount] = useState(0);
+  const avatar = (() => {
+    if (!user?.avatar) return null;
+    try {
+      return typeof user.avatar === "string" ? JSON.parse(user.avatar) : user.avatar;
+    } catch {
+      return null;
+    }
+  })();
 
   const userId = useMemo(
     () => user?._id || user?.id || user?.userId || null,
@@ -278,11 +286,11 @@ const CandidateOverview = () => {
         
 
     {isProfileMissing ? (
-  <div className="flex flex-col items-center justify-between gap-4 rounded-2xl bg-red-700 px-6 py-5 text-white shadow-sm sm:flex-row">
+  <div className="flex flex-col items-center justify-between gap-4 rounded-2xl bg-blue-400 px-6 py-5 text-white shadow-sm sm:flex-row">
     
     <div className="flex items-center gap-4">
       <img
-        src={user?.avatar}
+        src={avatar?.url}
         alt="User avatar"
         className="h-12 w-12 rounded-full object-cover"
       />

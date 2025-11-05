@@ -60,7 +60,7 @@ const formatFavoritedAt = (value) => {
 };
 
 const getApplicationStatusLabel = (application) => {
-  const rawStatus = application?.status || application?.state || "Pending";
+  const rawStatus = application?.status || application?.state || "Active";
   return toTitleCase(rawStatus);
 };
 

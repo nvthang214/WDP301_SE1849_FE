@@ -12,7 +12,8 @@ import {
   Spin,
   Alert,
   Statistic,
-  Form
+  Form,
+  Tooltip
 } from 'antd';
 import { notifySuccess, notifyError } from '../../../../components/Notification';
 import {
@@ -215,15 +216,15 @@ const CategoryManagement = () => {
       width: 200,
       render: (_, record) => (
         <Space size="small" wrap>
-          <Button
-            type="primary"
-            size="small"
-            icon={<EditOutlined />}
-            onClick={() => openEditModal(record)}
-            className="text-xs"
-          >
-            Edit
-          </Button>
+          <Tooltip title="Edit">
+            <Button
+              type="primary"
+              size="small"
+              icon={<EditOutlined />}
+              onClick={() => openEditModal(record)}
+              className="text-xs"
+            />
+          </Tooltip>
 
           <Popconfirm
             title="Confirm Delete Category"
@@ -232,14 +233,14 @@ const CategoryManagement = () => {
             okText="Yes"
             cancelText="No"
           >
-            <Button
-              danger
-              size="small"
-              icon={<DeleteOutlined />}
-              className="text-xs"
-            >
-              Delete
-            </Button>
+            <Tooltip title="Delete">
+              <Button
+                danger
+                size="small"
+                icon={<DeleteOutlined />}
+                className="text-xs"
+              />
+            </Tooltip>
           </Popconfirm>
         </Space>
       ),
@@ -268,35 +269,82 @@ const CategoryManagement = () => {
 
   return (
     <div className="p-0 m-0">
-      {/* Statistics Cards */}
-      <Row gutter={[16, 16]} className="mb-6">
-        <Col xs={24} sm={12} md={8}>
-          <Card bordered={false} className="shadow-sm rounded-lg border border-gray-300">
-            <Statistic
-              title={<span className="text-gray-600 font-medium">Total Categories</span>}
-              value={pagination.total}
-              prefix={<FolderOutlined />}
-              valueStyle={{ color: '#1677ff', fontWeight: 600 }}
-            />
-          </Card>
-        </Col>
-      </Row>
-
       {/* Banner Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg shadow-md mb-6 p-5 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold flex items-center mb-0">
-          <FolderOutlined className="mr-3 text-3xl text-white" />
-          Category Management
-        </h1>
-        <Button
-          type="primary"
-          size="large"
-          icon={<PlusOutlined />}
-          onClick={openCreateModal}
-          className="bg-white text-blue-600 hover:bg-gray-100 border-0"
-        >
-          Create Category
-        </Button>
+      <div 
+        style={{
+          background: 'linear-gradient(135deg, #30cfd0 0%, #330867 50%, #4facfe 100%)',
+          borderRadius: '12px',
+          boxShadow: '0 10px 25px rgba(48, 207, 208, 0.3)',
+          padding: '20px 24px',
+          marginBottom: '24px',
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+        className="flex items-center justify-between"
+      >
+        <div style={{ position: 'relative', zIndex: 1 }} className="flex items-center">
+          <div 
+            style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '12px',
+              background: 'rgba(255, 255, 255, 0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginRight: '16px',
+              backdropFilter: 'blur(10px)'
+            }}
+          >
+            <FolderOutlined style={{ fontSize: '28px', color: 'white' }} />
+          </div>
+          <div>
+            <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0, color: 'white' }}>
+              Category Management
+            </h1>
+            <p style={{ fontSize: '14px', margin: '4px 0 0 0', color: 'rgba(255, 255, 255, 0.9)' }}>
+              Organize jobs with categories
+            </p>
+          </div>
+        </div>
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <Button
+            type="primary"
+            size="large"
+            icon={<PlusOutlined />}
+            onClick={openCreateModal}
+            style={{
+              background: 'rgba(255, 255, 255, 0.2)',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              color: 'white',
+              borderRadius: '8px',
+              backdropFilter: 'blur(10px)'
+            }}
+          >
+            Create Category
+          </Button>
+        </div>
+        {/* Decorative circles */}
+        <div style={{
+          position: 'absolute',
+          top: '-50px',
+          right: '-50px',
+          width: '200px',
+          height: '200px',
+          borderRadius: '50%',
+          background: 'rgba(255, 255, 255, 0.1)',
+          zIndex: 0
+        }}></div>
+        <div style={{
+          position: 'absolute',
+          bottom: '-30px',
+          left: '-30px',
+          width: '120px',
+          height: '120px',
+          borderRadius: '50%',
+          background: 'rgba(255, 255, 255, 0.08)',
+          zIndex: 0
+        }}></div>
       </div>
 
       {/* Filter + Table Section */}
@@ -332,6 +380,12 @@ const CategoryManagement = () => {
               >
                 Clear Filters
               </Button>
+            </Col>
+
+            <Col xs={24} sm={24} md={12} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+              <span className="text-gray-700 font-medium" style={{ whiteSpace: 'nowrap' }}>
+                Total Categories : {pagination.total}
+              </span>
             </Col>
           </Row>
         </div>

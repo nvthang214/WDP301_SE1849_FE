@@ -13,7 +13,8 @@ import {
   Col,
   Spin,
   Alert,
-  Statistic
+  Statistic,
+  Tooltip
 } from 'antd';
 import { notifySuccess, notifyError, notifyWarning } from '../../../../components/Notification';
 import {
@@ -236,15 +237,15 @@ const UserManagement = () => {
       width: 200,
       render: (_, record) => (
         <Space size="small" wrap>
-          <Button
-            type="primary"
-            size="small"
-            icon={<EditOutlined />}
-            onClick={() => openRoleModal(record)}
-            className="text-xs"
-          >
-            Change Role
-          </Button>
+          <Tooltip title="Change Role">
+            <Button
+              type="primary"
+              size="small"
+              icon={<EditOutlined />}
+              onClick={() => openRoleModal(record)}
+              className="text-xs"
+            />
+          </Tooltip>
 
           {record.isActive ? (
             <Popconfirm
@@ -254,14 +255,14 @@ const UserManagement = () => {
               okText="Yes"
               cancelText="No"
             >
-              <Button
-                danger
-                size="small"
-                icon={<StopOutlined />}
-                className="text-xs"
-              >
-                Ban
-              </Button>
+              <Tooltip title="Ban">
+                <Button
+                  danger
+                  size="small"
+                  icon={<StopOutlined />}
+                  className="text-xs"
+                />
+              </Tooltip>
             </Popconfirm>
           ) : (
             <Popconfirm
@@ -271,14 +272,26 @@ const UserManagement = () => {
               okText="Yes"
               cancelText="No"
             >
-              <Button
-                type="primary"
-                size="small"
-                icon={<UnlockOutlined />}
-                className="text-xs"
-              >
-                Unban
-              </Button>
+              <Tooltip title="Unban">
+                <Button
+                  size="small"
+                  icon={<UnlockOutlined />}
+                  className="text-xs"
+                  style={{ 
+                    backgroundColor: '#52c41a', 
+                    borderColor: '#52c41a',
+                    color: '#fff'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#73d13d';
+                    e.currentTarget.style.borderColor = '#73d13d';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#52c41a';
+                    e.currentTarget.style.borderColor = '#52c41a';
+                  }}
+                />
+              </Tooltip>
             </Popconfirm>
           )}
         </Space>
@@ -311,43 +324,153 @@ const UserManagement = () => {
       {/* Statistics Cards */}
       <Row gutter={[16, 16]} className="mb-6">
         <Col xs={24} sm={8}>
-          <Card bordered={false} className="shadow-sm rounded-lg border border-gray-300">
-            <Statistic
-              title={<span className="text-gray-600 font-medium">Total Users</span>}
-              value={users.length}
-              prefix={<UserOutlined />}
-              valueStyle={{ color: '#1677ff', fontWeight: 600 }}
-            />
-          </Card>
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              borderRadius: '12px',
+              padding: '16px 20px',
+              color: 'white',
+              position: 'relative',
+              overflow: 'hidden',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              minHeight: '120px'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <div style={{ fontSize: '12px', opacity: 0.9, marginBottom: '6px', fontWeight: 500 }}>
+                  TOTAL USERS
+                </div>
+                <div style={{ fontSize: '28px', fontWeight: 'bold', lineHeight: '1' }}>
+                  {users.length}
+                </div>
+              </div>
+              <UserOutlined style={{ fontSize: '36px', opacity: 0.3, position: 'absolute', top: '12px', right: '12px' }} />
+            </div>
+          </div>
         </Col>
         <Col xs={24} sm={8}>
-          <Card bordered={false} className="shadow-sm rounded-lg border border-gray-300">
-            <Statistic
-              title={<span className="text-gray-600 font-medium">Active</span>}
-              value={users.filter(user => user.isActive).length}
-              prefix={<TeamOutlined />}
-              valueStyle={{ color: '#52c41a', fontWeight: 600 }}
-            />
-          </Card>
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #52c41a 0%, #73d13d 100%)',
+              borderRadius: '12px',
+              padding: '16px 20px',
+              color: 'white',
+              position: 'relative',
+              overflow: 'hidden',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              minHeight: '120px'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <div style={{ fontSize: '12px', opacity: 0.9, marginBottom: '6px', fontWeight: 500 }}>
+                  ACTIVE
+                </div>
+                <div style={{ fontSize: '28px', fontWeight: 'bold', lineHeight: '1' }}>
+                  {users.filter(user => user.isActive).length}
+                </div>
+              </div>
+              <TeamOutlined style={{ fontSize: '36px', opacity: 0.3, position: 'absolute', top: '12px', right: '12px' }} />
+            </div>
+          </div>
         </Col>
         <Col xs={24} sm={8}>
-          <Card bordered={false} className="shadow-sm rounded-lg border border-gray-300">
-            <Statistic
-              title={<span className="text-gray-600 font-medium">Banned</span>}
-              value={users.filter(user => !user.isActive).length}
-              prefix={<LockOutlined />}
-              valueStyle={{ color: '#ff4d4f', fontWeight: 600 }}
-            />
-          </Card>
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%)',
+              borderRadius: '12px',
+              padding: '16px 20px',
+              color: 'white',
+              position: 'relative',
+              overflow: 'hidden',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              minHeight: '120px'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <div style={{ fontSize: '12px', opacity: 0.9, marginBottom: '6px', fontWeight: 500 }}>
+                  BANNED
+                </div>
+                <div style={{ fontSize: '28px', fontWeight: 'bold', lineHeight: '1' }}>
+                  {users.filter(user => !user.isActive).length}
+                </div>
+              </div>
+              <LockOutlined style={{ fontSize: '36px', opacity: 0.3, position: 'absolute', top: '12px', right: '12px' }} />
+            </div>
+          </div>
         </Col>
       </Row>
 
       {/* 🔹 Banner Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg shadow-md mb-6 p-5 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold flex items-center mb-0">
-          <UserOutlined className="mr-3 text-3xl text-white" />
-          User Management
-        </h1>
+      <div 
+        style={{
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+          borderRadius: '12px',
+          boxShadow: '0 10px 25px rgba(102, 126, 234, 0.3)',
+          padding: '20px 24px',
+          marginBottom: '24px',
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+        className="flex items-center justify-between"
+      >
+        <div style={{ position: 'relative', zIndex: 1 }} className="flex items-center">
+          <div 
+            style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '12px',
+              background: 'rgba(255, 255, 255, 0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginRight: '16px',
+              backdropFilter: 'blur(10px)'
+            }}
+          >
+            <UserOutlined style={{ fontSize: '28px', color: 'white' }} />
+          </div>
+          <div>
+            <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0, color: 'white' }}>
+              User Management
+            </h1>
+            <p style={{ fontSize: '14px', margin: '4px 0 0 0', color: 'rgba(255, 255, 255, 0.9)' }}>
+              Manage users, roles, and account status
+            </p>
+          </div>
+        </div>
+        {/* Decorative circles */}
+        <div style={{
+          position: 'absolute',
+          top: '-50px',
+          right: '-50px',
+          width: '200px',
+          height: '200px',
+          borderRadius: '50%',
+          background: 'rgba(255, 255, 255, 0.1)',
+          zIndex: 0
+        }}></div>
+        <div style={{
+          position: 'absolute',
+          bottom: '-30px',
+          left: '-30px',
+          width: '120px',
+          height: '120px',
+          borderRadius: '50%',
+          background: 'rgba(255, 255, 255, 0.08)',
+          zIndex: 0
+        }}></div>
       </div>
 
       {/* 🔹 Filter + Table Section */}

@@ -18,7 +18,9 @@ import {
   FileTextOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
-  CloseCircleOutlined
+  CloseCircleOutlined,
+  FilePdfOutlined,
+  EyeOutlined
 } from '@ant-design/icons';
 import { UpgradeRequestService } from '../../../../services/UpgradeRequestService';
 import { notifySuccess, notifyError } from '../../../../components/Notification';
@@ -32,10 +34,21 @@ const CandidateRequestUpgrade = () => {
   const [fileList, setFileList] = useState([]);
   const [logoPreview, setLogoPreview] = useState('');
   const [bannerPreview, setBannerPreview] = useState('');
+  const [businessLicensePreview, setBusinessLicensePreview] = useState('');
+  const [businessLicensePreviewType, setBusinessLicensePreviewType] = useState(''); // 'image' or 'pdf'
 
   useEffect(() => {
     checkExistingRequest();
   }, []);
+
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      if (businessLicensePreview) {
+        URL.revokeObjectURL(businessLicensePreview);
+      }
+    };
+  }, [businessLicensePreview]);
 
   // Compress image URL to shorter base64
   const compressImageUrl = (url) => {
@@ -72,8 +85,113 @@ const CandidateRequestUpgrade = () => {
     form.setFieldsValue({ companyBanner: compressImageUrl(url) });
   };
 
+  // Handle file upload for logo and banner (similar to CompanyEdit)
+  const handleFileUpload = (e, field) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Check file size (max 2MB for better performance)
+      if (file.size > 2 * 1024 * 1024) {
+        notifyError('File size must be smaller than 2MB');
+        return;
+      }
+
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        notifyError('Please select an image file');
+        return;
+      }
+
+      // Compress and resize image
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
+      
+      img.onload = () => {
+        // Set max dimensions
+        const maxWidth = field === 'logo' ? 200 : 800;
+        const maxHeight = field === 'logo' ? 200 : 400;
+        
+        let { width, height } = img;
+        
+        // Calculate new dimensions
+        if (width > height) {
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = (width * maxHeight) / height;
+            height = maxHeight;
+          }
+        }
+        
+        // Set canvas dimensions
+        canvas.width = width;
+        canvas.height = height;
+        
+        // Draw and compress
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        // Convert to base64 with compression
+        const base64 = canvas.toDataURL('image/jpeg', 0.8); // 80% quality
+        
+        // Update form and preview
+        if (field === 'logo') {
+          setLogoPreview(base64);
+          form.setFieldsValue({ companyLogo: base64 });
+        } else if (field === 'banner') {
+          setBannerPreview(base64);
+          form.setFieldsValue({ companyBanner: base64 });
+        }
+        
+        // Clean up object URL after use
+        URL.revokeObjectURL(objectUrl);
+      };
+      
+      img.onerror = () => {
+        notifyError('Error loading image. Please try again.');
+        URL.revokeObjectURL(objectUrl);
+      };
+      
+      img.src = objectUrl;
+    }
+  };
+
   const handleFileChange = ({ fileList: newFileList }) => {
+    // Revoke old preview URL if exists
+    setBusinessLicensePreview((prevUrl) => {
+      if (prevUrl) {
+        URL.revokeObjectURL(prevUrl);
+      }
+      return '';
+    });
+    setBusinessLicensePreviewType('');
+    
+    // Update file list
     setFileList(newFileList);
+    
+    // Create preview for the selected file
+    if (newFileList.length > 0) {
+      const file = newFileList[0].originFileObj || newFileList[0];
+      if (file) {
+        const isPDF = file.type === 'application/pdf';
+        const isImage = file.type.startsWith('image/');
+        
+        if (isPDF) {
+          // For PDF, create object URL for preview
+          const url = URL.createObjectURL(file);
+          setBusinessLicensePreview(url);
+          setBusinessLicensePreviewType('pdf');
+        } else if (isImage) {
+          // For images, create object URL for preview
+          const url = URL.createObjectURL(file);
+          setBusinessLicensePreview(url);
+          setBusinessLicensePreviewType('image');
+        }
+      }
+    }
   };
 
   const beforeUpload = (file) => {
@@ -128,6 +246,12 @@ const CandidateRequestUpgrade = () => {
       setFileList([]);
       setLogoPreview('');
       setBannerPreview('');
+      // Clean up preview URL
+      if (businessLicensePreview) {
+        URL.revokeObjectURL(businessLicensePreview);
+      }
+      setBusinessLicensePreview('');
+      setBusinessLicensePreviewType('');
       checkExistingRequest();
 
     } catch (error) {
@@ -273,50 +397,86 @@ const CandidateRequestUpgrade = () => {
             />
           </Form.Item>
 
-          {/* <Row gutter={16}>
+          <Row gutter={16}>
             <Col xs={24} md={12}>
               <Form.Item
                 name="companyLogo"
-                label="Logo công ty"
+                label="Company Logo"
               >
-                <Input
-                  placeholder="URL logo công ty"
-                  onChange={handleLogoUrlChange}
-                />
-                {logoPreview && (
-                  <div className="mt-2">
-                    <img
-                      src={logoPreview}
-                      alt="Logo preview"
-                      className="w-16 h-16 object-cover rounded border"
-                      onError={() => setLogoPreview('')}
+                <div className="space-y-3">
+                  <Input
+                    placeholder="Enter logo URL"
+                    onChange={handleLogoUrlChange}
+                  />
+                  <div className="text-center text-sm text-gray-500">OR</div>
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFileUpload(e, 'logo')}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      id="logo-upload-upgrade"
                     />
+                    <label 
+                      htmlFor="logo-upload-upgrade"
+                      className="flex items-center justify-center w-full h-12 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 transition-colors cursor-pointer"
+                    >
+                      <span className="text-sm text-gray-600">Upload Logo (Max 2MB)</span>
+                    </label>
                   </div>
-                )}
+                  {logoPreview && (
+                    <div className="mt-2 text-center">
+                      <img 
+                        src={logoPreview} 
+                        alt="Logo preview" 
+                        className="w-20 h-20 object-cover rounded-lg border border-gray-200 mx-auto"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Logo Preview</p>
+                    </div>
+                  )}
+                </div>
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
               <Form.Item
                 name="companyBanner"
-                label="Banner công ty"
+                label="Company Banner"
               >
-                <Input
-                  placeholder="URL banner công ty"
-                  onChange={handleBannerUrlChange}
-                />
-                {bannerPreview && (
-                  <div className="mt-2">
-                    <img
-                      src={bannerPreview}
-                      alt="Banner preview"
-                      className="w-full h-20 object-cover rounded border"
-                      onError={() => setBannerPreview('')}
+                <div className="space-y-3">
+                  <Input
+                    placeholder="Enter banner URL"
+                    onChange={handleBannerUrlChange}
+                  />
+                  <div className="text-center text-sm text-gray-500">OR</div>
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFileUpload(e, 'banner')}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      id="banner-upload-upgrade"
                     />
+                    <label 
+                      htmlFor="banner-upload-upgrade"
+                      className="flex items-center justify-center w-full h-12 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 transition-colors cursor-pointer"
+                    >
+                      <span className="text-sm text-gray-600">Upload Banner (Max 2MB)</span>
+                    </label>
                   </div>
-                )}
+                  {bannerPreview && (
+                    <div className="mt-2">
+                      <img 
+                        src={bannerPreview} 
+                        alt="Banner preview" 
+                        className="w-full h-20 object-cover rounded-lg border border-gray-200"
+                      />
+                      <p className="text-xs text-gray-500 mt-1 text-center">Banner Preview</p>
+                    </div>
+                  )}
+                </div>
               </Form.Item>
             </Col>
-          </Row> */}
+          </Row>
 
           <Row gutter={16}>
             <Col xs={24} md={12}>
@@ -396,6 +556,55 @@ const CandidateRequestUpgrade = () => {
             <div className="text-sm text-gray-500 mt-2">
               Accept PDF files or images, maximum 10MB
             </div>
+            
+            {/* Preview Section */}
+            {businessLicensePreview && (
+              <div className="mt-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                <div className="flex items-center gap-2 mb-3">
+                  <EyeOutlined className="text-blue-500" />
+                  <span className="font-medium text-gray-700">Preview</span>
+                </div>
+                
+                {businessLicensePreviewType === 'image' && (
+                  <div className="flex justify-center">
+                    <img
+                      src={businessLicensePreview}
+                      alt="Business License Preview"
+                      className="max-w-full max-h-96 object-contain rounded border border-gray-300 shadow-sm"
+                      onError={() => {
+                        setBusinessLicensePreview('');
+                        setBusinessLicensePreviewType('');
+                      }}
+                    />
+                  </div>
+                )}
+                
+                {businessLicensePreviewType === 'pdf' && (
+                  <div className="flex flex-col items-center gap-3">
+                    <FilePdfOutlined className="text-6xl text-red-500" />
+                    <div className="text-center">
+                      <p className="font-medium text-gray-700 mb-1">
+                        {fileList[0]?.name || 'PDF Document'}
+                      </p>
+                      <a
+                        href={businessLicensePreview}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:text-blue-700 underline flex items-center gap-1 justify-center"
+                      >
+                        <FileTextOutlined />
+                        Open PDF in new tab
+                      </a>
+                    </div>
+                    <iframe
+                      src={businessLicensePreview}
+                      className="w-full h-96 border border-gray-300 rounded shadow-sm"
+                      title="Business License PDF Preview"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
           </Form.Item>
 
           <Form.Item className="text-center">

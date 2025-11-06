@@ -14,7 +14,8 @@ import {
   Select, 
   Popconfirm,
   Input,
-  Pagination
+  Pagination,
+  Tooltip
 } from 'antd';
 import { notifySuccess, notifyError } from '../../../../components/Notification';
 import { 
@@ -271,15 +272,15 @@ const AdminDashboard = () => {
       key: 'actions',
       render: (_, record) => (
         <Space size="small" wrap>
-          <Button
-            type="primary"
-            size="small"
-            icon={<EditOutlined />}
-            onClick={() => openRoleModal(record)}
-            className="text-xs"
-          >
-            Change Role
-          </Button>
+          <Tooltip title="Change Role">
+            <Button
+              type="primary"
+              size="small"
+              icon={<EditOutlined />}
+              onClick={() => openRoleModal(record)}
+              className="text-xs"
+            />
+          </Tooltip>
           
           {record.isActive ? (
             <Popconfirm
@@ -289,14 +290,14 @@ const AdminDashboard = () => {
               okText="Yes"
               cancelText="No"
             >
-              <Button
-                danger
-                size="small"
-                icon={<StopOutlined />}
-                className="text-xs"
-              >
-                Ban User
-              </Button>
+              <Tooltip title="Ban">
+                <Button
+                  danger
+                  size="small"
+                  icon={<StopOutlined />}
+                  className="text-xs"
+                />
+              </Tooltip>
             </Popconfirm>
           ) : (
             <Popconfirm
@@ -306,14 +307,26 @@ const AdminDashboard = () => {
               okText="Yes"
               cancelText="No"
             >
-              <Button
-                type="primary"
-                size="small"
-                icon={<UnlockOutlined />}
-                className="text-xs"
-              >
-                Unban User
-              </Button>
+              <Tooltip title="Unban">
+                <Button
+                  size="small"
+                  icon={<UnlockOutlined />}
+                  className="text-xs"
+                  style={{ 
+                    backgroundColor: '#52c41a', 
+                    borderColor: '#52c41a',
+                    color: '#fff'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#73d13d';
+                    e.currentTarget.style.borderColor = '#73d13d';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#52c41a';
+                    e.currentTarget.style.borderColor = '#52c41a';
+                  }}
+                />
+              </Tooltip>
             </Popconfirm>
           )}
         </Space>

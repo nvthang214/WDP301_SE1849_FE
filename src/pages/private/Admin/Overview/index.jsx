@@ -14,7 +14,7 @@ import {
   BuildOutlined,
   TeamOutlined
 } from '@ant-design/icons';
-import { Line, Column, Area } from '@ant-design/charts';
+import { Line, Area } from '@ant-design/charts';
 import { AdminService } from '../../../../services/AdminService';
 import dayjs from 'dayjs';
 
@@ -27,9 +27,11 @@ const AdminOverview = () => {
   const [jobStatsData, setJobStatsData] = useState([]);
   const [latestJobs, setLatestJobs] = useState([]);
   const [selectedJobYear, setSelectedJobYear] = useState(dayjs());
+  const [latestUsers, setLatestUsers] = useState([]);
 
   useEffect(() => {
     fetchData();
+    fetchLatestUsers();
   }, []);
 
   useEffect(() => {
@@ -68,47 +70,61 @@ const AdminOverview = () => {
     }
   };
 
+  const fetchLatestUsers = async () => {
+    try {
+      const usersResponse = await AdminService.getAllUsers({ page: 1, limit: 5 });
+      const allUsers = usersResponse?.data?.data || usersResponse?.data || [];
+      // Sort by createdAt descending and take 5
+      const sortedUsers = allUsers
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 5);
+      setLatestUsers(sortedUsers);
+    } catch (err) {
+      console.error('Error fetching latest users:', err);
+    }
+  };
+
   const fetchJobData = async () => {
     try {
       const year = selectedJobYear.year();
-      
+
       // Fetch all jobs for the year to calculate monthly stats
       const jobsResponse = await AdminService.getAllJobs({ page: 1, limit: 1000 });
       const allJobs = jobsResponse?.data?.data || jobsResponse?.data || [];
-      
+
       // Calculate monthly job statistics
       const monthlyStats = [];
       for (let month = 1; month <= 12; month++) {
         const startDate = new Date(year, month - 1, 1);
         const endDate = new Date(year, month, 0, 23, 59, 59, 999);
-        
+
         const activeJobs = allJobs.filter(job => {
           const jobDate = new Date(job.createdAt);
           return jobDate >= startDate && jobDate <= endDate && job.isActive;
         });
-        
+
         const inactiveJobs = allJobs.filter(job => {
           const jobDate = new Date(job.createdAt);
           return jobDate >= startDate && jobDate <= endDate && !job.isActive;
         });
-        
+
         monthlyStats.push({
           month: new Date(year, month - 1, 1).toLocaleString('en-US', { month: 'short' }),
           active: activeJobs.length,
           inactive: inactiveJobs.length,
         });
       }
-      
+
       setJobStatsData(monthlyStats);
-      
-      // Fetch latest active jobs (only 3)
+
+      // Fetch latest active jobs (only 5)
       const latestJobsResponse = await AdminService.getAllJobs({ page: 1, limit: 100, status: 'active' });
       const allLatestJobs = latestJobsResponse?.data?.data || latestJobsResponse?.data || [];
-      // Filter only active jobs and sort by createdAt descending, then take 3
+      // Filter only active jobs and sort by createdAt descending, then take 5
       const activeLatestJobs = allLatestJobs
         .filter(job => job.isActive)
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .slice(0, 3);
+        .slice(0, 5);
       setLatestJobs(activeLatestJobs);
     } catch (err) {
       console.error('Error fetching job data:', err);
@@ -145,16 +161,6 @@ const AdminOverview = () => {
       style: {
         fill: '#aaa',
       },
-    },
-  };
-
-  const columnConfig = {
-    data: chartData,
-    xField: 'month',
-    yField: 'users',
-    color: '#1890ff',
-    columnStyle: {
-      radius: [8, 8, 0, 0],
     },
   };
 
@@ -340,7 +346,7 @@ const AdminOverview = () => {
 
       {/* Job Statistics Section */}
       <div className="mt-8">
-        <div 
+        <div
           style={{
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
             borderRadius: '12px',
@@ -353,7 +359,7 @@ const AdminOverview = () => {
           className="flex items-center justify-between"
         >
           <div style={{ position: 'relative', zIndex: 1 }} className="flex items-center">
-            <div 
+            <div
               style={{
                 width: '56px',
                 height: '56px',
@@ -382,7 +388,7 @@ const AdminOverview = () => {
               picker="year"
               value={selectedJobYear}
               onChange={handleJobYearChange}
-              style={{ 
+              style={{
                 width: 150,
                 background: 'rgba(255, 255, 255, 0.2)',
                 border: '1px solid rgba(255, 255, 255, 0.3)',
@@ -418,8 +424,8 @@ const AdminOverview = () => {
 
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={16}>
-            <Card 
-              bordered={false} 
+            <Card
+              bordered={false}
               className="shadow-sm rounded-lg border border-gray-300"
               title={
                 <div className="flex items-center justify-between">
@@ -436,36 +442,62 @@ const AdminOverview = () => {
                   </div>
                 </div>
               }
+              bodyStyle={{
+                height: '368px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
             >
               <Area {...jobAreaConfig} height={300} />
             </Card>
           </Col>
           <Col xs={24} lg={8}>
-            <Card 
-              bordered={false} 
+            <Card
+              bordered={false}
               className="shadow-sm rounded-lg border border-gray-300"
-              title="Latest Jobs"
+              title={
+                <span className="font-bold text-gray-800">Latest Jobs</span>
+              }
+              bodyStyle={{
+                height: '368px',
+                display: 'flex',
+                flexDirection: 'column',
+                padding: '16px'
+              }}
             >
-              <div className="space-y-3">
+              <div className="flex flex-col h-full space-y-3">
                 {latestJobs.length > 0 ? (
-                  latestJobs.map((job, index) => (
-                    <div 
-                      key={job._id || index}
-                      className="p-3 border border-gray-200 rounded-lg hover:border-blue-400 transition-colors cursor-pointer"
-                    >
-                      <div className="font-medium text-gray-800 mb-1 line-clamp-1">
-                        {job.title || 'Untitled Job'}
+                  latestJobs.map((job, index) => {
+                    const rank = index + 1;
+                    const isTopThree = rank <= 3;
+                    const badgeClass = isTopThree
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-200 text-gray-600";
+
+                    return (
+                      <div
+                        key={job._id || index}
+                        className="flex items-center gap-3 py-2.5 px-2 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer flex-shrink-0"
+                      >
+                        <div
+                          className={`flex items-center justify-center w-7 h-7 rounded-full font-semibold text-xs flex-shrink-0 ${badgeClass}`}
+                        >
+                          {rank}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-bold text-gray-800 mb-1 line-clamp-1 text-xs">
+                            {job.title || 'Untitled Job'}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {job.company?.name || 'No Company'}
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-sm text-gray-500 mb-1">
-                        {job.company?.name || 'No Company'}
-                      </div>
-                      <div className="text-xs text-gray-400">
-                        {job.createdAt ? new Date(job.createdAt).toLocaleDateString('en-US') : 'N/A'}
-                      </div>
-                    </div>
-                  ))
+                    );
+                  })
                 ) : (
-                  <div className="text-center text-gray-400 py-8">No jobs found</div>
+                  <div className="text-center text-gray-400 py-8 flex-1 flex items-center justify-center text-xs">No jobs found</div>
                 )}
               </div>
             </Card>
@@ -475,7 +507,7 @@ const AdminOverview = () => {
 
       {/* User Registration Charts Section */}
       <div className="mt-8">
-        <div 
+        <div
           style={{
             background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 50%, #43e97b 100%)',
             borderRadius: '12px',
@@ -488,7 +520,7 @@ const AdminOverview = () => {
           className="flex items-center justify-between"
         >
           <div style={{ position: 'relative', zIndex: 1 }} className="flex items-center">
-            <div 
+            <div
               style={{
                 width: '56px',
                 height: '56px',
@@ -517,7 +549,7 @@ const AdminOverview = () => {
               picker="year"
               value={selectedYear}
               onChange={handleYearChange}
-              style={{ 
+              style={{
                 width: 150,
                 background: 'rgba(255, 255, 255, 0.2)',
                 border: '1px solid rgba(255, 255, 255, 0.3)',
@@ -553,13 +585,69 @@ const AdminOverview = () => {
 
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={12}>
-            <Card bordered={false} className="shadow-sm rounded-lg border border-gray-300" title="Line Chart">
+            <Card 
+              bordered={false} 
+              className="shadow-sm rounded-lg border border-gray-300" 
+              title="Line Chart"
+              bodyStyle={{
+                height: '368px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
               <Line {...chartConfig} height={300} />
             </Card>
           </Col>
           <Col xs={24} lg={12}>
-            <Card bordered={false} className="shadow-sm rounded-lg border border-gray-300" title="Column Chart">
-              <Column {...columnConfig} height={300} />
+            <Card
+              bordered={false}
+              className="shadow-sm rounded-lg border border-gray-300"
+              title={
+                <span className="font-bold text-gray-800">Latest Users</span>
+              }
+              bodyStyle={{
+                height: '368px',
+                display: 'flex',
+                flexDirection: 'column',
+                padding: '16px'
+              }}
+            >
+              <div className="flex flex-col h-full space-y-3">
+                {latestUsers.length > 0 ? (
+                  latestUsers.map((user, index) => {
+                    const rank = index + 1;
+                    const isTopThree = rank <= 3;
+                    const badgeClass = isTopThree
+                      ? "bg-black text-white"
+                      : "bg-gray-200 text-gray-600";
+                    const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email || 'Unknown User';
+
+                    return (
+                      <div
+                        key={user._id || index}
+                        className="flex items-center gap-3 py-2.5 px-2 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer flex-shrink-0"
+                      >
+                        <div
+                          className={`flex items-center justify-center w-7 h-7 rounded-full font-semibold text-xs flex-shrink-0 ${badgeClass}`}
+                        >
+                          {rank}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-bold text-gray-800 mb-1 line-clamp-1 text-xs">
+                            {fullName}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {user.email || 'No Email'}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="text-center text-gray-400 py-8 flex-1 flex items-center justify-center text-xs">No users found</div>
+                )}
+              </div>
             </Card>
           </Col>
         </Row>

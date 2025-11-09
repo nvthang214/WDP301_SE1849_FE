@@ -118,21 +118,6 @@ export default function MyJob() {
     }
   };
 
-  const handleExpireJob = async (jobId) => {
-    if (!window.confirm("Are you sure you want to expire this job?")) return;
-
-    setActionLoading(jobId);
-    try {
-      await JobService.expireJobById(jobId);
-      notifySuccess("Job expired successfully");
-    } catch (error) {
-      console.error("Failed to expire job:", error);
-      notifyError("Failed to expire job. Please try again.");
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
   const filteredJobs = useMemo(() => {
     return jobs.filter((job) => {
       if (statusFilter === "active") return job?.isActive;
@@ -171,16 +156,18 @@ export default function MyJob() {
                   {job?.title || "Untitled Position"}
                 </h3>
                 <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-gray-600">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
-                    <Briefcase size={12} />
-                    {formatJobType(job)}
-                  </span>
-                  {job?.jobLevel && (
-                    <span className="flex items-center gap-1">
-                      <span className="h-1 w-1 rounded-full bg-gray-400"></span>
-                      {job.jobLevel}
+                  <div>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
+                      <Briefcase size={12} />
+                      {formatJobType(job)}
                     </span>
-                  )}
+                    {job?.jobLevel && (
+                      <span className="flex items-center gap-1">
+                        <span className="h-1 w-1 rounded-full bg-gray-400"></span>
+                        {job.jobLevel}
+                      </span>
+                    )}
+                  </div>
                   {job?.location && (
                     <span className="flex items-center gap-1">
                       <MapPin size={12} className="text-gray-400" />

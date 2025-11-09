@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Form,
   Input,
@@ -9,8 +9,7 @@ import {
   Divider,
   Modal,
   Spin,
-  Alert,
-  Avatar
+  Alert
 } from 'antd';
 import { notifySuccess, notifyError } from '../../../../components/Notification';
 import {
@@ -21,19 +20,14 @@ import {
   DeleteOutlined,
   SaveOutlined,
   ExclamationCircleOutlined,
-  LoadingOutlined,
-  CloudUploadOutlined
+  LoadingOutlined
 } from '@ant-design/icons';
 import { UserService } from '../../../../services/UserService';
 import { AuthService } from '../../../../services/AuthService';
-import { UploadService } from '../../../../services/UploadService';
 import useAuthStore from '../../../../store/useAuthStore';
 
 const { Title, Text } = Typography;
 const { confirm } = Modal;
-
-const AVATAR_MAX_SIZE = 5 * 1024 * 1024;
-// Cho phép mọi định dạng ảnh hợp lệ (image/*)
 
 const AccountSetting = () => {
   const [contactForm] = Form.useForm();
@@ -43,12 +37,6 @@ const AccountSetting = () => {
   
   // Sử dụng auth store
   const { user: userData, loading, fetchMe, logout } = useAuthStore();
-  const userId = useMemo(() => userData?._id || userData?.id || userData?.userId || null, [userData]);
-
-  // Avatar state
-  const avatarInputRef = useRef(null);
-  const [isAvatarBusy, setIsAvatarBusy] = useState(false);
-  const [avatarData, setAvatarData] = useState(null);
 
   useEffect(() => {
     if (!userData) {
@@ -57,21 +45,6 @@ const AccountSetting = () => {
       fillForm(userData);
     }
   }, [userData, fetchMe]);
-
-  useEffect(() => {
-    if (!loading && userId) {
-      (async () => {
-        try {
-          const res = await UploadService.getUserAvatar(userId);
-          if (!res?.isError) {
-            setAvatarData(res?.data || null);
-          }
-        } catch (e) {
-          // ignore
-        }
-      })();
-    }
-  }, [loading, userId]);
 
   const fillForm = (data) => {
     if (data) {
@@ -84,102 +57,20 @@ const AccountSetting = () => {
     }
   };
 
-  const validateAvatarFile = (file) => {
-    if (!file?.type?.startsWith('image/')) {
-      notifyError("Avatar must be a valid image file.");
-      return false;
-    }
-    if (file.size > AVATAR_MAX_SIZE) {
-      notifyError("Maximum image size is 5 MB.");
-      return false;
-    }
-    return true;
-  };
-
-  const handleAvatarUpload = async (file) => {
-    if (!userId || !validateAvatarFile(file)) return;
-    const formData = new FormData();
-    formData.append('avatar', file);
-    setIsAvatarBusy(true);
-    try {
-      const action = avatarData ? UploadService.updateUserAvatar : UploadService.addUserAvatar;
-      const response = await action(userId, formData);
-      if (response?.isError) {
-        throw new Error(response?.msg || 'Unable to upload avatar.');
-      }
-      const nextAvatar = response?.data || null;
-      setAvatarData(nextAvatar);
-      // đồng bộ về auth store
-      useAuthStore.setState((state) => {
-        if (!state.user) return {};
-        const serializedAvatar = nextAvatar ? JSON.stringify(nextAvatar) : null;
-        return { user: { ...state.user, avatar: serializedAvatar } };
-      });
-      notifySuccess(response?.msg || 'Avatar updated.');
-    } catch (error) {
-      console.error(error);
-      notifyError(error.message || 'Unable to upload avatar.');
-    } finally {
-      setIsAvatarBusy(false);
-    }
-  };
-
-  const handleAvatarFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) handleAvatarUpload(file);
-    e.target.value = '';
-  };
-
-  const handleAvatarDelete = async () => {
-    if (!userId || !avatarData) return;
-    setIsAvatarBusy(true);
-    try {
-      const response = await UploadService.deleteUserAvatar(userId);
-      if (response?.isError) {
-        throw new Error(response?.msg || 'Unable to delete avatar.');
-      }
-      setAvatarData(null);
-      useAuthStore.setState((state) => {
-        if (!state.user) return {};
-        return { user: { ...state.user, avatar: null } };
-      });
-      notifySuccess(response?.msg || 'Avatar deleted.');
-    } catch (error) {
-      console.error(error);
-      notifyError(error.message || 'Unable to delete avatar.');
-    } finally {
-      setIsAvatarBusy(false);
-    }
-  };
-
-  const deriveAvatarUrl = () => {
-    if (avatarData?.url) return avatarData.url;
-    const raw = userData?.avatar;
-    if (typeof raw === 'string' && raw.trim()) {
-      try {
-        const parsed = JSON.parse(raw);
-        return parsed?.url || raw;
-      } catch {
-        return raw;
-      }
-    }
-    return null;
-  };
-
   const handleContactInfoSave = async (values) => {
     try {
       setSavingContact(true);
       const response = await UserService.updateProfile(userData._id, values);
       
       if (response.isOk) {
-        notifySuccess('Contact information updated successfully!');
+        notifySuccess('Thông tin liên hệ đã được cập nhật thành công!');
         // Gọi lại fetchMe để cập nhật user data trong auth store
         await fetchMe();
       } else {
-        notifyError(response.msg || 'Failed to update contact information!');
+        notifyError(response.msg || 'Thông tin liên hệ không thể được cập nhật!');
       }
     } catch (error) {
-      notifyError('Failed to update contact information!');
+      notifyError('Thông tin liên hệ không thể được cập nhật!');
     } finally {
       setSavingContact(false);
     }
@@ -194,13 +85,13 @@ const AccountSetting = () => {
       });
       
       if (response.isOk) {
-        notifySuccess('Password updated successfully!');
+        notifySuccess('Mật khẩu đã được cập nhật thành công!');
         passwordForm.resetFields();
       } else {
-        notifyError(response.msg || 'Failed to update password!');
+        notifyError(response.msg || 'Thông tin liên hệ không thể được cập nhật!');
       }
     } catch (error) {
-      notifyError('Password could not be updated!');
+      notifyError('Mật khẩu không thể được cập nhật!');
     } finally {
       setChangingPassword(false);
     }
@@ -208,36 +99,35 @@ const AccountSetting = () => {
 
   const handleDeleteAccount = () => {
     confirm({
-      title: 'Are you sure you want to delete this account?',
+      title: 'Bạn có chắc chắn muốn xóa tài khoản này?',
       icon: <ExclamationCircleOutlined />,
       content: (
         <div>
           <p>This action cannot be undone. All your data will be permanently deleted including:</p>
           <ul>
             <li>Your profile information</li>
-            <li>Company information</li>
-            <li>Posted jobs</li>
-            <li>Application history</li>
+            <li>Admin access</li>
+            <li>All administrative records</li>
           </ul>
           <p><strong>Please type "DELETE" to confirm:</strong></p>
         </div>
       ),
-      okText: 'Delete Account',
+      okText: 'Xóa tài khoản',
       okType: 'danger',
-      cancelText: 'Cancel',
+      cancelText: 'Hủy',
       onOk: async () => {
         try {
           const response = await UserService.deleteUser(userData._id);
           if (response.isOk) {
-            notifySuccess('Account deleted successfully!');
+            notifySuccess('Tài khoản đã được xóa thành công!');
             // Clear auth state and redirect to login page
             await logout();
             window.location.href = '/login';
           } else {
-            notifyError(response.msg || 'Unable to delete account!');
+            notifyError(response.msg || 'Tài khoản không thể được xóa!');
           }
         } catch (error) {
-          notifyError('Unable to delete account!');
+          notifyError('Tài khoản không thể được xóa!');
         }
       }
     });
@@ -252,56 +142,11 @@ const AccountSetting = () => {
     );
   }
 
-  const avatarUrl = deriveAvatarUrl();
-  const hasAvatar = !!(avatarUrl && avatarUrl.trim());
-
   return (
     <div>
       <Title level={4}>Account Settings</Title>
       
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
-        {/* Avatar */}
-        <Card title="Avatar" style={{ maxWidth: '600px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <Avatar
-              src={hasAvatar ? avatarUrl : undefined}
-              size={64}
-              style={{ backgroundColor: hasAvatar ? undefined : '#1890ff', color: '#fff' }}
-              icon={!hasAvatar ? <UserOutlined /> : undefined}
-            />
-            <div style={{ display: 'flex', gap: 8 }}>
-              <input
-                type="file"
-                accept="image/*"
-                ref={avatarInputRef}
-                onChange={handleAvatarFileChange}
-                style={{ display: 'none' }}
-              />
-              <Button
-                type="primary"
-                icon={<CloudUploadOutlined />}
-                loading={isAvatarBusy}
-                onClick={() => avatarInputRef.current?.click()}
-              >
-                Upload Avatar
-              </Button>
-              <Button
-                danger
-                icon={<DeleteOutlined />}
-                disabled={!hasAvatar || isAvatarBusy}
-                onClick={handleAvatarDelete}
-              >
-                Delete Avatar
-              </Button>
-            </div>
-          </div>
-          {!hasAvatar && (
-            <Text type="secondary" style={{ display: 'block', marginTop: 8 }}>
-              Supports all image formats (image/*), up to 5MB
-            </Text>
-          )}
-        </Card>
-
         {/* Contact Information */}
         <Card title="Contact Information" style={{ maxWidth: '600px' }}>
           <Form
@@ -407,17 +252,67 @@ const AccountSetting = () => {
               />
             </Form.Item>
 
+            <Form.Item
+              label="Confirm New Password"
+              name="confirmPassword"
+              dependencies={['newPassword']}
+              rules={[
+                { required: true, message: 'Please confirm your new password!' },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue('newPassword') === value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error('The two passwords do not match!'));
+                  },
+                }),
+              ]}
+            >
+              <Input.Password 
+                prefix={<LockOutlined />} 
+                placeholder="Confirm new password" 
+                size="large"
+              />
+            </Form.Item>
+
             <Form.Item>
               <Button 
                 type="primary" 
                 htmlType="submit" 
-                icon={<SaveOutlined />}
+                icon={<LockOutlined />}
                 loading={changingPassword}
+                size="large"
               >
-                Update Password
+                Change Password
               </Button>
             </Form.Item>
           </Form>
+        </Card>
+
+        <Divider />
+
+        {/* Danger Zone */}
+        <Card 
+          title={<Text type="danger">Danger Zone</Text>} 
+          style={{ maxWidth: '600px', borderColor: '#ff4d4f' }}
+        >
+          <Alert
+            message="Delete Account"
+            description="Once you delete your account, there is no going back. Please be certain."
+            type="error"
+            showIcon
+            style={{ marginBottom: '16px' }}
+          />
+          
+          <Button 
+            type="primary" 
+            danger 
+            icon={<DeleteOutlined />}
+            size="large"
+            onClick={handleDeleteAccount}
+          >
+            Delete Account
+          </Button>
         </Card>
       </Space>
     </div>
@@ -425,3 +320,4 @@ const AccountSetting = () => {
 };
 
 export default AccountSetting;
+

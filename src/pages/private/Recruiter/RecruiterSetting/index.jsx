@@ -4,10 +4,12 @@ import {
   SettingOutlined,
   BankOutlined,
   ShareAltOutlined,
-  UserOutlined
+  UserOutlined,
+  PictureOutlined
 } from '@ant-design/icons';
 
 import AccountSetting from './AccountSetting';
+import AvatarSetting from './AvatarSetting';
 
 const { Title } = Typography;
 
@@ -38,12 +40,22 @@ const RecruiterSettings = () => {
     {
       key: 'account',
       label: (
-        <span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <UserOutlined />
-          Account Setting
-        </span>
+          <span>Account Setting</span>
+        </div>
       ),
       children: <AccountSetting />,
+    },
+    {
+      key: 'avatar',
+      label: (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <PictureOutlined />
+          <span>Avatar</span>
+        </div>
+      ),
+      children: <AvatarSetting />,
     },
   ];
 
@@ -51,9 +63,10 @@ const RecruiterSettings = () => {
     <div style={{ padding: '24px', background: '#f5f5f5', minHeight: '100vh' }}>
       <Card
         title={
-          <h2 style={{ margin: 0, fontSize: '24px', fontWeight: 'bold' }}>
-            Settings
-          </h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <SettingOutlined />
+            <span>Settings</span>
+          </div>
         }
         style={{ maxWidth: '1200px', margin: '0 auto' }}
       >

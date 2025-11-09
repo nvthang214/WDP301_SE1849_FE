@@ -1,4 +1,4 @@
-import { LayoutDashboard, Settings, Users, FileText } from "lucide-react";
+import { LayoutDashboard, Settings, Users, FileText, Tag, FolderTree } from "lucide-react";
 import MenuLeft from "../../../../components/MenuLeft";
 import { useNavigate } from "react-router-dom";
 import ROUTER from "../../../../router/ROUTER";
@@ -31,15 +31,28 @@ const AdminSideBar = () => {
       label: ROUTE_META[ROUTER.ADMIN_UPGRADE_REQUESTS]?.breadcrumb,
       onClick: ({ key }) => navigate(key),
     },
+    {
+      key: ROUTER.ADMIN_TAG_MANAGEMENT,
+      icon: <Tag size={20} />,
+      label: ROUTE_META[ROUTER.ADMIN_TAG_MANAGEMENT]?.breadcrumb,
+      onClick: ({ key }) => navigate(key),
+    },
+    {
+      key: ROUTER.ADMIN_CATEGORY_MANAGEMENT,
+      icon: <FolderTree size={20} />,
+      label: ROUTE_META[ROUTER.ADMIN_CATEGORY_MANAGEMENT]?.breadcrumb,
+      onClick: ({ key }) => navigate(key),
+    },
 
     // ------------------------- Divider ------------------------
     {
       type: "divider",
     },
     {
-      key: "sub3",
+      key: ROUTER.ADMIN_SETTINGS,
       icon: <Settings size={20} />,
-      label: "Settings",
+      label: ROUTE_META[ROUTER.ADMIN_SETTINGS]?.breadcrumb,
+      onClick: ({ key }) => navigate(key),
     },
     // ======================= End Menu Items ========================
   ];

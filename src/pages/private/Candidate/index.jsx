@@ -1,14 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Button, Skeleton } from "antd";
+import { Button, Pagination, Skeleton } from "antd";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../../../store/useAuthStore";
 import { CandidateService } from "../../../services/CandidateService";
 import { notifyError } from "../../../components/Notification";
 import { EnvironmentOutlined } from "@ant-design/icons";
-import { BriefcaseBusiness, Bookmark, Bell,ArrowRight } from "lucide-react";
+import { BriefcaseBusiness, Bookmark, Bell, ArrowRight } from "lucide-react";
 import ROUTER from "../../../router/ROUTER";
 
+const PAGE_SIZE = 10;
 
 const StatusBadge = ({ status }) => {
   if (!status) return null;
@@ -28,7 +29,7 @@ const StatusBadge = ({ status }) => {
     <span
       className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${colorClasses}`}
     >
-      <span className="inline-block h-2 w-2 rounded-full bg-current" />
+      <span />
       {label}
     </span>
   );
@@ -98,7 +99,7 @@ const AppliedJobRow = ({ application, onViewDetails }) => {
               {location}
             </span>
             <span className="inline-flex items-center gap-1">
-              <span className="text-neutral-300">$</span>
+              <span className="text-neutral-300"></span>
               {salaryLabel}
             </span>
           </div>
@@ -145,6 +146,15 @@ const CandidateOverview = () => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [isProfileMissing, setIsProfileMissing] = useState(false);
   const [favoriteCount, setFavoriteCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const avatar = (() => {
+    if (!user?.avatar) return null;
+    try {
+      return typeof user.avatar === "string" ? JSON.parse(user.avatar) : user.avatar;
+    } catch {
+      return null;
+    }
+  })();
 
   const userId = useMemo(
     () => user?._id || user?.id || user?.userId || null,
@@ -226,7 +236,20 @@ const CandidateOverview = () => {
     navigate(ROUTER.CANDIDATE_JOB_DETAIL.replace(":id", jobId));
   };
 
-  const totalApplied = appliedJobs.length;
+  const visibleAppliedJobs = useMemo(
+    () => appliedJobs.filter((item) => item && item.job),
+    [appliedJobs]
+  );
+  const totalApplied = visibleAppliedJobs.length;
+  const paginatedAppliedJobs = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return visibleAppliedJobs.slice(start, start + PAGE_SIZE);
+  }, [visibleAppliedJobs, currentPage]);
+
+  useEffect(() => {
+    const totalPages = Math.max(1, Math.ceil(visibleAppliedJobs.length / PAGE_SIZE) || 1);
+    setCurrentPage((prev) => (prev > totalPages ? totalPages : prev));
+  }, [visibleAppliedJobs.length]);
 
  
   return (
@@ -236,9 +259,6 @@ const CandidateOverview = () => {
             <h1 className="text-lg font-semibold text-neutral-900">
               Hello, {user?.firstName + " " + user?.lastName}
             </h1>
-            <h2 className="mt-1 text-lg font-bold text-neutral-500">
-              Here is your daily activity and job alert
-            </h2>
           </div>
 
 
@@ -264,25 +284,15 @@ const CandidateOverview = () => {
                 <Bookmark className="w-6 h-6 text-yellow-500" />
               </div>
             </div>
-
-            <div className="flex items-center justify-between w-52 rounded-xl bg-green-50 px-6 py-5 shadow-sm">
-              <div>
-                <p className="text-2xl font-semibold text-neutral-900">{0}</p>
-                <p className="text-sm text-neutral-500">Job Alerts</p>
-              </div>
-              <div className="p-2 bg-white rounded-lg shadow-sm">
-                <Bell className="w-6 h-6 text-green-600" />
-              </div>
-            </div>
           </div>
         
 
     {isProfileMissing ? (
-  <div className="flex flex-col items-center justify-between gap-4 rounded-2xl bg-red-700 px-6 py-5 text-white shadow-sm sm:flex-row">
+  <div className="flex flex-col items-center justify-between gap-4 rounded-2xl bg-blue-400 px-6 py-5 text-white shadow-sm sm:flex-row">
     
     <div className="flex items-center gap-4">
       <img
-        src={user?.avatar}
+        src={avatar?.url}
         alt="User avatar"
         className="h-12 w-12 rounded-full object-cover"
       />
@@ -331,7 +341,7 @@ const CandidateOverview = () => {
               <div className="rounded-2xl border border-red-100 bg-red-50 p-6 text-sm text-red-600">
                 {errorMessage}
               </div>
-            ) : appliedJobs.length ? (
+            ) : visibleAppliedJobs.length ? (
               <div className="overflow-hidden">
                 <div className="grid grid-cols-12 gap-4 bg-neutral-50 px-6 py-4 text-[12px] font-semibold tracking-[0.18em] text-neutral-500 uppercase">
                   <span className="col-span-5 hidden md:block">Jobs</span>
@@ -345,13 +355,24 @@ const CandidateOverview = () => {
                     Action
                   </span>
                 </div>
-                {appliedJobs.map((application) => (
+                {paginatedAppliedJobs.map((application) => (
                   <AppliedJobRow
                     key={application.applicationId || application._id}
                     application={application}
                     onViewDetails={handleViewDetails}
                   />
                 ))}
+                {visibleAppliedJobs.length > PAGE_SIZE && (
+                  <div className="flex justify-end border-t border-neutral-100 bg-white px-6 py-4">
+                    <Pagination
+                      current={currentPage}
+                      pageSize={PAGE_SIZE}
+                      total={visibleAppliedJobs.length}
+                      showSizeChanger={false}
+                      onChange={setCurrentPage}
+                    />
+                  </div>
+                )}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-neutral-200 py-12 text-sm text-neutral-500">

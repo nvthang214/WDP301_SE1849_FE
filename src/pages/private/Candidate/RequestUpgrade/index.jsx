@@ -5,7 +5,6 @@ import {
   Input,
   Button,
   Upload,
-  message,
   Spin,
   Alert,
   Row,
@@ -19,9 +18,12 @@ import {
   FileTextOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
-  CloseCircleOutlined
+  CloseCircleOutlined,
+  FilePdfOutlined,
+  EyeOutlined
 } from '@ant-design/icons';
 import { UpgradeRequestService } from '../../../../services/UpgradeRequestService';
+import { notifySuccess, notifyError } from '../../../../components/Notification';
 
 const { TextArea } = Input;
 
@@ -32,10 +34,21 @@ const CandidateRequestUpgrade = () => {
   const [fileList, setFileList] = useState([]);
   const [logoPreview, setLogoPreview] = useState('');
   const [bannerPreview, setBannerPreview] = useState('');
+  const [businessLicensePreview, setBusinessLicensePreview] = useState('');
+  const [businessLicensePreviewType, setBusinessLicensePreviewType] = useState(''); // 'image' or 'pdf'
 
   useEffect(() => {
     checkExistingRequest();
   }, []);
+
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      if (businessLicensePreview) {
+        URL.revokeObjectURL(businessLicensePreview);
+      }
+    };
+  }, [businessLicensePreview]);
 
   // Compress image URL to shorter base64
   const compressImageUrl = (url) => {
@@ -52,9 +65,10 @@ const CandidateRequestUpgrade = () => {
       if (response?.data?.data) {
         setExistingRequest(response.data.data);
       }
+      // If data is null, no action needed - user has no request
     } catch (error) {
-      // No existing request - this is normal
-      console.log('No existing request found');
+      // Only log actual errors
+      console.error('Error fetching upgrade request:', error);
     }
   };
 
@@ -71,8 +85,113 @@ const CandidateRequestUpgrade = () => {
     form.setFieldsValue({ companyBanner: compressImageUrl(url) });
   };
 
+  // Handle file upload for logo and banner (similar to CompanyEdit)
+  const handleFileUpload = (e, field) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Check file size (max 2MB for better performance)
+      if (file.size > 2 * 1024 * 1024) {
+        notifyError('File size must be smaller than 2MB');
+        return;
+      }
+
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        notifyError('Please select an image file');
+        return;
+      }
+
+      // Compress and resize image
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
+      
+      img.onload = () => {
+        // Set max dimensions
+        const maxWidth = field === 'logo' ? 200 : 800;
+        const maxHeight = field === 'logo' ? 200 : 400;
+        
+        let { width, height } = img;
+        
+        // Calculate new dimensions
+        if (width > height) {
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = (width * maxHeight) / height;
+            height = maxHeight;
+          }
+        }
+        
+        // Set canvas dimensions
+        canvas.width = width;
+        canvas.height = height;
+        
+        // Draw and compress
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        // Convert to base64 with compression
+        const base64 = canvas.toDataURL('image/jpeg', 0.8); // 80% quality
+        
+        // Update form and preview
+        if (field === 'logo') {
+          setLogoPreview(base64);
+          form.setFieldsValue({ companyLogo: base64 });
+        } else if (field === 'banner') {
+          setBannerPreview(base64);
+          form.setFieldsValue({ companyBanner: base64 });
+        }
+        
+        // Clean up object URL after use
+        URL.revokeObjectURL(objectUrl);
+      };
+      
+      img.onerror = () => {
+        notifyError('Error loading image. Please try again.');
+        URL.revokeObjectURL(objectUrl);
+      };
+      
+      img.src = objectUrl;
+    }
+  };
+
   const handleFileChange = ({ fileList: newFileList }) => {
+    // Revoke old preview URL if exists
+    setBusinessLicensePreview((prevUrl) => {
+      if (prevUrl) {
+        URL.revokeObjectURL(prevUrl);
+      }
+      return '';
+    });
+    setBusinessLicensePreviewType('');
+    
+    // Update file list
     setFileList(newFileList);
+    
+    // Create preview for the selected file
+    if (newFileList.length > 0) {
+      const file = newFileList[0].originFileObj || newFileList[0];
+      if (file) {
+        const isPDF = file.type === 'application/pdf';
+        const isImage = file.type.startsWith('image/');
+        
+        if (isPDF) {
+          // For PDF, create object URL for preview
+          const url = URL.createObjectURL(file);
+          setBusinessLicensePreview(url);
+          setBusinessLicensePreviewType('pdf');
+        } else if (isImage) {
+          // For images, create object URL for preview
+          const url = URL.createObjectURL(file);
+          setBusinessLicensePreview(url);
+          setBusinessLicensePreviewType('image');
+        }
+      }
+    }
   };
 
   const beforeUpload = (file) => {
@@ -80,13 +199,13 @@ const CandidateRequestUpgrade = () => {
     const isImage = file.type.startsWith('image/');
 
     if (!isPDF && !isImage) {
-      message.error('Chỉ chấp nhận file PDF hoặc hình ảnh!');
+      notifyError('Only PDF files or images are accepted!');
       return false;
     }
 
     const isLt10M = file.size / 1024 / 1024 < 10;
     if (!isLt10M) {
-      message.error('File phải nhỏ hơn 10MB!');
+      notifyError('File must be smaller than 10MB!');
       return false;
     }
 
@@ -95,7 +214,7 @@ const CandidateRequestUpgrade = () => {
 
   const handleSubmit = async (values) => {
     if (fileList.length === 0) {
-      message.error('Vui lòng tải lên giấy phép kinh doanh!');
+      notifyError('Please upload a business license!');
       return;
     }
 
@@ -122,20 +241,23 @@ const CandidateRequestUpgrade = () => {
 
       await UpgradeRequestService.createUpgradeRequest(formData);
 
-      message.success({
-        content: 'Đơn yêu cầu nâng cấp đã được gửi thành công! Admin sẽ xem xét và phản hồi trong thời gian sớm nhất.',
-        duration: 5,
-      });
+      notifySuccess('Upgrade request submitted successfully! Admin will review and respond soon.');
       form.resetFields();
       setFileList([]);
       setLogoPreview('');
       setBannerPreview('');
+      // Clean up preview URL
+      if (businessLicensePreview) {
+        URL.revokeObjectURL(businessLicensePreview);
+      }
+      setBusinessLicensePreview('');
+      setBusinessLicensePreviewType('');
       checkExistingRequest();
 
     } catch (error) {
       console.error('Error submitting request:', error);
-      const errorMsg = error?.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại.';
-      message.error(errorMsg);
+      const errorMsg = error?.response?.data?.message || 'An error occurred. Please try again.';
+      notifyError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -143,9 +265,9 @@ const CandidateRequestUpgrade = () => {
 
   const getStatusTag = (status) => {
     const statusConfig = {
-      pending: { color: 'orange', icon: <ClockCircleOutlined />, text: 'Đang chờ duyệt' },
-      approved: { color: 'green', icon: <CheckCircleOutlined />, text: 'Đã duyệt' },
-      rejected: { color: 'red', icon: <CloseCircleOutlined />, text: 'Bị từ chối' },
+      pending: { color: 'orange', icon: <ClockCircleOutlined />, text: 'Pending' },
+      approved: { color: 'green', icon: <CheckCircleOutlined />, text: 'Approved' },
+      rejected: { color: 'red', icon: <CloseCircleOutlined />, text: 'Rejected' },
     };
 
     const config = statusConfig[status] || statusConfig.pending;
@@ -163,39 +285,39 @@ const CandidateRequestUpgrade = () => {
           <div className="text-center mb-6">
             <FileTextOutlined className="text-4xl text-blue-500 mb-4" />
             <h1 className="text-2xl font-bold text-gray-800">
-              Yêu cầu nâng cấp thành Recruiter
+              Upgrade Request to Recruiter
             </h1>
             <p className="text-gray-600 mt-2">
-              Bạn đã có một yêu cầu nâng cấp đang được xử lý
+              You already have an upgrade request being processed
             </p>
           </div>
 
-          <Descriptions title="Thông tin yêu cầu" bordered column={1}>
-            <Descriptions.Item label="Trạng thái">
+          <Descriptions title="Request Information" bordered column={1}>
+            <Descriptions.Item label="Status">
               {getStatusTag(existingRequest.status)}
             </Descriptions.Item>
-            <Descriptions.Item label="Ngày gửi">
-              {new Date(existingRequest.createdAt).toLocaleDateString('vi-VN')}
+            <Descriptions.Item label="Submitted Date">
+              {new Date(existingRequest.createdAt).toLocaleDateString('en-US')}
             </Descriptions.Item>
-            <Descriptions.Item label="Tên công ty">
-              {existingRequest.companyInfo?.name || 'Chưa cập nhật'}
+            <Descriptions.Item label="Company Name">
+              {existingRequest.companyInfo?.name || 'Not updated'}
             </Descriptions.Item>
-            <Descriptions.Item label="Mô tả công ty">
-              {existingRequest.companyInfo?.description || 'Chưa cập nhật'}
+            <Descriptions.Item label="Company Description">
+              {existingRequest.companyInfo?.description || 'Not updated'}
             </Descriptions.Item>
-            <Descriptions.Item label="Ngành nghề">
-              {existingRequest.companyInfo?.industry || 'Chưa cập nhật'}
+            <Descriptions.Item label="Industry">
+              {existingRequest.companyInfo?.industry || 'Not updated'}
             </Descriptions.Item>
-            <Descriptions.Item label="Địa chỉ">
-              {existingRequest.companyInfo?.address || 'Chưa cập nhật'}
+            <Descriptions.Item label="Address">
+              {existingRequest.companyInfo?.address || 'Not updated'}
             </Descriptions.Item>
             {existingRequest.reviewedAt && (
-              <Descriptions.Item label="Ngày duyệt">
-                {new Date(existingRequest.reviewedAt).toLocaleDateString('vi-VN')}
+              <Descriptions.Item label="Reviewed Date">
+                {new Date(existingRequest.reviewedAt).toLocaleDateString('en-US')}
               </Descriptions.Item>
             )}
             {existingRequest.adminNote && (
-              <Descriptions.Item label="Ghi chú từ admin">
+              <Descriptions.Item label="Admin Note">
                 {existingRequest.adminNote}
               </Descriptions.Item>
             )}
@@ -203,8 +325,8 @@ const CandidateRequestUpgrade = () => {
 
           {existingRequest.status === 'approved' && (
             <Alert
-              message="Chúc mừng!"
-              description="Yêu cầu nâng cấp của bạn đã được duyệt. Bạn giờ đây có thể đăng nhập với vai trò Recruiter."
+              message="Congratulations!"
+              description="Your upgrade request has been approved. You can now log in with the Recruiter role."
               type="success"
               showIcon
               className="mt-6"
@@ -217,16 +339,25 @@ const CandidateRequestUpgrade = () => {
 
   return (
     <div className="p-6">
-      <Card>
-        <div className="text-center mb-6">
-          <FileTextOutlined className="text-4xl text-blue-500 mb-4" />
-          <h1 className="text-2xl font-bold text-gray-800">
-            Yêu cầu nâng cấp thành Recruiter
+      <Card
+        bordered={false}
+        className="shadow-none bg-transparent border-none p-0"
+        style={{
+          boxShadow: 'none',
+          background: 'transparent',
+        }}
+      >
+
+        <div className="text-center mb-6 bg-blue-400 text-white py-6 rounded-lg shadow-md">
+          <FileTextOutlined className="text-5xl mb-3" />
+          <h1 className="text-3xl font-semibold">
+            Upgrade Request to Recruiter
           </h1>
-          <p className="text-gray-600 mt-2">
-            Điền thông tin công ty để yêu cầu nâng cấp tài khoản thành Recruiter
+          <p className="mt-2 text-lg">
+            Fill in company information to request an account upgrade to Recruiter
           </p>
         </div>
+
 
         <Form
           form={form}
@@ -234,96 +365,132 @@ const CandidateRequestUpgrade = () => {
           onFinish={handleSubmit}
           className="max-w-4xl mx-auto"
         >
-          <Divider orientation="left">Thông tin công ty</Divider>
+          <Divider orientation="left">Company Information</Divider>
 
           <Row gutter={16}>
             <Col xs={24} md={12}>
               <Form.Item
                 name="companyName"
-                label="Tên công ty *"
-                rules={[{ required: true, message: 'Vui lòng nhập tên công ty!' }]}
+                label="Company Name *"
+                rules={[{ required: true, message: 'Please enter company name!' }]}
               >
-                <Input placeholder="Nhập tên công ty" />
+                <Input placeholder="Enter company name" />
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
               <Form.Item
                 name="companyIndustry"
-                label="Ngành nghề"
+                label="Industry"
               >
-                <Input placeholder="Ví dụ: Công nghệ thông tin, Tài chính..." />
+                <Input placeholder="e.g. Information Technology, Finance..." />
               </Form.Item>
             </Col>
           </Row>
 
           <Form.Item
             name="companyDescription"
-            label="Mô tả công ty"
+            label="Company Description"
           >
             <TextArea
               rows={4}
-              placeholder="Mô tả về công ty, lĩnh vực hoạt động..."
+              placeholder="Describe the company, business areas..."
             />
           </Form.Item>
 
-          {/* <Row gutter={16}>
+          <Row gutter={16}>
             <Col xs={24} md={12}>
               <Form.Item
                 name="companyLogo"
-                label="Logo công ty"
+                label="Company Logo"
               >
-                <Input
-                  placeholder="URL logo công ty"
-                  onChange={handleLogoUrlChange}
-                />
-                {logoPreview && (
-                  <div className="mt-2">
-                    <img
-                      src={logoPreview}
-                      alt="Logo preview"
-                      className="w-16 h-16 object-cover rounded border"
-                      onError={() => setLogoPreview('')}
+                <div className="space-y-3">
+                  <Input
+                    placeholder="Enter logo URL"
+                    onChange={handleLogoUrlChange}
+                  />
+                  <div className="text-center text-sm text-gray-500">OR</div>
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFileUpload(e, 'logo')}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      id="logo-upload-upgrade"
                     />
+                    <label 
+                      htmlFor="logo-upload-upgrade"
+                      className="flex items-center justify-center w-full h-12 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 transition-colors cursor-pointer"
+                    >
+                      <span className="text-sm text-gray-600">Upload Logo (Max 2MB)</span>
+                    </label>
                   </div>
-                )}
+                  {logoPreview && (
+                    <div className="mt-2 text-center">
+                      <img 
+                        src={logoPreview} 
+                        alt="Logo preview" 
+                        className="w-20 h-20 object-cover rounded-lg border border-gray-200 mx-auto"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Logo Preview</p>
+                    </div>
+                  )}
+                </div>
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
               <Form.Item
                 name="companyBanner"
-                label="Banner công ty"
+                label="Company Banner"
               >
-                <Input
-                  placeholder="URL banner công ty"
-                  onChange={handleBannerUrlChange}
-                />
-                {bannerPreview && (
-                  <div className="mt-2">
-                    <img
-                      src={bannerPreview}
-                      alt="Banner preview"
-                      className="w-full h-20 object-cover rounded border"
-                      onError={() => setBannerPreview('')}
+                <div className="space-y-3">
+                  <Input
+                    placeholder="Enter banner URL"
+                    onChange={handleBannerUrlChange}
+                  />
+                  <div className="text-center text-sm text-gray-500">OR</div>
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFileUpload(e, 'banner')}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      id="banner-upload-upgrade"
                     />
+                    <label 
+                      htmlFor="banner-upload-upgrade"
+                      className="flex items-center justify-center w-full h-12 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 transition-colors cursor-pointer"
+                    >
+                      <span className="text-sm text-gray-600">Upload Banner (Max 2MB)</span>
+                    </label>
                   </div>
-                )}
+                  {bannerPreview && (
+                    <div className="mt-2">
+                      <img 
+                        src={bannerPreview} 
+                        alt="Banner preview" 
+                        className="w-full h-20 object-cover rounded-lg border border-gray-200"
+                      />
+                      <p className="text-xs text-gray-500 mt-1 text-center">Banner Preview</p>
+                    </div>
+                  )}
+                </div>
               </Form.Item>
             </Col>
-          </Row> */}
+          </Row>
 
           <Row gutter={16}>
             <Col xs={24} md={12}>
               <Form.Item
                 name="companyAddress"
-                label="Địa chỉ"
+                label="Address"
               >
-                <Input placeholder="Địa chỉ công ty" />
+                <Input placeholder="Company address" />
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
               <Form.Item
                 name="companyEmail"
-                label="Email công ty"
+                label="Company Email"
               >
                 <Input placeholder="contact@company.com" />
               </Form.Item>
@@ -334,7 +501,7 @@ const CandidateRequestUpgrade = () => {
             <Col xs={24} md={12}>
               <Form.Item
                 name="companyPhone"
-                label="Số điện thoại"
+                label="Phone Number"
               >
                 <Input placeholder="0123456789" />
               </Form.Item>
@@ -351,28 +518,28 @@ const CandidateRequestUpgrade = () => {
 
           <Form.Item
             name="companyBenefits"
-            label="Phúc lợi"
+            label="Benefits"
           >
             <TextArea
               rows={3}
-              placeholder="Mô tả các phúc lợi mà công ty cung cấp..."
+              placeholder="Describe the benefits the company provides..."
             />
           </Form.Item>
 
           <Form.Item
             name="companyVision"
-            label="Tầm nhìn"
+            label="Vision"
           >
             <TextArea
               rows={3}
-              placeholder="Tầm nhìn và sứ mệnh của công ty..."
+              placeholder="Company vision and mission..."
             />
           </Form.Item>
 
-          <Divider orientation="left">Tài liệu</Divider>
+          <Divider orientation="left">Documents</Divider>
 
           <Form.Item
-            label="Giấy phép kinh doanh *"
+            label="Business License *"
             required
           >
             <Upload
@@ -383,12 +550,61 @@ const CandidateRequestUpgrade = () => {
               accept=".pdf,.jpg,.jpeg,.png"
             >
               <Button icon={<UploadOutlined />}>
-                Tải lên giấy phép kinh doanh
+                Upload Business License
               </Button>
             </Upload>
             <div className="text-sm text-gray-500 mt-2">
-              Chấp nhận file PDF hoặc hình ảnh, tối đa 10MB
+              Accept PDF files or images, maximum 10MB
             </div>
+            
+            {/* Preview Section */}
+            {businessLicensePreview && (
+              <div className="mt-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                <div className="flex items-center gap-2 mb-3">
+                  <EyeOutlined className="text-blue-500" />
+                  <span className="font-medium text-gray-700">Preview</span>
+                </div>
+                
+                {businessLicensePreviewType === 'image' && (
+                  <div className="flex justify-center">
+                    <img
+                      src={businessLicensePreview}
+                      alt="Business License Preview"
+                      className="max-w-full max-h-96 object-contain rounded border border-gray-300 shadow-sm"
+                      onError={() => {
+                        setBusinessLicensePreview('');
+                        setBusinessLicensePreviewType('');
+                      }}
+                    />
+                  </div>
+                )}
+                
+                {businessLicensePreviewType === 'pdf' && (
+                  <div className="flex flex-col items-center gap-3">
+                    <FilePdfOutlined className="text-6xl text-red-500" />
+                    <div className="text-center">
+                      <p className="font-medium text-gray-700 mb-1">
+                        {fileList[0]?.name || 'PDF Document'}
+                      </p>
+                      <a
+                        href={businessLicensePreview}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:text-blue-700 underline flex items-center gap-1 justify-center"
+                      >
+                        <FileTextOutlined />
+                        Open PDF in new tab
+                      </a>
+                    </div>
+                    <iframe
+                      src={businessLicensePreview}
+                      className="w-full h-96 border border-gray-300 rounded shadow-sm"
+                      title="Business License PDF Preview"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
           </Form.Item>
 
           <Form.Item className="text-center">
@@ -399,7 +615,7 @@ const CandidateRequestUpgrade = () => {
               loading={loading}
               icon={<FileTextOutlined />}
             >
-              Gửi yêu cầu nâng cấp
+              Submit Upgrade Request
             </Button>
           </Form.Item>
         </Form>

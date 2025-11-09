@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Table, 
-  Button, 
-  Space, 
-  Tag, 
-  Modal, 
-  Input, 
-  message, 
+import {
+  Table,
+  Button,
+  Space,
+  Tag,
+  Modal,
+  Input,
   Card,
   Row,
   Col,
@@ -15,22 +14,90 @@ import {
   Descriptions,
   Image,
   Spin,
-  Alert
+  Alert,
+  Tooltip
 } from 'antd';
-import { 
-  EyeOutlined, 
-  CheckOutlined, 
+import { notifySuccess, notifyError } from '../../../../components/Notification';
+import {
+  EyeOutlined,
+  CheckOutlined,
   CloseOutlined,
   FileTextOutlined,
   UserOutlined,
   ClockCircleOutlined,
   CheckCircleOutlined,
-  CloseCircleOutlined
+  CloseCircleOutlined,
+  FilePdfOutlined
 } from '@ant-design/icons';
 import { UpgradeRequestService } from '../../../../services/UpgradeRequestService';
 
 const { Option } = Select;
 const { TextArea } = Input;
+
+// Helper function to detect if base64 string is a PDF
+const isPDF = (base64String) => {
+  try {
+    // Decode base64 to binary string
+    const binaryString = atob(base64String);
+    // Check first bytes - PDF files start with %PDF
+    return binaryString.substring(0, 4) === '%PDF';
+  } catch (error) {
+    return false;
+  }
+};
+
+// Component to render business license (PDF or Image)
+const BusinessLicenseViewer = ({ base64String }) => {
+  if (!base64String) return null;
+
+  const isPDFFile = isPDF(base64String);
+  const base64Data = base64String; // Already just base64, no need to prepend
+
+  if (isPDFFile) {
+    // Render PDF
+    const pdfDataUri = `data:application/pdf;base64,${base64Data}`;
+    return (
+      <div>
+        <div className="mb-2 flex items-center">
+          <FilePdfOutlined className="mr-2 text-red-500" />
+          <span className="font-medium">PDF Document</span>
+        </div>
+        <iframe
+          src={pdfDataUri}
+          style={{
+            width: '100%',
+            height: '600px',
+            border: '1px solid #d9d9d9',
+            borderRadius: '4px'
+          }}
+          title="Business License PDF"
+        />
+        <div className="mt-2">
+          <a
+            href={pdfDataUri}
+            download="business-license.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button icon={<FilePdfOutlined />} type="link">
+              Download PDF
+            </Button>
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  // Render Image
+  return (
+    <Image
+      src={`data:image/jpeg;base64,${base64Data}`}
+      alt="Business License"
+      style={{ maxWidth: '100%', maxHeight: 400 }}
+      fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMIAAADDCAYAAADQvc6UAAABRWlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGASSSwoyGFhYGDIzSspCnJ3UoiIjFJgf8LAwSDCIMogwMCcmFxc4BgQ4ANUwgCjUcG3awyMIPqyLsis7PPOq3QdDFcvjV3jOD1boQVTPQrgSkktTgbSf4A4LbmgqISBgTEFyFYuLykAsTuAbJEioKOA7DkgdjqEvQHEToKwj4DVhAQ5A9k3gGyB5IxEoBmML4BsnSQk8XQkNtReEOBxcfXxUQg1Mjc0dyHgXNJBSWpFCYh2zi+oLMpMzyhRcASGUqqCZ16yno6CkYGRAQMDKMwhqj/fAIcloxgHQqxAjIHBEugw5sUIsSQpBobtQPdLciLEVJYynMP2H/XrFBw8BJ0GBOrtLLUNiUAJ2JQODqVUhFoaNYDOvxXYTBoMDAH8f0ktNaRgYEVXsDDCy4lFiXAHMH1jK4NWNgPAxkB8KJHgJ"
+    />
+  );
+};
 
 const AdminUpgradeRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -72,7 +139,7 @@ const AdminUpgradeRequests = () => {
       setStats(statsData);
     } catch (error) {
       console.error('Error fetching data:', error);
-      message.error('Không thể tải dữ liệu. Vui lòng thử lại.');
+      notifyError('Failed to load data. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -81,13 +148,13 @@ const AdminUpgradeRequests = () => {
   const handleViewDetails = async (requestId) => {
     try {
       const response = await UpgradeRequestService.getUpgradeRequestById(requestId);
-      
+
       const requestData = response?.data?.data || response?.data || response;
       setSelectedRequest(requestData);
       setIsDetailModalVisible(true);
     } catch (error) {
       console.error('Error fetching request details:', error);
-      message.error('Không thể tải chi tiết yêu cầu.');
+      notifyError('Failed to load request details.');
     }
   };
 
@@ -100,22 +167,22 @@ const AdminUpgradeRequests = () => {
 
   const handleSubmitReview = async () => {
     if (!reviewStatus) {
-      message.error('Vui lòng chọn trạng thái duyệt!');
+      notifyError('Please select a review status!');
       return;
     }
 
     try {
       await UpgradeRequestService.reviewUpgradeRequest(
-        selectedRequest._id, 
-        reviewStatus, 
+        selectedRequest._id,
+        reviewStatus,
         adminNote
       );
-      
-      const successMessage = reviewStatus === 'approved' 
-        ? 'Yêu cầu đã được duyệt thành công! Người dùng đã được nâng cấp thành Recruiter và công ty đã được tạo tự động.'
-        : 'Yêu cầu đã bị từ chối thành công!';
-      
-      message.success(successMessage);
+
+      const successMessage = reviewStatus === 'approved'
+        ? 'Request approved successfully! User has been upgraded to Recruiter and company has been created automatically.'
+        : 'Request rejected successfully!';
+
+      notifySuccess(successMessage);
       setIsReviewModalVisible(false);
       setSelectedRequest(null);
       setReviewStatus('');
@@ -123,17 +190,17 @@ const AdminUpgradeRequests = () => {
       fetchData();
     } catch (error) {
       console.error('Error reviewing request:', error);
-      message.error('Có lỗi xảy ra. Vui lòng thử lại.');
+      notifyError('An error occurred. Please try again.');
     }
   };
 
   const getStatusTag = (status) => {
     const statusConfig = {
-      pending: { color: 'orange', icon: <ClockCircleOutlined />, text: 'Chờ duyệt' },
-      approved: { color: 'green', icon: <CheckCircleOutlined />, text: 'Đã duyệt' },
-      rejected: { color: 'red', icon: <CloseCircleOutlined />, text: 'Từ chối' },
+      pending: { color: 'orange', icon: <ClockCircleOutlined />, text: 'Pending' },
+      approved: { color: 'green', icon: <CheckCircleOutlined />, text: 'Approved' },
+      rejected: { color: 'red', icon: <CloseCircleOutlined />, text: 'Rejected' },
     };
-    
+
     const config = statusConfig[status] || statusConfig.pending;
     return (
       <Tag color={config.color} icon={config.icon}>
@@ -144,7 +211,7 @@ const AdminUpgradeRequests = () => {
 
   const columns = [
     {
-      title: 'Người dùng',
+      title: 'User',
       key: 'user',
       render: (_, record) => (
         <div>
@@ -156,52 +223,52 @@ const AdminUpgradeRequests = () => {
       ),
     },
     {
-      title: 'Công ty',
+      title: 'Company',
       dataIndex: ['companyInfo', 'name'],
       key: 'companyName',
-      render: (text) => text || 'Chưa cập nhật',
+      render: (text) => text || 'Not updated',
     },
     {
-      title: 'Ngành nghề',
+      title: 'Industry',
       dataIndex: ['companyInfo', 'industry'],
       key: 'industry',
-      render: (text) => text || 'Chưa cập nhật',
+      render: (text) => text || 'Not updated',
     },
     {
-      title: 'Trạng thái',
+      title: 'Status',
       dataIndex: 'status',
       key: 'status',
       render: (status) => getStatusTag(status),
     },
     {
-      title: 'Ngày gửi',
+      title: 'Submitted Date',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      render: (date) => new Date(date).toLocaleDateString('vi-VN'),
+      render: (date) => new Date(date).toLocaleDateString('en-US'),
     },
     {
-      title: 'Hành động',
+      title: 'Actions',
       key: 'actions',
       width: 150,
       render: (_, record) => (
         <Space size="small">
-          <Button
-            type="primary"
-            size="small"
-            icon={<EyeOutlined />}
-            onClick={() => handleViewDetails(record._id)}
-          >
-            Xem
-          </Button>
-          {record.status === 'pending' && (
+          <Tooltip title="View">
             <Button
-              type="default"
+              type="primary"
               size="small"
-              icon={<FileTextOutlined />}
-              onClick={() => handleReview(record)}
-            >
-              Duyệt
-            </Button>
+              icon={<EyeOutlined />}
+              onClick={() => handleViewDetails(record._id)}
+            />
+          </Tooltip>
+          {record.status === 'pending' && (
+            <Tooltip title="Review">
+              <Button
+                type="default"
+                size="small"
+                icon={<FileTextOutlined />}
+                onClick={() => handleReview(record)}
+              />
+            </Tooltip>
           )}
         </Space>
       ),
@@ -217,89 +284,213 @@ const AdminUpgradeRequests = () => {
   }
 
   return (
-    <div className="p-6">
-      {/* Statistics Cards */}
+    <div className="p-0 m-0">
+      {/* 🔹 Statistics Cards */}
       <Row gutter={[16, 16]} className="mb-6">
         <Col xs={24} sm={8}>
-          <Card>
-            <Statistic
-              title="Tổng yêu cầu"
-              value={stats.total || 0}
-              prefix={<FileTextOutlined />}
-              valueStyle={{ color: '#1890ff' }}
-            />
-          </Card>
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+              borderRadius: '12px',
+              padding: '16px 20px',
+              color: 'white',
+              position: 'relative',
+              overflow: 'hidden',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              minHeight: '120px'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <div style={{ fontSize: '12px', opacity: 0.9, marginBottom: '6px', fontWeight: 500 }}>
+                  TOTAL REQUESTS
+                </div>
+                <div style={{ fontSize: '28px', fontWeight: 'bold', lineHeight: '1' }}>
+                  {stats.total || 0}
+                </div>
+              </div>
+              <FileTextOutlined style={{ fontSize: '36px', opacity: 0.3, position: 'absolute', top: '12px', right: '12px' }} />
+            </div>
+          </div>
         </Col>
         <Col xs={24} sm={8}>
-          <Card>
-            <Statistic
-              title="Chờ duyệt"
-              value={stats.pending || 0}
-              prefix={<ClockCircleOutlined />}
-              valueStyle={{ color: '#faad14' }}
-            />
-          </Card>
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #faad14 0%, #ffc53d 100%)',
+              borderRadius: '12px',
+              padding: '16px 20px',
+              color: 'white',
+              position: 'relative',
+              overflow: 'hidden',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              minHeight: '120px'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <div style={{ fontSize: '12px', opacity: 0.9, marginBottom: '6px', fontWeight: 500 }}>
+                  PENDING
+                </div>
+                <div style={{ fontSize: '28px', fontWeight: 'bold', lineHeight: '1' }}>
+                  {stats.pending || 0}
+                </div>
+              </div>
+              <ClockCircleOutlined style={{ fontSize: '36px', opacity: 0.3, position: 'absolute', top: '12px', right: '12px' }} />
+            </div>
+          </div>
         </Col>
         <Col xs={24} sm={8}>
-          <Card>
-            <Statistic
-              title="Đã duyệt"
-              value={(stats.breakdown || []).find(s => s._id === 'approved')?.count || 0}
-              prefix={<CheckCircleOutlined />}
-              valueStyle={{ color: '#52c41a' }}
-            />
-          </Card>
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #52c41a 0%, #73d13d 100%)',
+              borderRadius: '12px',
+              padding: '16px 20px',
+              color: 'white',
+              position: 'relative',
+              overflow: 'hidden',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              minHeight: '120px'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <div style={{ fontSize: '12px', opacity: 0.9, marginBottom: '6px', fontWeight: 500 }}>
+                  APPROVED
+                </div>
+                <div style={{ fontSize: '28px', fontWeight: 'bold', lineHeight: '1' }}>
+                  {(stats.breakdown || []).find(s => s._id === 'approved')?.count || 0}
+                </div>
+              </div>
+              <CheckCircleOutlined style={{ fontSize: '36px', opacity: 0.3, position: 'absolute', top: '12px', right: '12px' }} />
+            </div>
+          </div>
         </Col>
       </Row>
 
-      <Card>
-        <div className="mb-4">
-          <Row justify="space-between" align="middle">
-            <Col>
-              <h1 className="text-2xl font-bold text-gray-800 mb-0">
-                <FileTextOutlined className="mr-2" />
-                Quản lý yêu cầu nâng cấp
-              </h1>
-            </Col>
-            <Col>
-            Status :   
-              <Space>
-                <Select
-                  value={statusFilter}
-                  onChange={setStatusFilter}
-                  placeholder="Lọc theo trạng thái"
-                  allowClear
-                  style={{ width: 150 }}
-                >
-                  <Option value="pending">Chờ duyệt</Option>
-                  <Option value="approved">Đã duyệt</Option>
-                  <Option value="rejected">Từ chối</Option>
-                </Select>
-                <Button onClick={fetchData}>
-                  Làm mới
-                </Button>
-              </Space>
-            </Col>
-          </Row>
+      {/* 🔹 Banner Header */}
+      <div 
+        style={{
+          background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #4facfe 100%)',
+          borderRadius: '12px',
+          boxShadow: '0 10px 25px rgba(240, 147, 251, 0.3)',
+          padding: '20px 24px',
+          marginBottom: '24px',
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+        className="flex items-center justify-between"
+      >
+        <div style={{ position: 'relative', zIndex: 1 }} className="flex items-center">
+          <div 
+            style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '12px',
+              background: 'rgba(255, 255, 255, 0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginRight: '16px',
+              backdropFilter: 'blur(10px)'
+            }}
+          >
+            <FileTextOutlined style={{ fontSize: '28px', color: 'white' }} />
+          </div>
+          <div>
+            <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0, color: 'white' }}>
+              Upgrade Requests Management
+            </h1>
+            <p style={{ fontSize: '14px', margin: '4px 0 0 0', color: 'rgba(255, 255, 255, 0.9)' }}>
+              Review and manage candidate upgrade requests
+            </p>
+          </div>
         </div>
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <Space>
+            <span style={{ color: 'white', fontWeight: 500 }}>Status:</span>
+            <Select
+              value={statusFilter}
+              onChange={setStatusFilter}
+              placeholder="Filter by Status"
+              allowClear
+              style={{ 
+                width: 160,
+                background: 'rgba(255, 255, 255, 0.2)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                borderRadius: '8px'
+              }}
+            >
+              <Option value="pending">Pending</Option>
+              <Option value="approved">Approved</Option>
+              <Option value="rejected">Rejected</Option>
+            </Select>
+            <Button 
+              type="default" 
+              onClick={fetchData}
+              style={{
+                background: 'rgba(255, 255, 255, 0.2)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                color: 'white',
+                borderRadius: '8px'
+              }}
+            >
+              Refresh
+            </Button>
+          </Space>
+        </div>
+        {/* Decorative circles */}
+        <div style={{
+          position: 'absolute',
+          top: '-50px',
+          right: '-50px',
+          width: '200px',
+          height: '200px',
+          borderRadius: '50%',
+          background: 'rgba(255, 255, 255, 0.1)',
+          zIndex: 0
+        }}></div>
+        <div style={{
+          position: 'absolute',
+          bottom: '-30px',
+          left: '-30px',
+          width: '120px',
+          height: '120px',
+          borderRadius: '50%',
+          background: 'rgba(255, 255, 255, 0.08)',
+          zIndex: 0
+        }}></div>
+      </div>
 
+      {/* 🔹 Table Section */}
+      <div className="p-0">
         <Table
           columns={columns}
           dataSource={requests}
           rowKey="_id"
+          bordered
+          loading={loading}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
             showQuickJumper: true,
-            showTotal: (total, range) => 
-              `${range[0]}-${range[1]} của ${total} yêu cầu`,
+            showTotal: (total, range) =>
+              `${range[0]}-${range[1]} of ${total} requests`,
           }}
         />
-      </Card>
+      </div>
 
-      {/* Detail Modal */}
+      {/* 🔹 Detail Modal */}
       <Modal
-        title="Chi tiết yêu cầu nâng cấp"
+        title="Upgrade Request Details"
         open={isDetailModalVisible}
         onCancel={() => setIsDetailModalVisible(false)}
         footer={null}
@@ -307,65 +498,63 @@ const AdminUpgradeRequests = () => {
       >
         {selectedRequest && (
           <div className="space-y-4">
-            <Descriptions title="Thông tin người dùng" bordered column={1}>
-              <Descriptions.Item label="Tên">
-                {[selectedRequest.user?.firstName, selectedRequest.user?.lastName].filter(Boolean).join(' ')}
+            <Descriptions title="User Information" bordered column={1}>
+              <Descriptions.Item label="Name">
+                {[selectedRequest.user?.firstName, selectedRequest.user?.lastName]
+                  .filter(Boolean)
+                  .join(' ')}
               </Descriptions.Item>
               <Descriptions.Item label="Email">
                 {selectedRequest.user?.email}
               </Descriptions.Item>
-              <Descriptions.Item label="Trạng thái">
+              <Descriptions.Item label="Status">
                 {getStatusTag(selectedRequest.status)}
               </Descriptions.Item>
-              <Descriptions.Item label="Ngày gửi">
-                {new Date(selectedRequest.createdAt).toLocaleDateString('vi-VN')}
+              <Descriptions.Item label="Submitted Date">
+                {new Date(selectedRequest.createdAt).toLocaleDateString('en-US')}
               </Descriptions.Item>
             </Descriptions>
 
-            <Descriptions title="Thông tin công ty" bordered column={1}>
-              <Descriptions.Item label="Tên công ty">
-                {selectedRequest.companyInfo?.name || 'Chưa cập nhật'}
+            <Descriptions title="Company Information" bordered column={1}>
+              <Descriptions.Item label="Company Name">
+                {selectedRequest.companyInfo?.name || 'Not updated'}
               </Descriptions.Item>
-              <Descriptions.Item label="Ngành nghề">
-                {selectedRequest.companyInfo?.industry || 'Chưa cập nhật'}
+              <Descriptions.Item label="Industry">
+                {selectedRequest.companyInfo?.industry || 'Not updated'}
               </Descriptions.Item>
-              <Descriptions.Item label="Địa chỉ">
-                {selectedRequest.companyInfo?.address || 'Chưa cập nhật'}
+              <Descriptions.Item label="Address">
+                {selectedRequest.companyInfo?.address || 'Not updated'}
               </Descriptions.Item>
               <Descriptions.Item label="Email">
-                {selectedRequest.companyInfo?.contact?.email || 'Chưa cập nhật'}
+                {selectedRequest.companyInfo?.contact?.email || 'Not updated'}
               </Descriptions.Item>
-              <Descriptions.Item label="Số điện thoại">
-                {selectedRequest.companyInfo?.contact?.phone || 'Chưa cập nhật'}
+              <Descriptions.Item label="Phone">
+                {selectedRequest.companyInfo?.contact?.phone || 'Not updated'}
               </Descriptions.Item>
               <Descriptions.Item label="Website">
-                {selectedRequest.companyInfo?.contact?.website || 'Chưa cập nhật'}
+                {selectedRequest.companyInfo?.contact?.website || 'Not updated'}
               </Descriptions.Item>
-              <Descriptions.Item label="Mô tả">
-                {selectedRequest.companyInfo?.description || 'Chưa cập nhật'}
+              <Descriptions.Item label="Description">
+                {selectedRequest.companyInfo?.description || 'Not updated'}
               </Descriptions.Item>
-              <Descriptions.Item label="Phúc lợi">
-                {selectedRequest.companyInfo?.benefits || 'Chưa cập nhật'}
+              <Descriptions.Item label="Benefits">
+                {selectedRequest.companyInfo?.benefits || 'Not updated'}
               </Descriptions.Item>
-              <Descriptions.Item label="Tầm nhìn">
-                {selectedRequest.companyInfo?.vision || 'Chưa cập nhật'}
+              <Descriptions.Item label="Vision">
+                {selectedRequest.companyInfo?.vision || 'Not updated'}
               </Descriptions.Item>
             </Descriptions>
 
             {selectedRequest.businessLicense && (
               <div>
-                <h4 className="font-medium mb-2">Giấy phép kinh doanh:</h4>
-                <Image
-                  src={`data:image/jpeg;base64,${selectedRequest.businessLicense}`}
-                  alt="Business License"
-                  style={{ maxWidth: '100%', maxHeight: 400 }}
-                />
+                <h4 className="font-medium mb-2">Business License:</h4>
+                <BusinessLicenseViewer base64String={selectedRequest.businessLicense} />
               </div>
             )}
 
             {selectedRequest.adminNote && (
               <Alert
-                message="Ghi chú từ admin"
+                message="Admin Note"
                 description={selectedRequest.adminNote}
                 type="info"
                 showIcon
@@ -375,67 +564,78 @@ const AdminUpgradeRequests = () => {
         )}
       </Modal>
 
-      {/* Review Modal */}
+      {/* 🔹 Review Modal */}
       <Modal
-        title="Duyệt yêu cầu nâng cấp"
+        title="Review Upgrade Request"
         open={isReviewModalVisible}
         onOk={handleSubmitReview}
         onCancel={() => setIsReviewModalVisible(false)}
-        okText="Xác nhận"
-        cancelText="Hủy"
+        okText="Confirm"
+        cancelText="Cancel"
       >
         {selectedRequest && (
           <div className="space-y-4">
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium text-gray-800 mb-2">Thông tin yêu cầu</h4>
+              <h4 className="font-medium text-gray-800 mb-2">Request Information</h4>
               <div className="space-y-1 text-sm">
-                <p><span className="font-medium">Người dùng:</span> {[selectedRequest.user?.firstName, selectedRequest.user?.lastName].filter(Boolean).join(' ')}</p>
-                <p><span className="font-medium">Email:</span> {selectedRequest.user?.email}</p>
-                <p><span className="font-medium">Công ty:</span> {selectedRequest.companyInfo?.name || 'Chưa cập nhật'}</p>
+                <p>
+                  <span className="font-medium">User:</span>{' '}
+                  {[selectedRequest.user?.firstName, selectedRequest.user?.lastName]
+                    .filter(Boolean)
+                    .join(' ')}
+                </p>
+                <p>
+                  <span className="font-medium">Email:</span>{' '}
+                  {selectedRequest.user?.email}
+                </p>
+                <p>
+                  <span className="font-medium">Company:</span>{' '}
+                  {selectedRequest.companyInfo?.name || 'Not updated'}
+                </p>
               </div>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium mb-2 text-gray-700">
-                Quyết định:
+                Decision:
               </label>
               <Select
                 value={reviewStatus}
                 onChange={setReviewStatus}
                 className="w-full"
-                placeholder="Chọn quyết định"
+                placeholder="Select decision"
               >
                 <Option value="approved">
                   <div className="flex items-center">
                     <CheckOutlined className="text-green-500 mr-2" />
-                    <span>Duyệt</span>
+                    <span>Approve</span>
                   </div>
                 </Option>
                 <Option value="rejected">
                   <div className="flex items-center">
                     <CloseOutlined className="text-red-500 mr-2" />
-                    <span>Từ chối</span>
+                    <span>Reject</span>
                   </div>
                 </Option>
               </Select>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium mb-2 text-gray-700">
-                Ghi chú (tùy chọn):
+                Note (optional):
               </label>
               <TextArea
                 value={adminNote}
                 onChange={(e) => setAdminNote(e.target.value)}
                 rows={4}
-                placeholder="Nhập ghi chú cho người dùng..."
+                placeholder="Enter a note for the user..."
               />
             </div>
-            
+
             {reviewStatus === 'approved' && (
               <Alert
-                message="Lưu ý"
-                description="Khi duyệt, người dùng sẽ được nâng cấp thành Recruiter và có thể đăng nhập với vai trò mới."
+                message="Note"
+                description="When approved, the user will be upgraded to Recruiter and can log in with the new role."
                 type="info"
                 showIcon
               />
@@ -445,6 +645,7 @@ const AdminUpgradeRequests = () => {
       </Modal>
     </div>
   );
+
 };
 
 export default AdminUpgradeRequests;

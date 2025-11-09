@@ -55,10 +55,6 @@ const ROUTE_META = {
     breadcrumb: "My Jobs",
     title: "My Jobs",
   },
-  [ROUTER.RECRUITER_APPLICATIONS]: {
-    breadcrumb: "Applications",
-    title: "Job Applications",
-  },
 
   [ROUTER.RECRUITER_MY_COMPANY]: {
     breadcrumb: "My Company",
@@ -149,6 +145,18 @@ const ROUTE_META = {
   [ROUTER.ADMIN_UPGRADE_REQUESTS]: {
     breadcrumb: "Upgrade Requests",
     title: "Upgrade Requests Management",
+  },
+  [ROUTER.ADMIN_TAG_MANAGEMENT]: {
+    breadcrumb: "Tag Management",
+    title: "Tag Management",
+  },
+  [ROUTER.ADMIN_CATEGORY_MANAGEMENT]: {
+    breadcrumb: "Category Management",
+    title: "Category Management",
+  },
+  [ROUTER.ADMIN_SETTINGS]: {
+    breadcrumb: "Settings",
+    title: "Admin Settings",
   },
 };
 

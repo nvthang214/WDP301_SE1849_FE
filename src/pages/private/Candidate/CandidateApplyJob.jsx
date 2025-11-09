@@ -1,13 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Button, Empty, Skeleton, Tag, Typography } from "antd";
-import {
-  CalendarOutlined,
-  CheckCircleFilled,
-  ClockCircleFilled,
-  CloseCircleFilled,
-  EnvironmentOutlined,
-  FileSearchOutlined,
-} from "@ant-design/icons";
+import { Button, Empty, Pagination, Skeleton, Tag, Typography } from "antd";
+import { EnvironmentOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { CandidateService } from "../../../services/CandidateService";
 import { notifyError } from "../../../components/Notification";
@@ -16,42 +9,36 @@ import ROUTER from "../../../router/ROUTER";
 import useAuthStore from "../../../store/useAuthStore";
 
 const { Title, Text } = Typography;
+const PAGE_SIZE = 10;
 
 const STATUS_META = {
   pending: {
     label: "Pending",
     className: "border border-amber-200 bg-amber-50 text-amber-600",
-    icon: <ClockCircleFilled className="text-amber-500" />,
   },
   reviewing: {
     label: "Reviewing",
     className: "border border-blue-200 bg-blue-50 text-blue-600",
-    icon: <FileSearchOutlined className="text-blue-500" />,
   },
   interview: {
     label: "Interview",
     className: "border border-indigo-200 bg-indigo-50 text-indigo-600",
-    icon: <CalendarOutlined className="text-indigo-500" />,
   },
   active: {
     label: "Active",
     className: "border border-green-200 bg-green-50 text-green-600",
-    icon: <CheckCircleFilled className="text-green-500" />,
   },
   shortlisted: {
     label: "Shortlisted",
     className: "border border-teal-200 bg-teal-50 text-teal-600",
-    icon: <CheckCircleFilled className="text-teal-500" />,
   },
   hired: {
     label: "Hired",
     className: "border border-emerald-200 bg-emerald-50 text-emerald-600",
-    icon: <CheckCircleFilled className="text-emerald-500" />,
   },
   rejected: {
     label: "Rejected",
     className: "border border-red-200 bg-red-50 text-red-500",
-    icon: <CloseCircleFilled className="text-red-500" />,
   },
 };
 
@@ -89,7 +76,6 @@ const deriveStatusMeta = (application) => {
   return {
     label: toTitleCase(rawStatus),
     className: "bg-neutral-100 text-neutral-700",
-    icon: <ClockCircleFilled className="text-neutral-500" />,
   };
 };
 
@@ -121,11 +107,22 @@ const CandidateApplyJob = () => {
   const [appliedJobs, setAppliedJobs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const totalApplied = useMemo(
-    () => appliedJobs.filter((item) => item && item.job).length,
+  const visibleAppliedJobs = useMemo(
+    () => appliedJobs.filter((item) => item && item.job),
     [appliedJobs]
   );
+  const totalApplied = visibleAppliedJobs.length;
+  const paginatedAppliedJobs = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return visibleAppliedJobs.slice(start, start + PAGE_SIZE);
+  }, [visibleAppliedJobs, currentPage]);
+
+  useEffect(() => {
+    const totalPages = Math.max(1, Math.ceil(totalApplied / PAGE_SIZE) || 1);
+    setCurrentPage((prev) => (prev > totalPages ? totalPages : prev));
+  }, [totalApplied]);
 
   const fetchAppliedJobs = useCallback(async (id, showFullLoader = true) => {
     if (!id) return;
@@ -151,7 +148,7 @@ const CandidateApplyJob = () => {
     }
   }, []);
   // lấy user từ authstore
-  const { user,loading } = useAuthStore();
+  const { user, loading } = useAuthStore();
   const userId = useMemo(() => user?._id || user?.id || user?.userId || null, [user]);
 
   useEffect(() => {
@@ -277,9 +274,8 @@ const CandidateApplyJob = () => {
           <span
             className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold shadow-sm ${statusMeta.className}`}
           >
-            {statusMeta.icon}
             {statusMeta.label}
-          </span>
+          </span >
         </div>
 
         <div className="col-span-12 flex justify-start md:col-span-2 md:justify-end">
@@ -297,7 +293,7 @@ const CandidateApplyJob = () => {
   const renderContent = () => {
     if (isLoading) return renderSkeletonRows();
 
-    if (!appliedJobs.length) {
+    if (!visibleAppliedJobs.length) {
       return (
         <div className="flex flex-col items-center justify-center gap-3 px-6 py-12">
           <Empty
@@ -311,7 +307,24 @@ const CandidateApplyJob = () => {
       );
     }
 
-    return <div className="divide-y divide-neutral-100">{appliedJobs.map(renderJobRow)}</div>;
+    return (
+      <>
+        <div className="divide-y divide-neutral-100">
+          {paginatedAppliedJobs.map(renderJobRow)}
+        </div>
+        {totalApplied > PAGE_SIZE && (
+          <div className="flex justify-end border-t border-neutral-100 bg-white px-6 py-4">
+            <Pagination
+              current={currentPage}
+              pageSize={PAGE_SIZE}
+              total={totalApplied}
+              showSizeChanger={false}
+              onChange={setCurrentPage}
+            />
+          </div>
+        )}
+      </>
+    );
   };
 
   return (

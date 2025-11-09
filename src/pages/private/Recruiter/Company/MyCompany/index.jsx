@@ -5,44 +5,18 @@ import { CompanyService } from "../../../../../services/CompanyService";
 import useAuthStore from "../../../../../store/useAuthStore";
 import { notifySuccess, notifyError } from "../../../../../components/Notification";
 
-const decodeAccessToken = (token) => {
-  if (!token) return null;
-  try {
-    const [, payload = ""] = token.split(".");
-    if (!payload) return null;
-    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
-    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
-    const jsonPayload = decodeURIComponent(
-      atob(padded)
-        .split("")
-        .map((char) => `%${`00${char.charCodeAt(0).toString(16)}`.slice(-2)}`)
-        .join("")
-    );
-    return JSON.parse(jsonPayload);
-  } catch (error) {
-    console.error("Failed to decode access token", error);
-    return null;
-  }
-};
-
 export default function MyCompany() {
   const [company, setCompany] = useState(null);
   const [loading, setLoading] = useState(true);
   const [recruiterId, setRecruiterId] = useState(null);
 
-  const { user: authUser, accessToken } = useAuthStore();
+  const { user: authUser } = useAuthStore();
 
   const fetchCompany = useCallback(async () => {
     try {
       setLoading(true);
 
-      const recruiterIdFromUser = authUser?._id || authUser?.id || null;
-      let recruiterId = recruiterIdFromUser;
-
-      if (!recruiterId) {
-        const payload = decodeAccessToken(accessToken);
-        recruiterId = payload?.userId || null;
-      }
+      const recruiterId = authUser?._id || authUser?.id || null;
 
       setRecruiterId(recruiterId);
 
@@ -79,7 +53,7 @@ export default function MyCompany() {
     } finally {
       setLoading(false);
     }
-  }, [authUser, accessToken]);
+  }, [authUser]);
 
   useEffect(() => {
     fetchCompany();
@@ -99,24 +73,6 @@ export default function MyCompany() {
       }
     }
   };
-
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-[var(--shadow-md)]">
-          <div className="animate-pulse">
-            <div className="mb-2 h-8 w-1/3 rounded bg-gray-200"></div>
-            <div className="h-4 w-1/2 rounded bg-gray-200"></div>
-          </div>
-        </div>
-        <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-6 shadow-[var(--shadow-md)]">
-          <div className="animate-pulse">
-            <div className="h-32 rounded bg-gray-200"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   if (loading) {
     return (
@@ -189,13 +145,13 @@ export default function MyCompany() {
                 <Edit size={16} />
                 Edit Company
               </Link>
-              <button
+              {/* <button
                 onClick={handleDeleteCompany}
                 className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-100"
               >
                 <Trash2 size={16} />
                 Delete Company
-              </button>
+              </button> */}
             </div>
           </div>
 

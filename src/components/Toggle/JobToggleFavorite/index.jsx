@@ -40,11 +40,19 @@ const JobToggleFavorite = ({ jobId, isFavorite }) => {
   };
 
   return (
-    <button onClick={handleToggleFavorite} className="focus:outline-none">
-      <Tooltip title={isFavorite ? "Remove from favorites" : "Add to favorites"}>
-        {fav ? <BookmarkCheck style={{ color: "var(--color-primary-500)" }} /> : <BookmarkPlus />}
-      </Tooltip>
-    </button>
+    <div>
+      <button type="button" onClick={handleToggleFavorite}>
+        <div className="focus:outline-none">
+          <Tooltip title={isFavorite ? "Remove from favorites" : "Add to favorites"}>
+            {fav ? (
+              <BookmarkCheck size={25} style={{ color: "var(--color-primary-500)" }} />
+            ) : (
+              <BookmarkPlus size={25} />
+            )}
+          </Tooltip>
+        </div>
+      </button>
+    </div>
   );
 };
 

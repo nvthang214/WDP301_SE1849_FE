@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { JobService } from "../../../../services/JobService";
-import { UserService } from "../../../../services/UserService";
 import { CandidateService } from "../../../../services/CandidateService";
 import { Tag } from "antd";
 import DOMPurify from "dompurify";
 import useAuthStore from "../../../../store/useAuthStore";
 import { notifySuccess, notifyWarning } from "../../../../components/Notification";
 import {
-  Bookmark,
   DollarSign,
   MapPin,
   Gift,
@@ -27,9 +25,8 @@ import {
   Tag as TagIcon,
   User,
   HandCoins,
-  FileUp,
+  Hourglass,
 } from "lucide-react";
-
 import JobToggleFavorite from "../../../../components/Toggle/JobToggleFavorite";
 
 const typeColor = {
@@ -87,19 +84,7 @@ function ApplyModal({ open, onClose, jobTitle, onSubmit, submitting }) {
             <path d="M6 6l10 10M6 16L16 6" strokeWidth="2" />
           </svg>
         </button>
-        <h3 className="mb-4 text-lg font-semibold">Apply Job: {jobTitle}</h3>
-        <div className="mb-4">
-          <label className="mb-1 block text-sm font-medium">Choose Resume</label>
-          <select
-            className="w-full rounded border px-3 py-2"
-            value={resume}
-            onChange={(e) => setResume(e.target.value)}
-          >
-            <option value="">Select...</option>
-            <option value="resume1.pdf">Resume 1 (resume1.pdf)</option>
-            <option value="resume2.pdf">Resume 2 (resume2.pdf)</option>
-          </select>
-        </div>
+        <div className="mb-4 text-lg font-semibold">Apply Job: {jobTitle}</div>
         <div className="mb-4">
           <label className="mb-1 block text-sm font-medium">Cover Letter</label>
           <textarea
@@ -160,12 +145,12 @@ export default function JobDetails() {
     async function fetchJob() {
       try {
         let flag = "";
-
         try {
-          const currentUser = await UserService.fetchMe();
-          flag = currentUser.data ? "isFavorite" : "";
+          const { fetchMe } = useAuthStore.getState();
+          flag = fetchMe == null ? "isFavorite" : "";
         } catch (error) {
           // Do nothing
+          console.error("Error fetching user:", error);
         }
 
         const res = await JobService.getJobById(flag, id);
@@ -206,13 +191,14 @@ export default function JobDetails() {
       setShowApply(false);
     } catch (error) {
       /* errors are notified via interceptor */
+      console.error("Error applying for job:", error);
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 px-0 py-8 md:px-8">
+    <div className="min-h-screen w-full px-0 py-4 md:px-8">
       <ApplyModal
         open={showApply}
         onClose={() => setShowApply(false)}
@@ -220,66 +206,96 @@ export default function JobDetails() {
         onSubmit={handleSubmitApplication}
         submitting={submitting}
       />
-      {/* Header */}
-      <div className="mb-6 flex flex-col items-start justify-between gap-4 rounded-xl bg-white px-8 py-6 shadow-sm md:flex-row md:items-center">
-        <div className="flex items-center gap-4">
-          <img
-            src={
-              job.company?.logo ||
-              "https://www.google.com/images/branding/googlelogo/2x/googlelogo_light_color_92x30dp.png"
-            }
-            alt="logo"
-            className="h-16 w-16 rounded-full border object-cover"
-          />
-          <div>
-            <div className="mb-1 flex items-center gap-2">
-              <h1 className="text-2xl font-bold">{job.title}</h1>
-              {job.jobType && (
-                <span
-                  className="rounded px-2 py-1 text-xs font-semibold"
-                  style={{ backgroundColor: color.bg, color: color.color }}
-                >
-                  {job.jobType}
-                </span>
-              )}
-              <span className="ml-1 rounded bg-red-100 px-2 py-1 text-xs font-semibold text-red-500">
-                Featured
-              </span>
-            </div>
-            <div className="text-gray-500">
-              at <span className="font-semibold">{job.company?.name || "Company"}</span>
-            </div>
-          </div>
-        </div>
-        <div className="mt-4 flex w-full items-center gap-2 md:mt-0 md:w-auto">
-          <button className="rounded border border-blue-100 p-2 hover:bg-blue-50">
-            <JobToggleFavorite jobId={job._id} isFavorite={job.isFavorite} />
-          </button>
-          <button
-            className="inline-flex items-center gap-2 rounded-[var(--radius-lg)] bg-[var(--color-primary-500)] px-6 py-2 font-semibold !text-white shadow-[var(--shadow-md)] transition hover:bg-[var(--color-primary-600)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary-300)] focus-visible:outline-none"
-            onClick={() => {
-              const candidateId = user?._id || user?.id;
-              if (!candidateId) {
-                notifyWarning("Vui lòng đăng nhập để ứng tuyển.");
-                return;
-              }
-              setShowApply(true);
-            }}
-          >
-            Apply Now
-          </button>
-        </div>
-      </div>
 
       {/* Main content */}
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-10">
+      <div className="grid w-full grid-cols-1 gap-8 lg:grid-cols-12">
         {/* Left: Job Description (6 columns) */}
-        <div className="col-span-1 max-w-full lg:col-span-6">
-          <div className="mb-6 rounded-xl bg-white p-8 shadow-sm">
+        <div className="col-span-1 max-w-full lg:col-span-8">
+          <div className="mb-6 rounded-2xl bg-white p-6 shadow-md">
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <div className="m-0 text-2xl font-bold">{job.title}</div>
+                {job.jobType && (
+                  <span
+                    className="rounded px-2 py-1 text-xs font-semibold"
+                    style={{ backgroundColor: color.bg, color: color.color }}
+                  >
+                    {job.jobType}
+                  </span>
+                )}
+              </div>
+              <JobToggleFavorite jobId={job._id} isFavorite={job.isFavorite} />
+            </div>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div className="flex items-center gap-3 rounded-xl border border-[var(--color-primary-200)] bg-[var(--color-primary-50)] p-4">
+                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-primary-50)] text-[var(--color-primary-600)]">
+                  <DollarSign size={22} />
+                </span>
+                <div>
+                  <p className="text-sm font-semibold text-gray-500">Salary</p>
+                  <p className="text-base font-semibold text-gray-900">
+                    {job.minSalary && job.maxSalary
+                      ? `$${job.minSalary.toLocaleString()} - $${job.maxSalary.toLocaleString()}`
+                      : job.salaryType || "Negotiable"}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 rounded-xl border border-[var(--color-primary-200)] bg-[var(--color-primary-50)] p-4">
+                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-primary-50)] text-[var(--color-primary-600)]">
+                  <MapPin size={22} />
+                </span>
+                <div>
+                  <p className="text-sm font-semibold text-gray-500">Location</p>
+                  <p className="text-base font-semibold text-gray-900">
+                    {job.location || job.city || job.country || "Not updated"}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 rounded-xl border border-[var(--color-primary-200)] bg-[var(--color-primary-50)] p-4">
+                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-primary-50)] text-[var(--color-primary-600)]">
+                  <Hourglass size={22} />
+                </span>
+                <div>
+                  <p className="text-sm font-semibold text-gray-500">Experience</p>
+                  <p className="text-base font-semibold text-gray-900">
+                    {job.experience || "Not required"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-600">
+                <Clock size={16} className="text-gray-500" />
+                <span>
+                  Application deadline:{" "}
+                  {job.expiration ? new Date(job.expiration).toLocaleDateString() : "Not specified"}
+                </span>
+              </div>
+              <div className="flex flex-col gap-3 md:flex-row">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const candidateId = user?._id || user?.id;
+                    if (!candidateId) {
+                      notifyWarning("Vui lòng đăng nhập để ứng tuyển.");
+                      return;
+                    }
+                    setShowApply(true);
+                  }}
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--color-primary-500)] px-6 py-2 font-semibold !text-white shadow transition hover:bg-[var(--color-primary-600)]"
+                >
+                  ✈ Apply now
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="mb-6 rounded-xl bg-white p-8 shadow-md">
             {job.description && (
               <>
                 <h2 className="mb-2 flex items-center gap-2 text-lg font-semibold">
-                  <ListChevronsUpDown size={20} className="text-green-600" />
+                  <ListChevronsUpDown size={20} className="text-[var(--color-primary-600)]" />
                   Job Description
                 </h2>
                 <div
@@ -293,7 +309,7 @@ export default function JobDetails() {
             {job.requirements && (
               <>
                 <h2 className="mb-2 flex items-center gap-2 text-lg font-semibold">
-                  <ListChevronsUpDown size={20} className="text-green-600" />
+                  <ListChevronsUpDown size={20} className="text-[var(--color-primary-600)]" />
                   Job Requirements
                 </h2>
                 <div
@@ -307,7 +323,7 @@ export default function JobDetails() {
             {job.desirable && (
               <>
                 <h2 className="mt-6 mb-2 flex items-center gap-2 text-lg font-semibold">
-                  <HandCoins size={20} className="text-green-600" />
+                  <HandCoins size={20} className="text-[var(--color-primary-600)]" />
                   Desirable
                 </h2>
                 <div
@@ -321,7 +337,7 @@ export default function JobDetails() {
             {job.benefits && (
               <>
                 <h2 className="mt-6 mb-2 flex items-center gap-2 text-lg font-semibold">
-                  <Gift size={20} className="text-green-600" /> Benefits
+                  <Gift size={20} className="text-[var(--color-primary-600)]" /> Benefits
                 </h2>
                 <div
                   className="prose prose-sm max-w-none break-words text-gray-700 [&_ol]:list-decimal [&_ol]:pl-5 [&_ul]:list-disc [&_ul]:pl-5"
@@ -331,27 +347,7 @@ export default function JobDetails() {
                 />
               </>
             )}
-          </div>
-        </div>
-        {/* Right: Sidebar (4 columns) */}
-        <div className="col-span-1 flex flex-shrink-0 flex-col gap-6 lg:col-span-4">
-          {/* Salary & Location */}
-          <div className="flex flex-col gap-4 sm:flex-row">
-            <div className="flex flex-1 flex-col gap-2 rounded-xl bg-white p-5 shadow-sm">
-              <div className="flex items-center gap-1 text-gray-400">
-                <DollarSign size={16} className="text-green-600" />
-                Salary (USD)
-              </div>
-              <div className="text-xl font-bold text-green-600">
-                {job.minSalary && job.maxSalary
-                  ? `$${job.minSalary.toLocaleString()} - $${job.maxSalary.toLocaleString()}`
-                  : "Negotiable"}
-              </div>
-              <div className="mt-1 text-xs text-gray-400">
-                {job.salaryType ? job.salaryType + " salary" : ""}
-              </div>
-            </div>
-            <div className="flex flex-1 flex-col gap-2 rounded-xl bg-white p-5 shadow-sm">
+            <div className="flex flex-1 flex-col gap-2">
               <div className="flex items-center gap-1 text-gray-400">
                 <MapPin size={16} className="text-blue-600" />
                 Job Location
@@ -360,17 +356,21 @@ export default function JobDetails() {
                 {job.city && job.country
                   ? `${job.location}, ${job.city}, ${job.country}`
                   : job.city || job.country || "N/A"}
-                {job.remote && (
-                  <span className="ml-2 text-xs font-semibold text-green-600">(Remote)</span>
-                )}
               </div>
             </div>
           </div>
-
+        </div>
+        {/* Right: Sidebar (4 columns) */}
+        <div className="col-span-1 flex flex-shrink-0 flex-col gap-6 lg:col-span-4">
           {/* Job Overview */}
-          <div className="rounded-xl bg-white p-5 shadow-sm">
+          <div className="rounded-xl bg-white p-5 shadow-md">
             <div className="mb-2 flex items-center gap-2 font-semibold">
-              <Layers size={16} className="text-blue-600" /> Job Overview
+              <Layers size={16} className="text-[var(--color-primary-600)]" /> Job Overview
+              {job.remote && (
+                <span className="ml-2 text-xs font-semibold text-[var(--color-primary-600)]">
+                  (Remote)
+                </span>
+              )}
             </div>
             <div className="grid grid-cols-2 gap-3 text-xs text-gray-600">
               <div>
@@ -418,7 +418,7 @@ export default function JobDetails() {
             </div>
           </div>
           {/* Share & Tags */}
-          <div className="rounded-xl bg-white p-5 shadow-sm">
+          <div className="rounded-xl bg-white p-5 shadow-md">
             <div className="mb-2 flex items-center gap-2 font-semibold">
               <Share2 size={16} className="text-blue-600" /> Share this job:
             </div>
@@ -445,13 +445,14 @@ export default function JobDetails() {
             <div className="flex flex-wrap gap-2">
               {Array.isArray(job.tags) && job.tags.length > 0
                 ? job.tags.map((tag, i) => (
-                    <Tag
-                      key={tag._id || i}
-                      color={presetTagColors[i % presetTagColors.length]}
-                      className="px-3 py-1 font-semibold text-[var(--color-neutral-900)] capitalize"
-                    >
-                      {tag.name}
-                    </Tag>
+                    <Link key={i} to={`/jobs?search=${encodeURIComponent(tag.name.toLowerCase())}`}>
+                      <Tag
+                        color={presetTagColors[i % presetTagColors.length]}
+                        className="px-3 py-1 font-semibold text-[var(--color-neutral-900)] capitalize"
+                      >
+                        {tag.name}
+                      </Tag>
+                    </Link>
                   ))
                 : null}
             </div>

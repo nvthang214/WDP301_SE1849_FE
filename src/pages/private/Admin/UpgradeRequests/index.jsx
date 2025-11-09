@@ -14,7 +14,8 @@ import {
   Descriptions,
   Image,
   Spin,
-  Alert
+  Alert,
+  Tooltip
 } from 'antd';
 import { notifySuccess, notifyError } from '../../../../components/Notification';
 import {
@@ -108,10 +109,12 @@ const AdminUpgradeRequests = () => {
   const [reviewStatus, setReviewStatus] = useState('');
   const [adminNote, setAdminNote] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [searchText, setSearchText] = useState('');
+  const [appliedSearchText, setAppliedSearchText] = useState('');
 
   useEffect(() => {
     fetchData();
-  }, [statusFilter]);
+  }, [statusFilter, appliedSearchText]);
 
   const fetchData = async () => {
     try {
@@ -131,7 +134,18 @@ const AdminUpgradeRequests = () => {
         return [];
       };
 
-      const requestsData = normalizeData(requestsResponse);
+      let requestsData = normalizeData(requestsResponse);
+      
+      // Filter by user name if appliedSearchText is provided
+      if (appliedSearchText.trim()) {
+        const searchLower = appliedSearchText.trim().toLowerCase();
+        requestsData = requestsData.filter(request => {
+          const fullName = `${request.user?.firstName || ''} ${request.user?.lastName || ''}`.trim().toLowerCase();
+          const email = (request.user?.email || '').toLowerCase();
+          return fullName.includes(searchLower) || email.includes(searchLower);
+        });
+      }
+      
       const statsData = statsResponse?.data?.data || statsResponse?.data || {};
 
       setRequests(requestsData);
@@ -251,23 +265,23 @@ const AdminUpgradeRequests = () => {
       width: 150,
       render: (_, record) => (
         <Space size="small">
-          <Button
-            type="primary"
-            size="small"
-            icon={<EyeOutlined />}
-            onClick={() => handleViewDetails(record._id)}
-          >
-            View
-          </Button>
-          {record.status === 'pending' && (
+          <Tooltip title="View">
             <Button
-              type="default"
+              type="primary"
               size="small"
-              icon={<FileTextOutlined />}
-              onClick={() => handleReview(record)}
-            >
-              Review
-            </Button>
+              icon={<EyeOutlined />}
+              onClick={() => handleViewDetails(record._id)}
+            />
+          </Tooltip>
+          {record.status === 'pending' && (
+            <Tooltip title="Review">
+              <Button
+                type="default"
+                size="small"
+                icon={<FileTextOutlined />}
+                onClick={() => handleReview(record)}
+              />
+            </Tooltip>
           )}
         </Space>
       ),
@@ -284,65 +298,228 @@ const AdminUpgradeRequests = () => {
 
   return (
     <div className="p-0 m-0">
+      {/* <style>
+        {`
+          .search-input-white .ant-input::placeholder {
+            color: rgba(255, 255, 255, 0.7) !important;
+          }
+          .search-input-white .ant-input {
+            color: white !important;
+            background: rgba(255, 255, 255, 0.2) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            border-radius: 8px !important;
+          }
+          .search-input-white .ant-input-search-button {
+            background: rgba(255, 255, 255, 0.2) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            color: white !important;
+          }
+          .search-input-white .ant-input-search-button:hover {
+            background: rgba(255, 255, 255, 0.3) !important;
+            border-color: rgba(255, 255, 255, 0.5) !important;
+          }
+        `}
+      </style> */}
       {/* 🔹 Statistics Cards */}
       <Row gutter={[16, 16]} className="mb-6">
         <Col xs={24} sm={8}>
-          <Card bordered={false} className="shadow-sm rounded-lg border border-gray-300">
-            <Statistic
-              title={<span className="text-gray-600 font-medium">Total Requests</span>}
-              value={stats.total || 0}
-              prefix={<FileTextOutlined />}
-              valueStyle={{ color: '#1677ff', fontWeight: 600 }}
-            />
-          </Card>
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+              borderRadius: '12px',
+              padding: '16px 20px',
+              color: 'white',
+              position: 'relative',
+              overflow: 'hidden',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              minHeight: '120px'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <div style={{ fontSize: '12px', opacity: 0.9, marginBottom: '6px', fontWeight: 500 }}>
+                  TOTAL REQUESTS
+                </div>
+                <div style={{ fontSize: '28px', fontWeight: 'bold', lineHeight: '1' }}>
+                  {stats.total || 0}
+                </div>
+              </div>
+              <FileTextOutlined style={{ fontSize: '36px', opacity: 0.3, position: 'absolute', top: '12px', right: '12px' }} />
+            </div>
+          </div>
         </Col>
         <Col xs={24} sm={8}>
-          <Card bordered={false} className="shadow-sm rounded-lg border border-gray-300">
-            <Statistic
-              title={<span className="text-gray-600 font-medium">Pending</span>}
-              value={stats.pending || 0}
-              prefix={<ClockCircleOutlined />}
-              valueStyle={{ color: '#faad14', fontWeight: 600 }}
-            />
-          </Card>
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #faad14 0%, #ffc53d 100%)',
+              borderRadius: '12px',
+              padding: '16px 20px',
+              color: 'white',
+              position: 'relative',
+              overflow: 'hidden',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              minHeight: '120px'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <div style={{ fontSize: '12px', opacity: 0.9, marginBottom: '6px', fontWeight: 500 }}>
+                  PENDING
+                </div>
+                <div style={{ fontSize: '28px', fontWeight: 'bold', lineHeight: '1' }}>
+                  {stats.pending || 0}
+                </div>
+              </div>
+              <ClockCircleOutlined style={{ fontSize: '36px', opacity: 0.3, position: 'absolute', top: '12px', right: '12px' }} />
+            </div>
+          </div>
         </Col>
         <Col xs={24} sm={8}>
-          <Card bordered={false} className="shadow-sm rounded-lg border border-gray-300">
-            <Statistic
-              title={<span className="text-gray-600 font-medium">Approved</span>}
-              value={(stats.breakdown || []).find(s => s._id === 'approved')?.count || 0}
-              prefix={<CheckCircleOutlined />}
-              valueStyle={{ color: '#52c41a', fontWeight: 600 }}
-            />
-          </Card>
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #52c41a 0%, #73d13d 100%)',
+              borderRadius: '12px',
+              padding: '16px 20px',
+              color: 'white',
+              position: 'relative',
+              overflow: 'hidden',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              minHeight: '120px'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <div style={{ fontSize: '12px', opacity: 0.9, marginBottom: '6px', fontWeight: 500 }}>
+                  APPROVED
+                </div>
+                <div style={{ fontSize: '28px', fontWeight: 'bold', lineHeight: '1' }}>
+                  {(stats.breakdown || []).find(s => s._id === 'approved')?.count || 0}
+                </div>
+              </div>
+              <CheckCircleOutlined style={{ fontSize: '36px', opacity: 0.3, position: 'absolute', top: '12px', right: '12px' }} />
+            </div>
+          </div>
         </Col>
       </Row>
 
       {/* 🔹 Banner Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg shadow-md mb-6 p-5 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold flex items-center mb-0">
-          <FileTextOutlined className="mr-3 text-3xl text-white" />
-          Upgrade Requests Management
-        </h1>
-        <div>
-          Status : 
+      <div 
+        style={{
+          background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #4facfe 100%)',
+          borderRadius: '12px',
+          boxShadow: '0 10px 25px rgba(240, 147, 251, 0.3)',
+          padding: '20px 24px',
+          marginBottom: '24px',
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+        className="flex items-center justify-between"
+      >
+        <div style={{ position: 'relative', zIndex: 1 }} className="flex items-center">
+          <div 
+            style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '12px',
+              background: 'rgba(255, 255, 255, 0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginRight: '16px',
+              backdropFilter: 'blur(10px)'
+            }}
+          >
+            <FileTextOutlined style={{ fontSize: '28px', color: 'white' }} />
+          </div>
+          <div>
+            <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0, color: 'white' }}>
+              Upgrade Requests Management
+            </h1>
+            <p style={{ fontSize: '14px', margin: '4px 0 0 0', color: 'rgba(255, 255, 255, 0.9)' }}>
+              Review and manage candidate upgrade requests
+            </p>
+          </div>
+        </div>
+        <div style={{ position: 'relative', zIndex: 1 }}>
           <Space>
+            <Input.Search
+              placeholder="Search by user name or email"
+              value={searchText}
+              onChange={(e) => {
+                setSearchText(e.target.value);
+                if (!e.target.value) {
+                  setAppliedSearchText('');
+                }
+              }}
+              onSearch={(value) => setAppliedSearchText(value)}
+              allowClear
+              enterButton
+              className="search-input-white"
+              style={{ 
+                width: 300
+              }}
+            />
+            <span style={{ color: 'white', fontWeight: 500 }}>Status:</span>
             <Select
               value={statusFilter}
               onChange={setStatusFilter}
               placeholder="Filter by Status"
               allowClear
-              style={{ width: 160 }}
+              style={{ 
+                width: 160,
+                background: 'rgba(255, 255, 255, 0.2)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                borderRadius: '8px'
+              }}
             >
               <Option value="pending">Pending</Option>
               <Option value="approved">Approved</Option>
               <Option value="rejected">Rejected</Option>
             </Select>
-            <Button type="default" onClick={fetchData}>
+            <Button 
+              type="default" 
+              onClick={fetchData}
+              style={{
+                background: 'rgba(255, 255, 255, 0.2)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                color: 'white',
+                borderRadius: '8px'
+              }}
+            >
               Refresh
             </Button>
           </Space>
         </div>
+        {/* Decorative circles */}
+        <div style={{
+          position: 'absolute',
+          top: '-50px',
+          right: '-50px',
+          width: '200px',
+          height: '200px',
+          borderRadius: '50%',
+          background: 'rgba(255, 255, 255, 0.1)',
+          zIndex: 0
+        }}></div>
+        <div style={{
+          position: 'absolute',
+          bottom: '-30px',
+          left: '-30px',
+          width: '120px',
+          height: '120px',
+          borderRadius: '50%',
+          background: 'rgba(255, 255, 255, 0.08)',
+          zIndex: 0
+        }}></div>
       </div>
 
       {/* 🔹 Table Section */}

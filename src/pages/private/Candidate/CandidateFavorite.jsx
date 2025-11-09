@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Button, Empty, Skeleton, Tag, Typography } from "antd";
+import { Button, Empty, Pagination, Skeleton, Tag, Typography } from "antd";
 import { EnvironmentOutlined, ClockCircleOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +9,7 @@ import { notifyError } from "../../../components/Notification";
 import useAuthStore from "../../../store/useAuthStore";
 
 const { Title, Text } = Typography;
+const PAGE_SIZE = 10;
 
 const toTitleCase = (value = "") =>
   value
@@ -87,6 +88,7 @@ const CandidateFavorite = () => {
   const [favoriteJobs, setFavoriteJobs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const { user, loading } = useAuthStore();
   const userId = useMemo(() => user?._id || user?.id || user?.userId || null, [user]);
@@ -95,6 +97,15 @@ const CandidateFavorite = () => {
     [favoriteJobs]
   );
   const totalFavorites = visibleFavorites.length;
+  const paginatedFavorites = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return visibleFavorites.slice(start, start + PAGE_SIZE);
+  }, [visibleFavorites, currentPage]);
+
+  useEffect(() => {
+    const totalPages = Math.max(1, Math.ceil(totalFavorites / PAGE_SIZE) || 1);
+    setCurrentPage((prev) => (prev > totalPages ? totalPages : prev));
+  }, [totalFavorites]);
 
   const fetchFavorites = useCallback(
     async (id, showFullLoader = true) => {
@@ -189,7 +200,7 @@ const CandidateFavorite = () => {
           <span>Status</span>
         </div>
         <div className="divide-y divide-neutral-100">
-          {visibleFavorites.map(({ favoriteId, job, favoritedAt, application }) => {
+          {paginatedFavorites.map(({ favoriteId, job, favoritedAt, application }) => {
             const favoriteKey = favoriteId || job._id;
             const salaryLabel = formatSalaryRange(job);
             const locationLabel = formatLocation(job);
@@ -279,6 +290,17 @@ const CandidateFavorite = () => {
             );
           })}
         </div>
+        {totalFavorites > PAGE_SIZE && (
+          <div className="flex justify-end border-t border-neutral-100 bg-white px-6 py-4">
+            <Pagination
+              current={currentPage}
+              pageSize={PAGE_SIZE}
+              total={totalFavorites}
+              showSizeChanger={false}
+              onChange={setCurrentPage}
+            />
+          </div>
+        )}
       </div>
     );
   };

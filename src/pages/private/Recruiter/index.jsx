@@ -54,15 +54,19 @@ const RecruiterOverview = () => {
 
   const getActionMenu = (record) => (
     <Menu>
-      <Menu.Item key="promote" icon={<SettingOutlined />}>
-        Promote Job
-      </Menu.Item>
-      <Menu.Item key="view" icon={<EyeOutlined />}>
-        View Detail
-      </Menu.Item>
-      <Menu.Item key="edit" icon={<EditOutlined />}>
-        Mark as expired
-      </Menu.Item>
+      {false && (
+        <>
+            <Menu.Item key="promote" icon={<SettingOutlined />}>
+              Promote Job
+            </Menu.Item>
+            <Menu.Item key="view" icon={<EyeOutlined />}>
+              View Detail
+            </Menu.Item>
+            <Menu.Item key="edit" icon={<EditOutlined />}>
+              Mark as expired
+            </Menu.Item>
+        </>
+      )}
     </Menu>
   );
 
@@ -109,9 +113,12 @@ const RecruiterOverview = () => {
           <Button  type="primary" size="small" className="bg-blue-600 hover:bg-blue-700 border-blue-600" onClick={() => navigate(`${ROUTER.RECRUITER_APPLICATIONS}?jobId=${record._id}`)}>
             View Applications
           </Button>
-          <Dropdown overlay={getActionMenu(record)} trigger={['click']}>
-            <Button type="text" icon={<MoreOutlined />} className="hover:bg-gray-100" />
-          </Dropdown>
+          
+          {false && (
+            <Dropdown overlay={getActionMenu(record)} trigger={['click']}>
+              <Button type="text" icon={<MoreOutlined />} className="hover:bg-gray-100" />
+            </Dropdown>
+          )}
         </Space>
       ),
     },

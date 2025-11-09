@@ -1,11 +1,15 @@
 import { useState } from "react";
+
 import { BookmarkPlus, BookmarkCheck } from "lucide-react";
 import { JobService } from "../../../services/JobService";
 import { notifySuccess, notifyWarning, notifyError } from "../../Notification";
 import { Tooltip } from "antd";
+import { useNavigate } from "react-router-dom";
+import ROUTER from "../../../router/ROUTER";
 
 const JobToggleFavorite = ({ jobId, isFavorite }) => {
   const [fav, setFav] = useState(!!isFavorite);
+  const nav = useNavigate();
   const handleToggleFavorite = async () => {
     setFav((prev) => !prev);
     try {
@@ -26,7 +30,7 @@ const JobToggleFavorite = ({ jobId, isFavorite }) => {
         // unauthorized / forbidden
         notifyWarning("Please log in to manage your favorite jobs.");
         // optional: redirect to login
-        // window.location.href = "/login";
+        nav(ROUTER.LOGIN);
       } else if (!err?.response) {
         // network / no response
         notifyError("Network error. Please check your connection and try again.");

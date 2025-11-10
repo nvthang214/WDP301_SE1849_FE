@@ -14,7 +14,7 @@ import {
   BuildOutlined,
   TeamOutlined
 } from '@ant-design/icons';
-import { Line, Area } from '@ant-design/charts';
+import { Line, Column, Area } from '@ant-design/charts';
 import { AdminService } from '../../../../services/AdminService';
 import dayjs from 'dayjs';
 
@@ -27,11 +27,9 @@ const AdminOverview = () => {
   const [jobStatsData, setJobStatsData] = useState([]);
   const [latestJobs, setLatestJobs] = useState([]);
   const [selectedJobYear, setSelectedJobYear] = useState(dayjs());
-  const [latestUsers, setLatestUsers] = useState([]);
 
   useEffect(() => {
     fetchData();
-    fetchLatestUsers();
   }, []);
 
   useEffect(() => {
@@ -67,20 +65,6 @@ const AdminOverview = () => {
       setRegistrationData(registrationStatsData);
     } catch (err) {
       console.error('Error fetching registration data:', err);
-    }
-  };
-
-  const fetchLatestUsers = async () => {
-    try {
-      const usersResponse = await AdminService.getAllUsers({ page: 1, limit: 5 });
-      const allUsers = usersResponse?.data?.data || usersResponse?.data || [];
-      // Sort by createdAt descending and take 5
-      const sortedUsers = allUsers
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .slice(0, 5);
-      setLatestUsers(sortedUsers);
-    } catch (err) {
-      console.error('Error fetching latest users:', err);
     }
   };
 
@@ -161,6 +145,16 @@ const AdminOverview = () => {
       style: {
         fill: '#aaa',
       },
+    },
+  };
+
+  const columnConfig = {
+    data: chartData,
+    xField: 'month',
+    yField: 'users',
+    color: '#1890ff',
+    columnStyle: {
+      radius: [8, 8, 0, 0],
     },
   };
 
@@ -585,69 +579,13 @@ const AdminOverview = () => {
 
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={12}>
-            <Card 
-              bordered={false} 
-              className="shadow-sm rounded-lg border border-gray-300" 
-              title="Line Chart"
-              bodyStyle={{
-                height: '368px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
+            <Card bordered={false} className="shadow-sm rounded-lg border border-gray-300" title="Line Chart">
               <Line {...chartConfig} height={300} />
             </Card>
           </Col>
           <Col xs={24} lg={12}>
-            <Card
-              bordered={false}
-              className="shadow-sm rounded-lg border border-gray-300"
-              title={
-                <span className="font-bold text-gray-800">Latest Users</span>
-              }
-              bodyStyle={{
-                height: '368px',
-                display: 'flex',
-                flexDirection: 'column',
-                padding: '16px'
-              }}
-            >
-              <div className="flex flex-col h-full space-y-3">
-                {latestUsers.length > 0 ? (
-                  latestUsers.map((user, index) => {
-                    const rank = index + 1;
-                    const isTopThree = rank <= 3;
-                    const badgeClass = isTopThree
-                      ? "bg-black text-white"
-                      : "bg-gray-200 text-gray-600";
-                    const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email || 'Unknown User';
-
-                    return (
-                      <div
-                        key={user._id || index}
-                        className="flex items-center gap-3 py-2.5 px-2 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer flex-shrink-0"
-                      >
-                        <div
-                          className={`flex items-center justify-center w-7 h-7 rounded-full font-semibold text-xs flex-shrink-0 ${badgeClass}`}
-                        >
-                          {rank}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-bold text-gray-800 mb-1 line-clamp-1 text-xs">
-                            {fullName}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {user.email || 'No Email'}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div className="text-center text-gray-400 py-8 flex-1 flex items-center justify-center text-xs">No users found</div>
-                )}
-              </div>
+            <Card bordered={false} className="shadow-sm rounded-lg border border-gray-300" title="Column Chart">
+              <Column {...columnConfig} height={300} />
             </Card>
           </Col>
         </Row>

@@ -35,6 +35,7 @@ const { Search } = Input;
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
+  const [userStats, setUserStats] = useState({ total: 0, active: 0, banned: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchInput, setSearchInput] = useState(''); // Input value for typing
@@ -98,9 +99,10 @@ const UserManagement = () => {
         params.status = statusFilter;
       }
 
-      const [usersResponse, rolesResponse] = await Promise.all([
+      const [usersResponse, rolesResponse, overviewStatsResponse] = await Promise.all([
         AdminService.getAllUsers(params),
         AdminService.getAllRoles(),
+        AdminService.getOverviewStats(),
       ]);
 
       const normalize = (res) => {
@@ -128,6 +130,14 @@ const UserManagement = () => {
 
       setUsers(usersData);
       setRoles(rolesData);
+
+      // Parse overview stats for user statistics
+      const overviewStatsData = overviewStatsResponse?.data || overviewStatsResponse;
+      setUserStats({
+        total: overviewStatsData?.users?.total || 0,
+        active: overviewStatsData?.users?.active || 0,
+        banned: overviewStatsData?.users?.banned || 0
+      });
 
     } catch (err) {
       console.error('Error fetching data:', err);
@@ -345,7 +355,7 @@ const UserManagement = () => {
                   TOTAL USERS
                 </div>
                 <div style={{ fontSize: '28px', fontWeight: 'bold', lineHeight: '1' }}>
-                  {users.length}
+                  {userStats.total || 0}
                 </div>
               </div>
               <UserOutlined style={{ fontSize: '36px', opacity: 0.3, position: 'absolute', top: '12px', right: '12px' }} />
@@ -374,7 +384,7 @@ const UserManagement = () => {
                   ACTIVE
                 </div>
                 <div style={{ fontSize: '28px', fontWeight: 'bold', lineHeight: '1' }}>
-                  {users.filter(user => user.isActive).length}
+                  {userStats.active || 0}
                 </div>
               </div>
               <TeamOutlined style={{ fontSize: '36px', opacity: 0.3, position: 'absolute', top: '12px', right: '12px' }} />
@@ -403,7 +413,7 @@ const UserManagement = () => {
                   BANNED
                 </div>
                 <div style={{ fontSize: '28px', fontWeight: 'bold', lineHeight: '1' }}>
-                  {users.filter(user => !user.isActive).length}
+                  {userStats.banned || 0}
                 </div>
               </div>
               <LockOutlined style={{ fontSize: '36px', opacity: 0.3, position: 'absolute', top: '12px', right: '12px' }} />

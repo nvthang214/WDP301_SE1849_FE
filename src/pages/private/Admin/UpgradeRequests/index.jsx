@@ -109,12 +109,10 @@ const AdminUpgradeRequests = () => {
   const [reviewStatus, setReviewStatus] = useState('');
   const [adminNote, setAdminNote] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [searchText, setSearchText] = useState('');
-  const [appliedSearchText, setAppliedSearchText] = useState('');
 
   useEffect(() => {
     fetchData();
-  }, [statusFilter, appliedSearchText]);
+  }, [statusFilter]);
 
   const fetchData = async () => {
     try {
@@ -134,18 +132,7 @@ const AdminUpgradeRequests = () => {
         return [];
       };
 
-      let requestsData = normalizeData(requestsResponse);
-      
-      // Filter by user name if appliedSearchText is provided
-      if (appliedSearchText.trim()) {
-        const searchLower = appliedSearchText.trim().toLowerCase();
-        requestsData = requestsData.filter(request => {
-          const fullName = `${request.user?.firstName || ''} ${request.user?.lastName || ''}`.trim().toLowerCase();
-          const email = (request.user?.email || '').toLowerCase();
-          return fullName.includes(searchLower) || email.includes(searchLower);
-        });
-      }
-      
+      const requestsData = normalizeData(requestsResponse);
       const statsData = statsResponse?.data?.data || statsResponse?.data || {};
 
       setRequests(requestsData);
@@ -298,28 +285,6 @@ const AdminUpgradeRequests = () => {
 
   return (
     <div className="p-0 m-0">
-      {/* <style>
-        {`
-          .search-input-white .ant-input::placeholder {
-            color: rgba(255, 255, 255, 0.7) !important;
-          }
-          .search-input-white .ant-input {
-            color: white !important;
-            background: rgba(255, 255, 255, 0.2) !important;
-            border: 1px solid rgba(255, 255, 255, 0.3) !important;
-            border-radius: 8px !important;
-          }
-          .search-input-white .ant-input-search-button {
-            background: rgba(255, 255, 255, 0.2) !important;
-            border: 1px solid rgba(255, 255, 255, 0.3) !important;
-            color: white !important;
-          }
-          .search-input-white .ant-input-search-button:hover {
-            background: rgba(255, 255, 255, 0.3) !important;
-            border-color: rgba(255, 255, 255, 0.5) !important;
-          }
-        `}
-      </style> */}
       {/* 🔹 Statistics Cards */}
       <Row gutter={[16, 16]} className="mb-6">
         <Col xs={24} sm={8}>
@@ -451,23 +416,6 @@ const AdminUpgradeRequests = () => {
         </div>
         <div style={{ position: 'relative', zIndex: 1 }}>
           <Space>
-            <Input.Search
-              placeholder="Search by user name or email"
-              value={searchText}
-              onChange={(e) => {
-                setSearchText(e.target.value);
-                if (!e.target.value) {
-                  setAppliedSearchText('');
-                }
-              }}
-              onSearch={(value) => setAppliedSearchText(value)}
-              allowClear
-              enterButton
-              className="search-input-white"
-              style={{ 
-                width: 300
-              }}
-            />
             <span style={{ color: 'white', fontWeight: 500 }}>Status:</span>
             <Select
               value={statusFilter}

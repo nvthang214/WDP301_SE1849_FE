@@ -31,24 +31,16 @@ const MenuLeft = ({
 
   const handleLogout = async () => {
     try {
-      await logout();
-      navigate("/login");
+      Modal.confirm({
+        title: "Confirm Logout",
+        content: "Are you sure you want to log out?",
+        onOk: async () => {
+          await logout();
+          navigate("/login");
+        },
+      });
     } catch (error) {
       console.error("Logout error:", error);
-    }
-  };
-
-  const handleMenuClick = ({ key }) => {
-    // Tìm item được click
-    const clickedItem = items.find(item => item.key === key);
-    
-    // Nếu item có onClick custom, sử dụng nó
-    if (clickedItem && clickedItem.onClick) {
-      clickedItem.onClick({ key });
-    } 
-    // Nếu không có onClick custom và key là một route path, navigate đến đó
-    else if (key && key.startsWith('/')) {
-      navigate(key);
     }
   };
 

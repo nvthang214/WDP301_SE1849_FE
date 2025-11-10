@@ -3,7 +3,15 @@ import { Link } from "react-router-dom";
 import { Card, Tag } from "antd";
 import { EnvironmentOutlined } from "@ant-design/icons";
 
-export default function CompanyCard({ companyId, name, location, openings, logo, companyType, linkTo }) {
+export default function CompanyCard({
+  companyId,
+  name,
+  location,
+  openings,
+  logo,
+  companyType,
+  linkTo,
+}) {
   const href = linkTo ?? `/companies/${companyId}`;
   return (
     <Link to={href} className="block">
@@ -15,7 +23,9 @@ export default function CompanyCard({ companyId, name, location, openings, logo,
         {/* Company name + type */}
         <div className="flex flex-col gap-1">
           <div className="flex items-start justify-between">
-            <h3 className="text-xl font-semibold text-gray-900">{name || "Company Name"}</h3>
+            <h3 className="line-clamp-1 text-xl font-semibold text-gray-900">
+              {name || "Company Name"}
+            </h3>
           </div>
 
           <div className="flex items-center gap-3 text-sm">
@@ -32,14 +42,17 @@ export default function CompanyCard({ companyId, name, location, openings, logo,
         <div className="mt-3 flex items-center gap-3">
           <div className="flex items-center gap-3">
             {logo ? (
-              <img src={logo} alt={name} className="h-16 w-16 md:h-20 md:w-20 rounded object-cover" />
+              <img
+                src={logo}
+                alt={name}
+                className="h-16 w-16 rounded object-cover md:h-20 md:w-20"
+              />
             ) : (
-              <div className="h-16 w-16 md:h-20 md:w-20 rounded bg-gray-100 flex items-center justify-center text-gray-500 text-xs">
+              <div className="flex h-16 w-16 items-center justify-center rounded bg-gray-100 text-xs text-gray-500 md:h-20 md:w-20">
                 No Logo
               </div>
             )}
             <div>
-              <p className="font-medium text-gray-800">{name}</p>
               <p className="flex items-center gap-1 text-sm text-gray-500">
                 <EnvironmentOutlined /> {location || "Location not specified"}
               </p>

@@ -2,23 +2,62 @@ import { OpenAIOutlined, PlusSquareOutlined, RobotOutlined, SendOutlined } from 
 import { Button, FloatButton, Input, Popover, Spin, Tag, Typography } from "antd";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AIService } from "../../../services/AIService";
-import ReactMarkdown from "react-markdown";
-import DOMPurify from "dompurify";
 import TypewriterMarkdown from "./components/TypeWriterMarkdown";
 
+const STORAGE_KEY = "ai_float_button_chat_state";
+const DEFAULT_ASSISTANT_GREETING = "Xin chào! Mình là trợ lý AI, bạn cần hỗ trợ gì hôm nay?";
+
+const getDefaultMessages = () => [
+  {
+    id: "welcome",
+    role: "assistant",
+    content: DEFAULT_ASSISTANT_GREETING,
+  },
+];
+
+const loadPersistedChat = () => {
+  if (typeof window === "undefined") {
+    return { messages: getDefaultMessages(), conversationId: null };
+  }
+
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      return { messages: getDefaultMessages(), conversationId: null };
+    }
+
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed?.messages)) {
+      return { messages: getDefaultMessages(), conversationId: null };
+    }
+
+    const sanitizedMessages = parsed.messages.map((message) => ({
+      id: message.id || `${Date.now()}-${message.role || "assistant"}`,
+      role: message.role === "user" ? "user" : "assistant",
+      content:
+        typeof message.content === "string" && message.content.trim()
+          ? message.content
+          : DEFAULT_ASSISTANT_GREETING,
+    }));
+
+    return {
+      messages: sanitizedMessages.length ? sanitizedMessages : getDefaultMessages(),
+      conversationId: parsed.conversationId || null,
+    };
+  } catch (error) {
+    console.warn("AI chat storage parse failed:", error);
+    return { messages: getDefaultMessages(), conversationId: null };
+  }
+};
+
 const AIFloatButton = () => {
+  const initialChatStateRef = useRef(loadPersistedChat());
   const [chatOpen, setChatOpen] = useState(false);
   const [prompt, setPrompt] = useState("");
-  const [messages, setMessages] = useState(() => [
-    {
-      id: "welcome",
-      role: "assistant",
-      content: "Xin chào! Mình là trợ lý AI, bạn cần hỗ trợ gì hôm nay?",
-    },
-  ]);
+  const [messages, setMessages] = useState(initialChatStateRef.current.messages);
 
   const [isSending, setIsSending] = useState(false);
-  const [conversationId, setConversationId] = useState(null);
+  const [conversationId, setConversationId] = useState(initialChatStateRef.current.conversationId);
 
   const pendingReplyTimeoutRef = useRef(null);
   const messageListRef = useRef(null);
@@ -65,7 +104,7 @@ const AIFloatButton = () => {
         {
           id: `${Date.now()}-assistant`,
           role: "assistant",
-          content: <span class="text-red-500">Đã xảy ra lỗi khi gọi AI.</span>,
+          content: "Đã xảy ra lỗi khi gọi AI.",
         },
       ]);
     } finally {
@@ -90,16 +129,13 @@ const AIFloatButton = () => {
       clearTimeout(pendingReplyTimeoutRef.current);
       pendingReplyTimeoutRef.current = null;
     }
-    setMessages([
-      {
-        id: "welcome",
-        role: "assistant",
-        content: "Xin chào! Mình là trợ lý AI, bạn cần hỗ trợ gì hôm nay?",
-      },
-    ]);
+    setMessages(getDefaultMessages());
     setPrompt("");
     setIsSending(false);
     setConversationId(null);
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem(STORAGE_KEY);
+    }
   }, []);
 
   //  Auto scroll khi có tin nhắn mới
@@ -121,6 +157,17 @@ const AIFloatButton = () => {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    try {
+      const payload = JSON.stringify({ messages, conversationId });
+      window.localStorage.setItem(STORAGE_KEY, payload);
+    } catch (error) {
+      console.warn("AI chat storage persist failed:", error);
+    }
+  }, [messages, conversationId]);
 
   //  UI chat popup
   const chatContent = (

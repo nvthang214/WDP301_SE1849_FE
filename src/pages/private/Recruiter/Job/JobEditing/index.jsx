@@ -89,7 +89,7 @@ export default function JobEditing() {
   useEffect(() => {
     async function fetchJob() {
       try {
-        const res = await JobService.getJobById("", id);
+        const res = await JobService.getJobById("auth", id);
         let tagIds = [];
         if (Array.isArray(res.data.tags) && res.data.tags.length > 0) {
           tagIds = res.data.tags

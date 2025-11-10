@@ -100,7 +100,7 @@ export default function JobList() {
 
   //////////////////////////////////////////
   // Fetch jobs with filters & pagination
-
+  const { user } = useAuthStore();
   useEffect(() => {
     const fetchJobs = async () => {
       setLoading(true);
@@ -124,18 +124,7 @@ export default function JobList() {
             delete params[key];
           }
         });
-
-        let flag = "";
-
-        try {
-          const { fetchMe } = useAuthStore.getState();
-          flag = fetchMe == null ? "isFavorite" : "";
-        } catch (error) {
-          // Do nothing
-          console.log("Error: ", error);
-          flag = "";
-        }
-
+        let flag = user ? "auth" : "public";
         const res = await JobService.getJobs(flag, params);
         setJobs(res.data.jobs || []);
         setPagination(
@@ -265,6 +254,7 @@ export default function JobList() {
           <div className={`grid ${gridCols} gap-6`}>
             {jobs.map((job, idx) => (
               <JobCard
+                user={user}
                 key={job._id || idx}
                 jobId={job._id}
                 title={job.title}

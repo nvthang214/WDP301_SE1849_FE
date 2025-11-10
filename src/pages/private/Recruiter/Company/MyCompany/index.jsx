@@ -61,7 +61,7 @@ export default function MyCompany() {
 
   const handleDeleteCompany = async () => {
     if (!company?._id) return;
-    
+
     if (window.confirm("Bạn có chắc chắn muốn xóa công ty này?")) {
       try {
         await CompanyService.deleteCompany(company._id);

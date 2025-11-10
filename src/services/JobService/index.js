@@ -10,7 +10,9 @@ import {
   getJobsOfRecruiter,
   toggleFavorite,
   getNumberOfApplicationsByJobId,
-  getApplicationsByJobId
+  getApplicationsByJobId,
+  toggleJobStatus,
+  expireJobById
 } from "./urls";
 
 // Thêm params vào getJobs
@@ -28,4 +30,6 @@ export const JobService = {
   toggleFavoriteJob: async (jobId) => await api.post(toggleFavorite(jobId)),
   getNumberOfApplicationsByJobId: async (jobId) => await api.get(getNumberOfApplicationsByJobId(jobId)),
   getApplicationsByJobId: async (jobId) => await api.get(getApplicationsByJobId(jobId)),
+  toggleJobStatus: async (id) => await api.put(toggleJobStatus(id)),
+  expireJobById: async (id) => await api.put(expireJobById(id)),
 };

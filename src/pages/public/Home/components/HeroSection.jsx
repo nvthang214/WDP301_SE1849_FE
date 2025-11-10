@@ -52,56 +52,62 @@ const HeroSection = () => {
   }, []);
 
   return (
-    <section className="mb-20">
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-10">
+    <section className="mt-5 mb-20">
+      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-10 lg:flex-row">
         {/* Left content */}
         <div className="flex-5 space-y-6">
-          <div className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
+          <div className="text-4xl leading-tight font-bold text-gray-900 md:text-5xl">
             Find a job that suits your interest & skills.
           </div>
-          <p className="text-gray-500 mt-4 text-lg max-w-2xl">
+          <p className="mt-4 max-w-2xl text-lg text-gray-500">
             Explore thousands of job listings from top companies and find the one that fits you
             best.
           </p>
 
           {/* Search bar */}
-          <form className="mt-8 bg-white shadow-lg rounded-md border border-neutral-200 flex flex-col md:flex-row items-center p-3 gap-2" onSubmit={handleSearch}>
-            <div className="flex items-center gap-2 flex-1 w-full border border-transparent transition-all rounded-md px-3 py-2">
+          <form
+            className="mt-8 flex flex-col items-center gap-2 rounded-md border border-neutral-200 bg-white p-3 shadow-lg md:flex-row"
+            onSubmit={handleSearch}
+          >
+            <div className="flex w-full flex-1 items-center gap-2 rounded-md border border-transparent px-3 py-2 transition-all">
               <SearchOutlined className="!text-primary text-lg" />
               <input
                 type="text"
                 placeholder="Job title, keyword..."
-                className="outline-none w-full"
+                className="w-full outline-none"
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
               />
             </div>
 
-            <button type="submit" className="bg-blue-600 hover:bg-blue-700 !text-white font-semibold px-6 py-3 cursor-pointer  rounded-sm w-full md:w-auto shadow-md transition-all ">
+            <button
+              type="submit"
+              className="w-full cursor-pointer rounded-sm bg-blue-600 px-6 py-3 font-semibold !text-white shadow-md transition-all hover:bg-blue-700 md:w-auto"
+            >
               Find Job
             </button>
           </form>
         </div>
 
         {/* Right Illustration */}
-        <div className="flex-4 flex justify-center">
+        <div className="flex flex-4 justify-center">
           <img
             src="https://cdn.dribbble.com/users/1162077/screenshots/3848914/programmer.gif"
             alt="Illustration"
-            className="w-full h-auto object-contain rounded-lg"
+            className="h-auto w-full rounded-lg object-contain"
           />
         </div>
       </div>
       {/* Stats */}
       {!loading && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-14 mt-16">
+        <div className="mt-16 grid grid-cols-2 gap-14 sm:grid-cols-4">
           {[
             { label: "Live Job", value: stats.liveJobs, urlIcon: icon1 },
             { label: "Companies", value: stats.companies, urlIcon: icon2 },
             { label: "Candidates", value: stats.candidates, urlIcon: icon3 },
             { label: "New Jobs", value: stats.newJobs, urlIcon: icon4 },
           ].map((item, i) => (
-            <div key={i} className="bg-white rounded-md shadow-md p-4 flex items-center gap-5">
+            <div key={i} className="flex items-center gap-5 rounded-md bg-white p-4 shadow-md">
               <div>
                 <img src={item.urlIcon} alt="Icon" />
               </div>
@@ -109,7 +115,7 @@ const HeroSection = () => {
                 <div className="text-2xl text-gray-900">
                   <CountUp end={item.value} separator="," />
                 </div>
-                <div className="text-gray-500 text-sm mt-1">{item.label}</div>
+                <div className="mt-1 text-sm text-gray-500">{item.label}</div>
               </div>
             </div>
           ))}

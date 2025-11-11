@@ -153,7 +153,7 @@ export default function JobDetails() {
           console.error("Error fetching user:", error);
         }
 
-        const res = await JobService.getJobById(flag, id);
+        const res = await CandidateService.getJobById(id);
         setJob(res.data);
       } catch {
         setJob(null);

@@ -28,7 +28,7 @@ import {
   Hourglass,
 } from "lucide-react";
 import JobToggleFavorite from "../../../../components/Toggle/JobToggleFavorite";
-
+import ReactQuill from "react-quill";
 const typeColor = {
   "FULL-TIME": { bg: "#22c55e", color: "#fff" },
   "PART-TIME": { bg: "#f59e42", color: "#fff" },
@@ -72,7 +72,16 @@ function ApplyModal({ open, onClose, jobTitle, onSubmit, submitting }) {
       /* handled upstream */
     }
   };
-
+  const quillModules = {
+    toolbar: [
+      [{ header: [1, 2, 3, false] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ list: "ordered" }, { list: "bullet" }],
+      [{ align: [] }],
+      ["link", "blockquote", "code-block"],
+      ["clean"],
+    ],
+  };
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="relative w-full max-w-md rounded-xl bg-white p-6 shadow-lg">
@@ -87,29 +96,14 @@ function ApplyModal({ open, onClose, jobTitle, onSubmit, submitting }) {
         <div className="mb-4 text-lg font-semibold">Apply Job: {jobTitle}</div>
         <div className="mb-4">
           <label className="mb-1 block text-sm font-medium">Cover Letter</label>
-          <textarea
-            className="min-h-[100px] w-full rounded border px-3 py-2"
-            placeholder="Write down your biography here. Let the employers know who you are..."
+          <ReactQuill
+            theme="snow"
+            modules={quillModules}
             value={coverLetter}
-            onChange={(e) => setCoverLetter(e.target.value)}
+            onChange={(e) => setCoverLetter(e.value)}
+            placeholder="Share job responsibilities, requirements..."
+            className="rounded-xl"
           />
-          <div className="mt-2 flex gap-2 text-gray-400">
-            <button type="button" className="hover:text-blue-500">
-              <b>B</b>
-            </button>
-            <button type="button" className="hover:text-blue-500">
-              <i>I</i>
-            </button>
-            <button type="button" className="hover:text-blue-500">
-              U
-            </button>
-            <button type="button" className="hover:text-blue-500">
-              🔗
-            </button>
-            <button type="button" className="hover:text-blue-500">
-              •
-            </button>
-          </div>
         </div>
         <div className="mt-6 flex justify-end gap-2">
           <button
@@ -139,20 +133,12 @@ export default function JobDetails() {
   const [job, setJob] = useState(null);
   const [showApply, setShowApply] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const user = useAuthStore((state) => state.user);
+  const { user } = useAuthStore();
 
   useEffect(() => {
     async function fetchJob() {
       try {
-        let flag = "";
-        try {
-          const { fetchMe } = useAuthStore.getState();
-          flag = fetchMe == null ? "isFavorite" : "";
-        } catch (error) {
-          // Do nothing
-          console.error("Error fetching user:", error);
-        }
-
+        let flag = user ? "auth" : "public";
         const res = await JobService.getJobById(flag, id);
         setJob(res.data);
       } catch {
@@ -172,22 +158,21 @@ export default function JobDetails() {
   };
 
   const handleSubmitApplication = async ({ resume, coverLetter }) => {
-    const candidateId = user?._id || user?.id;
-    if (!candidateId) {
-      notifyWarning("Vui lòng đăng nhập để ứng tuyển.");
+    if (!user) {
+      notifyWarning("Please log in to apply.");
       setShowApply(false);
       return;
     }
 
     setSubmitting(true);
     try {
-      const response = await CandidateService.applyJob(candidateId, {
+      const response = await CandidateService.applyJob(user._id, {
         jobId: id,
         resume,
         coverLetter,
       });
 
-      notifySuccess(response?.msg || "Ứng tuyển thành công");
+      notifySuccess(response?.msg || "Application successful");
       setShowApply(false);
     } catch (error) {
       /* errors are notified via interceptor */
@@ -224,7 +209,7 @@ export default function JobDetails() {
                   </span>
                 )}
               </div>
-              <JobToggleFavorite jobId={job._id} isFavorite={job.isFavorite} />
+              {user && <JobToggleFavorite jobId={job._id} initialIsFavorited={job.isFavorited} />}
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div className="flex items-center gap-3 rounded-xl border border-[var(--color-primary-200)] bg-[var(--color-primary-50)] p-4">

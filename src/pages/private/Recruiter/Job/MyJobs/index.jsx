@@ -1,23 +1,46 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, ChevronDown, Clock, MoreVertical } from "lucide-react";
-
+import {
+  ArrowLeft,
+  ArrowRight,
+  ChevronDown,
+  Clock,
+  MoreVertical,
+  Plus,
+  Search,
+  Filter,
+  Edit,
+  Eye,
+  XCircle,
+  CheckCircle,
+  MapPin,
+  Briefcase,
+  ArrowUpDown,
+} from "lucide-react";
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getPaginationRowModel,
+  flexRender,
+} from "@tanstack/react-table";
+import { notifySuccess, notifyError } from "../../../../../components/Notification";
 import { JobService } from "../../../../../services/JobService";
 import { Link } from "react-router-dom";
 
 const statusOptions = [
   { label: "All Jobs", value: "all" },
   { label: "Active", value: "active" },
-  { label: "Expired", value: "expired" },
+  { label: "Inactive", value: "inactive" },
 ];
 
 const formatJobType = (job) => job?.jobType?.replace("-", " ") || "N/A";
 
-const getStatusLabel = (job) => (job?.isActive ? "Active" : "Expired");
+const getStatusLabel = (job) => (job?.isActive ? "Active" : "Inactive");
 
 const getStatusClass = (isActive) =>
   isActive
-    ? "bg-green-100 text-green-600 border border-green-200"
-    : "bg-[var(--color-danger-100)] text-[var(--color-danger-600)] border border-[var(--color-danger-200)]";
+    ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+    : "bg-red-50 text-red-700 border border-red-200";
 
 const getRemainingDays = (expiration) => {
   if (!expiration) return "No expiry";
@@ -35,10 +58,9 @@ export default function MyJob() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
-  const [activeMenuId, setActiveMenuId] = useState(null);
-  const [page, setPage] = useState(1);
-  const pageSize = 8;
   const [applicationCounts, setApplicationCounts] = useState({});
+  const [sorting, setSorting] = useState([]);
+  const [actionLoading, setActionLoading] = useState(null);
 
   useEffect(() => {
     if (!jobs.length) return;
@@ -83,235 +105,343 @@ export default function MyJob() {
     fetchJobs();
   }, []);
 
+  const handleToggleStatus = async (jobId, currentStatus) => {
+    setActionLoading(jobId);
+    try {
+      await JobService.toggleJobStatus(jobId);
+      notifySuccess(`Job ${currentStatus ? "deactivated" : "activated"} successfully`);
+    } catch (error) {
+      console.error("Failed to toggle job status:", error);
+      notifyError("Failed to update job status. Please try again.");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const filteredJobs = useMemo(() => {
     return jobs.filter((job) => {
       if (statusFilter === "active") return job?.isActive;
-      if (statusFilter === "expired") return !job?.isActive;
+      if (statusFilter === "inactive") return !job?.isActive;
       return true;
     });
   }, [jobs, statusFilter]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredJobs.length / pageSize));
-  const paginatedJobs = filteredJobs.slice((page - 1) * pageSize, page * pageSize);
-
-  useEffect(() => {
-    if (page > totalPages) setPage(totalPages);
-  }, [page, totalPages]);
-
   const handleStatusChange = (value) => {
     setStatusFilter(value);
     setStatusDropdownOpen(false);
-    setPage(1);
   };
 
-  return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-[var(--shadow-md)] md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-[var(--color-neutral-900)]">
-            My Jobs{" "}
-            <span className="text-sm font-medium text-[var(--color-neutral-500)]">
-              ({jobs.length})
-            </span>
-          </h1>
-          <p className="mt-1 text-sm text-[var(--color-neutral-500)]">
-            Monitor all openings, application counts, and status in one place.
-          </p>
-        </div>
-        <div className="relative">
-          {/* Post Job button */}
-          <Link
-            to="/recruiter/jobs/post"
-            className="mr-4 inline-flex items-center gap-2 rounded-xl bg-[var(--color-primary-600)] px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[var(--color-primary-700)]"
-          >
-            Post New Job
-          </Link>
-
+  const columns = useMemo(
+    () => [
+      {
+        accessorKey: "title",
+        header: ({ column }) => (
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-neutral-200)] bg-white px-4 py-2 text-sm font-medium text-[var(--color-neutral-700)] shadow-sm transition hover:border-[var(--color-primary-300)]"
-            onClick={() => setStatusDropdownOpen((prev) => !prev)}
+            className="flex items-center gap-2 font-bold tracking-wider uppercase"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Job status
-            <span className="rounded-lg bg-[var(--color-primary-50)] px-2 py-1 text-xs font-semibold text-[var(--color-primary-600)]">
-              {statusOptions.find((option) => option.value === statusFilter)?.label}
-            </span>
-            <ChevronDown size={16} strokeWidth={1.6} />
+            <Briefcase size={14} />
+            Job Details
+            <ArrowUpDown size={14} className="ml-1" />
           </button>
-          {statusDropdownOpen && (
-            <div className="absolute right-0 z-10 mt-2 w-48 overflow-hidden rounded-xl border border-[var(--color-neutral-200)] bg-white shadow-[var(--shadow-lg)]">
-              {statusOptions.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => handleStatusChange(option.value)}
-                  className={`flex w-full items-center justify-between px-4 py-2 text-sm transition ${
-                    statusFilter === option.value
-                      ? "bg-[var(--color-primary-50)] text-[var(--color-primary-600)]"
-                      : "text-[var(--color-neutral-700)] hover:bg-[var(--color-neutral-100)]"
-                  }`}
-                >
-                  {option.label}
-                  {statusFilter === option.value && (
-                    <span className="text-xs font-semibold text-[var(--color-primary-500)]">✓</span>
+        ),
+        cell: ({ row }) => {
+          const job = row.original;
+          const remaining = getRemainingDays(job?.expiration);
+          return (
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1">
+                <h3 className="text-base font-bold text-gray-900 group-hover:text-blue-600">
+                  {job?.title || "Untitled Position"}
+                </h3>
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-gray-600">
+                  <div>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
+                      <Briefcase size={12} />
+                      {formatJobType(job)}
+                    </span>
+                    {job?.jobLevel && (
+                      <span className="flex items-center gap-1">
+                        <span className="h-1 w-1 rounded-full bg-gray-400"></span>
+                        {job.jobLevel}
+                      </span>
+                    )}
+                  </div>
+                  {job?.location && (
+                    <span className="flex items-center gap-1">
+                      <MapPin size={12} className="text-gray-400" />
+                      {job.location}
+                    </span>
                   )}
-                </button>
-              ))}
+                </div>
+              </div>
+              <div className="hidden shrink-0 items-center gap-1.5 rounded-lg bg-orange-50 px-3 py-1.5 text-xs font-medium text-orange-700 md:flex">
+                <Clock size={14} />
+                {remaining}
+              </div>
             </div>
+          );
+        },
+      },
+      {
+        accessorKey: "isActive",
+        header: ({ column }) => (
+          <button
+            type="button"
+            className="flex items-center gap-1 font-bold tracking-wider uppercase"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Status
+            <ArrowUpDown size={14} />
+          </button>
+        ),
+        cell: ({ row }) => {
+          const job = row.original;
+          const statusLabel = getStatusLabel(job);
+          return (
+            <div>
+              <button>
+                <span
+                  className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold shadow-sm ${getStatusClass(
+                    job?.isActive
+                  )}`}
+                >
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-current" />
+                  {statusLabel}
+                </span>
+              </button>
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "applications",
+        header: ({ column }) => (
+          <button
+            type="button"
+            className="flex items-center gap-1 font-bold tracking-wider uppercase"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Applications
+            <ArrowUpDown size={14} />
+          </button>
+        ),
+        cell: ({ row }) => {
+          const applications = applicationCounts[row.original._id] ?? 0;
+          return (
+            <div className="text-sm">
+              <span className="font-bold text-gray-900">{applications}</span>
+              <span className="ml-1 text-gray-500">
+                {applications === 1 ? "Application" : "Applications"}
+              </span>
+            </div>
+          );
+        },
+        sortingFn: (rowA, rowB) => {
+          const a = applicationCounts[rowA.original._id] ?? 0;
+          const b = applicationCounts[rowB.original._id] ?? 0;
+          return a - b;
+        },
+      },
+      {
+        id: "actions",
+        header: () => (
+          <span className="text-right font-bold tracking-wider uppercase">Actions</span>
+        ),
+        cell: ({ row }) => {
+          const job = row.original;
+          return (
+            <div className="flex justify-between gap-2">
+              <Link
+                to={`/recruiter/applications?jobId=${job?._id}`}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 px-2 py-2 text-xs font-semibold text-white shadow-md transition hover:from-blue-600 hover:to-blue-700 hover:shadow-lg"
+              >
+                <Eye size={14} />
+                View Application
+              </Link>
+              <Link
+                to={`/recruiter/jobs/edit/${job?._id}`}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 px-2 py-2 text-xs font-semibold text-white shadow-md transition hover:from-blue-600 hover:to-blue-700 hover:shadow-lg"
+              >
+                <Edit size={14} />
+                Edit
+              </Link>
+            </div>
+          );
+        },
+      },
+    ],
+    [applicationCounts]
+  );
+
+  const table = useReactTable({
+    data: filteredJobs,
+    columns,
+    state: {
+      sorting,
+    },
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: {
+      pagination: {
+        pageSize: 8,
+      },
+    },
+  });
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 p-2">
+      <div className="mx-auto">
+        {/* Header Section */}
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              My Jobs
+              <span className="ml-3 inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold text-blue-700">
+                {jobs.length} {jobs.length === 1 ? "Job" : "Jobs"}
+              </span>
+            </h1>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              to="/recruiter/jobs/post"
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:from-blue-700 hover:to-blue-600 hover:shadow-xl"
+            >
+              <Plus size={18} />
+              Post New Job
+            </Link>
+
+            <div className="relative">
+              <button
+                type="button"
+                className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition hover:border-blue-300 hover:shadow-md"
+                onClick={() => setStatusDropdownOpen((prev) => !prev)}
+              >
+                <Filter size={16} />
+                <span className="hidden md:inline">Status:</span>
+                <span className="rounded-lg bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700">
+                  {statusOptions.find((option) => option.value === statusFilter)?.label}
+                </span>
+                <ChevronDown
+                  size={16}
+                  className={`transition-transform ${statusDropdownOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+              {statusDropdownOpen && (
+                <div className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl">
+                  {statusOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => handleStatusChange(option.value)}
+                      className={`flex w-full items-center justify-between px-4 py-2.5 text-sm transition ${
+                        statusFilter === option.value
+                          ? "bg-blue-50 font-semibold text-blue-700"
+                          : "text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      {option.label}
+                      {statusFilter === option.value && (
+                        <CheckCircle size={16} className="text-blue-600" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* React Table */}
+        <div className="mb-2 overflow-hidden rounded-2xl bg-white shadow-xl">
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-20">
+              <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600"></div>
+              <p className="mt-4 text-sm text-gray-500">Loading your jobs...</p>
+            </div>
+          ) : table.getRowModel().rows.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20">
+              <div className="rounded-full bg-gray-100 p-6">
+                <Search size={48} className="text-gray-400" />
+              </div>
+              <p className="mt-4 text-lg font-semibold text-gray-700">No jobs found</p>
+              <p className="text-sm text-gray-500">Try adjusting your filters</p>
+            </div>
+          ) : (
+            <>
+              <table className="w-full">
+                <thead className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100">
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <tr key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => (
+                        <th key={header.id} className="px-6 py-4 text-left text-xs text-gray-600">
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(header.column.columnDef.header, header.getContext())}
+                        </th>
+                      ))}
+                    </tr>
+                  ))}
+                </thead>
+                <tbody>
+                  {table.getRowModel().rows.map((row) => (
+                    <tr
+                      key={row.id}
+                      className="group border-b border-gray-100 transition last:border-none hover:bg-blue-50/50"
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <td key={cell.id} className="px-6 py-5">
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {/* Pagination */}
+              {table.getPageCount() > 1 && (
+                <div className="flex items-center justify-center gap-2 border-t border-gray-100 px-6 py-4">
+                  <button
+                    type="button"
+                    disabled={!table.getCanPreviousPage()}
+                    onClick={() => table.previousPage()}
+                    className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 shadow-sm transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <ArrowLeft size={18} />
+                  </button>
+                  {Array.from({ length: table.getPageCount() }, (_, i) => i).map((pageIndex) => (
+                    <button
+                      key={pageIndex}
+                      type="button"
+                      onClick={() => table.setPageIndex(pageIndex)}
+                      className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-bold transition ${
+                        table.getState().pagination.pageIndex === pageIndex
+                          ? "bg-gradient-to-r from-blue-600 to-blue-500 !text-white shadow-lg"
+                          : "border border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600"
+                      }`}
+                    >
+                      {pageIndex + 1}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    disabled={!table.getCanNextPage()}
+                    onClick={() => table.nextPage()}
+                    className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 shadow-sm transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <ArrowRight size={18} />
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
-
-      <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-white shadow-[var(--shadow-md)]">
-        <div className="grid grid-cols-[1.6fr_0.5fr_0.5fr_auto] items-center gap-4 border-b border-[var(--color-neutral-200)] bg-[var(--color-neutral-100)] px-6 py-4 text-xs font-semibold tracking-wide text-[var(--color-neutral-500)] uppercase">
-          <span>Jobs</span>
-          <span>Status</span>
-          <span>Applications</span>
-          <span className="text-right">Actions</span>
-        </div>
-
-        {loading ? (
-          <div className="px-6 py-16 text-center text-[var(--color-neutral-500)]">
-            Loading jobs...
-          </div>
-        ) : paginatedJobs.length === 0 ? (
-          <div className="px-6 py-16 text-center text-[var(--color-neutral-500)]">
-            No job found for current filter.
-          </div>
-        ) : (
-          paginatedJobs.map((job) => {
-            const statusLabel = getStatusLabel(job);
-            const applications = applicationCounts[job._id] ?? 0;
-            const remaining = getRemainingDays(job?.expiration);
-            return (
-              <div
-                key={job?._id}
-                className="group grid grid-cols-[1.6fr_0.5fr_0.5fr_auto] items-center gap-4 border-b border-[var(--color-neutral-100)] px-6 py-5 last:border-none hover:bg-[var(--color-primary-50)]/50"
-              >
-                <div>
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="text-base font-semibold text-[var(--color-neutral-900)]">
-                        {job?.title || "Untitled Position"}
-                      </h3>
-                      <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-[var(--color-neutral-500)]">
-                        <span className="rounded-full bg-[var(--color-primary-50)] px-2 py-0.5 text-xs font-semibold text-[var(--color-primary-600)]">
-                          {formatJobType(job)}
-                        </span>
-                        {job?.jobLevel && (
-                          <span className="text-[var(--color-neutral-500)]">• {job.jobLevel}</span>
-                        )}
-                        {job?.location && (
-                          <span className="text-[var(--color-neutral-500)]">• {job.location}</span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="hidden text-sm font-medium text-[var(--color-neutral-500)] md:flex">
-                      <Clock className="mr-1 h-4 w-4 text-[var(--color-primary-400)]" />
-                      {remaining}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${getStatusClass(
-                      job?.isActive
-                    )}`}
-                  >
-                    <span className="h-2 w-2 rounded-full bg-current" />
-                    {statusLabel}
-                  </span>
-                </div>
-
-                <div className="text-sm font-semibold text-[var(--color-neutral-700)]">
-                  {applications} Applications
-                </div>
-
-                <div className="flex items-center justify-end gap-3">
-                  <Link
-                    to={`/recruiter/applications?jobId=${job?._id}`}
-                    className="rounded-full border border-[var(--color-primary-100)] bg-[var(--color-primary-50)] px-4 py-2 text-sm font-semibold text-[var(--color-primary-600)] transition hover:bg-[var(--color-primary-500)] hover:text-white"
-                  >
-                    View Applications
-                  </Link>
-                  <div className="relative">
-                    <button
-                      type="button"
-                      className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-neutral-200)] text-[var(--color-neutral-500)] transition hover:border-[var(--color-primary-300)] hover:text-[var(--color-primary-600)]"
-                      onClick={() =>
-                        setActiveMenuId((prev) => (prev === job?._id ? null : job?._id))
-                      }
-                    >
-                      <MoreVertical size={18} strokeWidth={1.6} />
-                    </button>
-                    {activeMenuId === job?._id && (
-                      <div className="absolute right-0 mt-2 w-44 rounded-xl border border-[var(--color-neutral-200)] bg-white py-1 text-sm shadow-[var(--shadow-lg)]">
-                        {["Promote Job", job?.isActive ? "Make it Expire" : "Activate Job"].map(
-                          (action) => (
-                            <button
-                              key={action}
-                              type="button"
-                              className="flex w-full items-center justify-between px-4 py-2 text-[var(--color-neutral-600)] transition hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary-600)]"
-                            >
-                              <Link to={`/${action.replace(" ", "-").toLowerCase()}`}>
-                                {action}
-                              </Link>
-                              <span className="text-xs text-[var(--color-neutral-300)]">→</span>
-                            </button>
-                          )
-                        )}
-                        <button
-                          type="button"
-                          className="flex w-full items-center justify-between px-4 py-2 text-[var(--color-neutral-600)] transition hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary-600)]"
-                        >
-                          <Link to={`/recruiter/jobs/edit/${job?._id}`}>View Details</Link>
-                          <span className="text-xs text-[var(--color-neutral-300)]">→</span>
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })
-        )}
-      </div>
-
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3">
-          <button
-            type="button"
-            disabled={page === 1}
-            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--color-neutral-200)] text-[var(--color-neutral-500)] transition hover:border-[var(--color-primary-300)] hover:text-[var(--color-primary-600)] disabled:opacity-40"
-          >
-            <ArrowLeft size={18} strokeWidth={1.6} />
-          </button>
-          {Array.from({ length: totalPages }, (_, index) => index + 1).map((number) => (
-            <button
-              key={number}
-              type="button"
-              onClick={() => setPage(number)}
-              className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition ${
-                page === number
-                  ? "bg-[var(--color-primary-500)] text-white shadow-[var(--shadow-md)]"
-                  : "border border-transparent bg-white text-[var(--color-neutral-600)] hover:border-[var(--color-primary-300)] hover:text-[var(--color-primary-600)]"
-              }`}
-            >
-              {number.toString().padStart(2, "0")}
-            </button>
-          ))}
-          <button
-            type="button"
-            disabled={page === totalPages}
-            onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--color-neutral-200)] text-[var(--color-neutral-500)] transition hover:border-[var(--color-primary-300)] hover:text-[var(--color-primary-600)] disabled:opacity-40"
-          >
-            <ArrowRight size={18} strokeWidth={1.6} />
-          </button>
-        </div>
-      )}
     </div>
   );
 }

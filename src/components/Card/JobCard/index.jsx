@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import JobToggleFavorite from "../../Toggle/JobToggleFavorite";
 
 const JobCard = ({
+  user = null,
   jobId = null,
   title = "Technical Support Specialist",
   type = "PART-TIME",
@@ -22,7 +23,7 @@ const JobCard = ({
       <div className="flex flex-col gap-1">
         <div className="flex items-start justify-between">
           <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-          <JobToggleFavorite isFavorite={isFavorite} jobId={jobId} />
+          {user && <JobToggleFavorite jobId={jobId} initialIsFavorited={isFavorite} />}
         </div>
 
         <div className="flex items-center gap-3 text-sm">

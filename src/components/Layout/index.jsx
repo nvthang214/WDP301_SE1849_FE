@@ -5,12 +5,12 @@ import BreadcrumbNav from "../Breadcrumb";
 
 const LayoutCommon = () => {
   return (
-    <div className="min-h-screen text-neutral-900">
+    <div className="min-h-screen bg-gray-100 text-neutral-900">
       <HeaderMain className="mx-auto max-w-7xl" />
-      <div className="mx-auto  max-w-7xl flex container px-4">
+      <div className="container mx-auto flex max-w-7xl px-4">
         <BreadcrumbNav />
       </div>
-      <main className="mx-auto max-w-7xl flex container items-center justify-between px-4">
+      <main className="container mx-auto flex max-w-7xl items-center justify-between px-4">
         <Outlet />
       </main>
       <FooterCommon />

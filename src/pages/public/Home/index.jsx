@@ -397,7 +397,7 @@ const Home = () => {
               </div>
             </div>
             <Link
-              to="#"
+              to="/jobs"
               className="text-primary-600 inline-flex items-center gap-2 text-sm font-semibold"
             >
               View All <ChevronRight className="h-4 w-4" />

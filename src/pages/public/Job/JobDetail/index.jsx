@@ -100,7 +100,7 @@ function ApplyModal({ open, onClose, jobTitle, onSubmit, submitting }) {
             theme="snow"
             modules={quillModules}
             value={coverLetter}
-            onChange={(e) => setCoverLetter(e.value)}
+            onChange={(value) => setCoverLetter(value)}
             placeholder="Share job responsibilities, requirements..."
             className="rounded-xl"
           />

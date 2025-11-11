@@ -16,38 +16,40 @@ const JobCard = ({
 }) => {
   return (
     <Card
-      className="rounded-xl border border-gray-100 shadow-sm transition-all hover:shadow-md"
+      className="h-full rounded-xl border border-gray-100 shadow-sm transition-all hover:shadow-md"
       bodyStyle={{ padding: "16px" }}
     >
-      {/* Job title + salary */}
-      <div className="flex flex-col gap-1">
-        <div className="flex items-start justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-          {user && <JobToggleFavorite jobId={jobId} initialIsFavorited={isFavorite} />}
-        </div>
+      <div className="flex flex-col h-full justify-between">
+        {/* Job title + salary */}
+        <div className="flex flex-col gap-2">
+          <div className="flex items-start justify-between">
+            <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+            {user && <JobToggleFavorite jobId={jobId} initialIsFavorited={isFavorite} />}
+          </div>
 
-        <div className="flex items-center gap-3 text-sm">
-          <Tag color="green" className="m-0 rounded px-2 py-0.5 text-xs font-medium">
-            {type}
-          </Tag>
-          <span className="text-gray-500">
-            <span className="font-medium text-gray-700">Salary:</span> {salary}
-          </span>
-        </div>
-      </div>
-
-      {/* Company + location */}
-      <Link to={`/jobs/${jobId}`} className="mt-2 flex items-center gap-3">
-        <div className="flex items-center gap-3">
-          <img src={logo} alt={company} className="h-15 w-15 rounded object-cover" />
-          <div>
-            <p className="font-medium text-gray-800">{company}</p>
-            <p className="flex items-center gap-1 text-sm text-gray-500">
-              <EnvironmentOutlined /> {location}
-            </p>
+          <div className="flex items-center gap-3 text-sm">
+            <Tag color="green" className="m-0 rounded px-2 py-0.5 text-xs font-medium">
+              {type}
+            </Tag>
+            <span className="text-gray-500">
+              <span className="font-medium text-gray-700">Salary:</span> {salary}
+            </span>
           </div>
         </div>
-      </Link>
+
+        {/* Company + location (footer) */}
+        <Link to={`/jobs/${jobId}`} className="mt-4 block">
+          <div className="flex items-center gap-3">
+            <img src={logo} alt={company} className="h-12 w-12 flex-shrink-0 rounded object-cover" />
+            <div className="min-w-0">
+              <p className="font-medium text-gray-800 truncate">{company}</p>
+              <p className="flex items-center gap-1 text-sm text-gray-500 truncate">
+                <EnvironmentOutlined /> {location}
+              </p>
+            </div>
+          </div>
+        </Link>
+      </div>
     </Card>
   );
 };

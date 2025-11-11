@@ -404,7 +404,7 @@ const Home = () => {
             </Link>
           </header>
 
-          <div className="mt-12 grid gap-6 lg:grid-cols-3">
+          <div className="mt-12 grid gap-6 lg:grid-cols-3 auto-rows-fr items-stretch">
             {isLoadingFeaturedJobs ? (
               <div className="text-center text-sm text-neutral-500 lg:col-span-3">
                 Đang tải công việc nổi bật...
@@ -450,7 +450,7 @@ const Home = () => {
           </div>
         </header>
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+  <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr items-stretch">
           {isLoadingCompanies ? (
             // Loading skeleton
             Array.from({ length: 6 }).map((_, index) => (

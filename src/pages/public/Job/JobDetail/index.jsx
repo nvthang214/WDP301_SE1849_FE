@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import JobToggleFavorite from "../../../../components/Toggle/JobToggleFavorite";
 import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 const typeColor = {
   "FULL-TIME": { bg: "#22c55e", color: "#fff" },
   "PART-TIME": { bg: "#f59e42", color: "#fff" },
@@ -100,7 +101,7 @@ function ApplyModal({ open, onClose, jobTitle, onSubmit, submitting }) {
             theme="snow"
             modules={quillModules}
             value={coverLetter}
-            onChange={(e) => setCoverLetter(e.value)}
+            onChange={(value) => setCoverLetter(value)}
             placeholder="Share job responsibilities, requirements..."
             className="rounded-xl"
           />

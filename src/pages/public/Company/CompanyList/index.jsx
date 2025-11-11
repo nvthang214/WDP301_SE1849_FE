@@ -216,7 +216,7 @@ export default function CompanyList() {
             </p>
           </div>
         ) : (
-          <div className={`mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3`}>
+          <div className={`mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr items-stretch`}>
             {companies.map((company, idx) => (
               <CompanyCard
                 key={company._id || idx}

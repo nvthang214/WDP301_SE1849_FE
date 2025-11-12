@@ -506,51 +506,6 @@ export default function JobEditing() {
               </div>
             </div>
           </section>
-          <section>
-            <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
-              Apply Job On
-            </label>
-            <div className="flex flex-col gap-4 md:flex-row">
-              {["Jobpilot", "external", "email"].map((type) => {
-                const active = form.applyType === type;
-                return (
-                  <label
-                    key={type}
-                    className={`flex flex-1 items-start gap-3 rounded-xl border p-2 transition ${
-                      active
-                        ? "border-[var(--color-primary-400)] shadow-[var(--shadow-md)]"
-                        : "border-transparent hover:border-[var(--color-primary-200)]"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="applyType"
-                      value={type}
-                      checked={active}
-                      onChange={handleChange}
-                      className="mt-1"
-                    />
-                    <div>
-                      <div className="text-sm font-semibold text-[var(--color-neutral-900)]">
-                        {type === "Jobpilot"
-                          ? "On Jobpilot"
-                          : type === "external"
-                            ? "External Platform"
-                            : "On Your Email"}
-                      </div>
-                      <p className="mt-1 text-xs text-[var(--color-neutral-500)]">
-                        {type === "Jobpilot"
-                          ? "Candidates apply via Jobpilot and appear in your dashboard."
-                          : type === "external"
-                            ? "Redirect candidates to your site and manage applications yourself."
-                            : "Receive applications directly in your inbox."}
-                      </p>
-                    </div>
-                  </label>
-                );
-              })}
-            </div>
-          </section>
           {/* Job Description */}
           <section>
             <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
@@ -580,7 +535,7 @@ export default function JobEditing() {
             />
           </section>
           {/* Job Desirable */}
-          <section>
+          {/* <section>
             <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
               Job Desirable
             </label>
@@ -592,7 +547,7 @@ export default function JobEditing() {
               placeholder="Share bonus points, nice-to-have experience..."
               className="rounded-xl"
             />
-          </section>
+          </section> */}
           {/* Job Benefits */}
           <section>
             <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">

@@ -199,7 +199,7 @@ export default function JobDetails() {
         <div className="col-span-1 max-w-full lg:col-span-8">
           <div className="mb-6 rounded-2xl bg-white p-6 shadow-md">
             <div className="mb-4 flex items-start justify-between gap-4">
-              <div className="flex items-center gap-2">
+              <div className="gap-2">
                 <div className="m-0 text-2xl font-bold">{job.title}</div>
                 {job.jobType && (
                   <span
@@ -233,7 +233,7 @@ export default function JobDetails() {
                 <div>
                   <p className="text-sm font-semibold text-gray-500">Location</p>
                   <p className="text-base font-semibold text-gray-900">
-                    {job.location || job.city || job.country || "Not updated"}
+                    {job.city + ", " + job.country || "Not updated"}
                   </p>
                 </div>
               </div>
@@ -306,7 +306,7 @@ export default function JobDetails() {
                 />
               </>
             )}
-            {job.desirable && (
+            {/* {job.desirable && (
               <>
                 <h2 className="mt-6 mb-2 flex items-center gap-2 text-lg font-semibold">
                   <HandCoins size={20} className="text-[var(--color-primary-600)]" />
@@ -319,7 +319,7 @@ export default function JobDetails() {
                   }}
                 />
               </>
-            )}
+            )} */}
             {job.benefits && (
               <>
                 <h2 className="mt-6 mb-2 flex items-center gap-2 text-lg font-semibold">
@@ -334,10 +334,10 @@ export default function JobDetails() {
               </>
             )}
             <div className="flex flex-1 flex-col gap-2">
-              <div className="flex items-center gap-1 text-gray-400">
-                <MapPin size={16} className="text-blue-600" />
+              <h2 className="mb-2 flex items-center gap-2 text-lg font-semibold">
+                <MapPin size={20} className="text-blue-600" />
                 Job Location
-              </div>
+              </h2>
               <div className="flex items-center gap-1 font-medium text-gray-700">
                 {job.city && job.country
                   ? `${job.location}, ${job.city}, ${job.country}`

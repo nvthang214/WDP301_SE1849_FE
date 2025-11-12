@@ -367,8 +367,8 @@ const Home = () => {
         </header>
 
         <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {popularCategories.map(({ label, openings }) => (
-            <Link to={`/jobs?category=${encodeURIComponent(label)}`} key={label}>
+          {popularCategories.map(({ label, openings, _id }) => (
+            <Link to={`/jobs?categoryId=${_id}`} key={label}>
               <div
                 className={`flex h-full items-center justify-between gap-3 rounded-2xl border-neutral-200 bg-white px-6 py-6 text-left transition hover:-translate-y-1 hover:shadow-lg`}
               >
@@ -404,7 +404,7 @@ const Home = () => {
             </Link>
           </header>
 
-          <div className="mt-12 grid gap-6 lg:grid-cols-3 auto-rows-fr items-stretch">
+          <div className="mt-12 grid auto-rows-fr items-stretch gap-6 lg:grid-cols-3">
             {isLoadingFeaturedJobs ? (
               <div className="text-center text-sm text-neutral-500 lg:col-span-3">
                 Đang tải công việc nổi bật...
@@ -450,7 +450,7 @@ const Home = () => {
           </div>
         </header>
 
-  <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr items-stretch">
+        <div className="mt-12 grid auto-rows-fr items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {isLoadingCompanies ? (
             // Loading skeleton
             Array.from({ length: 6 }).map((_, index) => (

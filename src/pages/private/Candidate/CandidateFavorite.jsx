@@ -179,9 +179,7 @@ const CandidateFavorite = () => {
             description="You have not saved any jobs yet."
             image={Empty.PRESENTED_IMAGE_SIMPLE}
           />
-          <Button type="primary" ghost onClick={handleRefresh} disabled={isRefreshing}>
-            Refresh List
-          </Button>
+         
         </div>
       );
     }

@@ -267,9 +267,9 @@ const Home = () => {
         if (ignore) return;
 
         // Chỉ set error nếu là lỗi thực sự (không phải empty result)
-        const isNotFoundError = error?.response?.status === 404 || 
-                               error?.message?.includes('No companies found');
-        
+        const isNotFoundError =
+          error?.response?.status === 404 || error?.message?.includes("No companies found");
+
         if (!isNotFoundError) {
           console.error(error);
           setCompaniesError(error?.message || "Không thể tải danh sách công ty.");
@@ -303,7 +303,7 @@ const Home = () => {
     <div className="space-y-20">
       <HeroSection />
 
-      <section className="mx-auto max-w-7xl rounded-lg bg-neutral-100 px-10 pt-10 pb-20">
+      {/* <section className="mx-auto max-w-7xl rounded-lg bg-neutral-100 px-10 pt-10 pb-20">
         <header className="space-y-2">
           <p className="text-primary text-2xl font-semibold tracking-wider uppercase">
             Most Popular Vacancies
@@ -320,7 +320,7 @@ const Home = () => {
             </div>
           ))}
         </div>
-      </section>
+      </section> */}
 
       <section className="">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
@@ -353,7 +353,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl rounded-lg bg-neutral-100 px-4 pt-10 pb-20 sm:px-6 lg:px-8">
+      <section className="sm:px-6= mx-auto max-w-7xl rounded-lg bg-neutral-100 pt-10 pb-20">
         <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-primary-600 text-2xl font-semibold tracking-wider uppercase">
             Popular Categories
@@ -388,7 +388,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="bg-white">
+      <section className="">
         <div className="mx-auto max-w-7xl">
           <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -397,14 +397,14 @@ const Home = () => {
               </div>
             </div>
             <Link
-              to="#"
+              to="/jobs"
               className="text-primary-600 inline-flex items-center gap-2 text-sm font-semibold"
             >
               View All <ChevronRight className="h-4 w-4" />
             </Link>
           </header>
 
-          <div className="mt-12 grid gap-6 lg:grid-cols-3">
+          <div className="mt-12 grid gap-6 lg:grid-cols-3 auto-rows-fr items-stretch">
             {isLoadingFeaturedJobs ? (
               <div className="text-center text-sm text-neutral-500 lg:col-span-3">
                 Đang tải công việc nổi bật...
@@ -443,14 +443,14 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl">
+      <section className="mx-auto mb-5 max-w-7xl">
         <header className="text-start">
           <div className="text-primary-600 text-2xl font-semibold tracking-wider uppercase">
             Top Companies
           </div>
         </header>
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+  <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr items-stretch">
           {isLoadingCompanies ? (
             // Loading skeleton
             Array.from({ length: 6 }).map((_, index) => (
@@ -498,7 +498,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="bg-white py-10">
+      {/* <section className="bg-white py-10">
         <div className="mx-auto max-w-7xl">
           <header className="text-center">
             <p className="text-primary-600 text-2xl font-semibold tracking-wider uppercase">
@@ -529,9 +529,9 @@ const Home = () => {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
-      <section className="mx-auto max-w-7xl pb-12">
+      {/* <section className="mx-auto max-w-7xl pb-12">
         <div className="grid gap-6 lg:grid-cols-2">
           {dualCtas.map(({ title, description, action, tone }) => (
             <div
@@ -562,7 +562,7 @@ const Home = () => {
             </div>
           ))}
         </div>
-      </section>
+      </section> */}
     </div>
   );
 };

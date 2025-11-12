@@ -260,48 +260,6 @@ const AccountSetting = () => {
       <Title level={4}>Account Settings</Title>
       
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
-        {/* Avatar */}
-        <Card title="Avatar" style={{ maxWidth: '600px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <Avatar
-              src={hasAvatar ? avatarUrl : undefined}
-              size={64}
-              style={{ backgroundColor: hasAvatar ? undefined : '#1890ff', color: '#fff' }}
-              icon={!hasAvatar ? <UserOutlined /> : undefined}
-            />
-            <div style={{ display: 'flex', gap: 8 }}>
-              <input
-                type="file"
-                accept="image/*"
-                ref={avatarInputRef}
-                onChange={handleAvatarFileChange}
-                style={{ display: 'none' }}
-              />
-              <Button
-                type="primary"
-                icon={<CloudUploadOutlined />}
-                loading={isAvatarBusy}
-                onClick={() => avatarInputRef.current?.click()}
-              >
-                Upload Avatar
-              </Button>
-              <Button
-                danger
-                icon={<DeleteOutlined />}
-                disabled={!hasAvatar || isAvatarBusy}
-                onClick={handleAvatarDelete}
-              >
-                Delete Avatar
-              </Button>
-            </div>
-          </div>
-          {!hasAvatar && (
-            <Text type="secondary" style={{ display: 'block', marginTop: 8 }}>
-              Supports all image formats (image/*), up to 5MB
-            </Text>
-          )}
-        </Card>
-
         {/* Contact Information */}
         <Card title="Contact Information" style={{ maxWidth: '600px' }}>
           <Form
@@ -360,14 +318,15 @@ const AccountSetting = () => {
             </Form.Item>
 
             <Form.Item>
-              <Button 
-                type="primary" 
-                htmlType="submit" 
+              <Button
+                type="primary"
+                htmlType="button"
+                onClick={() => contactForm.submit()}
                 icon={<SaveOutlined />}
                 loading={savingContact}
                 size="large"
               >
-                Save Contact Information
+                Save
               </Button>
             </Form.Item>
           </Form>
@@ -408,11 +367,13 @@ const AccountSetting = () => {
             </Form.Item>
 
             <Form.Item>
-              <Button 
-                type="primary" 
-                htmlType="submit" 
+              <Button
+                type="primary"
+                htmlType="button"
+                onClick={() => passwordForm.submit()}
                 icon={<SaveOutlined />}
                 loading={changingPassword}
+                size="large"
               >
                 Update Password
               </Button>

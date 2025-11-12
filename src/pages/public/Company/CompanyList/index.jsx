@@ -33,11 +33,7 @@ const initialFilters = {
 
 export default function CompanyList() {
   const { isMobile, isTablet } = useResponsive();
-  const gridCols = isMobile
-    ? "grid-cols-1"
-    : isTablet
-    ? "grid-cols-2"
-    : "grid-cols-3"; 
+  const gridCols = isMobile ? "grid-cols-1" : isTablet ? "grid-cols-2" : "grid-cols-3";
 
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -118,12 +114,18 @@ export default function CompanyList() {
   };
 
   return (
-    <div className="relative min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-10">
+    <div className="relative min-h-screen bg-gray-50 px-4 py-6 sm:px-6 lg:px-10">
       <div className="w-full">
         <form className="mb-8 flex w-full flex-col gap-2" onSubmit={handleSearch}>
-          <div className="w-full flex flex-wrap items-center gap-3 rounded-xl border bg-white px-5 py-3 shadow-sm">
-            <div className="flex flex-1 items-center gap-2 min-w-[200px]">
-              <svg width="20" height="20" fill="none" stroke="currentColor" className="text-gray-400">
+          <div className="flex w-full flex-wrap items-center gap-3 rounded-xl border bg-white px-5 py-3 shadow-sm">
+            <div className="flex min-w-[200px] flex-1 items-center gap-2">
+              <svg
+                width="20"
+                height="20"
+                fill="none"
+                stroke="currentColor"
+                className="text-gray-400"
+              >
                 <circle cx="9" cy="9" r="7" strokeWidth="2" />
                 <path d="M16 16L13.5 13.5" strokeWidth="2" />
               </svg>
@@ -135,26 +137,46 @@ export default function CompanyList() {
               />
             </div>
 
-            <div className="flex items-center bg-gray-50 rounded px-3 py-2 min-w-[220px] md:min-w-[280px]">
-              <svg width="16" height="16" fill="none" stroke="currentColor" className="text-gray-400 mr-2">
-                <path d="M12 2l3 3-3 3M3 14l3-3-3-3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M12 12v3a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h5a2 2 0 012 2v1" strokeWidth="2"/>
+            <div className="flex min-w-[220px] items-center rounded bg-gray-50 px-3 py-2 md:min-w-[280px]">
+              <svg
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                className="mr-2 text-gray-400"
+              >
+                <path
+                  d="M12 2l3 3-3 3M3 14l3-3-3-3"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M12 12v3a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h5a2 2 0 012 2v1"
+                  strokeWidth="2"
+                />
               </svg>
               <input
-                className="flex-1 outline-none bg-transparent text-sm"
+                className="flex-1 bg-transparent text-sm outline-none"
                 placeholder="City, state or zip code"
                 value={locationSearch}
                 onChange={(e) => setLocationSearch(e.target.value)}
               />
             </div>
 
-            <div className="flex items-center gap-2 ml-auto">
+            <div className="ml-auto flex items-center gap-2">
               <button
                 type="button"
                 className="flex items-center gap-2 rounded bg-gray-100 px-3 py-2 hover:bg-gray-200"
                 onClick={() => setShowFilter(true)}
               >
-                <svg width="20" height="20" fill="none" stroke="currentColor" className="text-gray-600">
+                <svg
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  className="text-gray-600"
+                >
                   <path d="M3 6h14M5 12h10M7 18h6" strokeWidth="2" />
                 </svg>
                 Filters
@@ -169,22 +191,32 @@ export default function CompanyList() {
           </div>
         </form>
 
-     
         {loading ? (
-          <div className="text-center w-full py-10 text-gray-400">Loading...</div>
+          <div className="w-full py-10 text-center text-gray-400">Loading...</div>
         ) : companies.length === 0 ? (
-          <div className="text-center w-full py-20">
-            <div className="text-gray-400 text-lg mb-2">
-              <svg className="mx-auto mb-4 w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+          <div className="w-full py-20 text-center">
+            <div className="mb-2 text-lg text-gray-400">
+              <svg
+                className="mx-auto mb-4 h-16 w-16 text-gray-300"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                ></path>
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">Chưa có công ty nào</h3>
-            <p className="text-gray-500">Không tìm thấy công ty nào phù hợp với tiêu chí tìm kiếm của bạn.</p>
+            <h3 className="mb-2 text-xl font-semibold text-gray-600">Chưa có công ty nào</h3>
+            <p className="text-gray-500">
+              Không tìm thấy công ty nào phù hợp với tiêu chí tìm kiếm của bạn.
+            </p>
           </div>
         ) : (
-         
-          <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 mt-6`}>
+          <div className={`mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr items-stretch`}>
             {companies.map((company, idx) => (
               <CompanyCard
                 key={company._id || idx}
@@ -193,13 +225,12 @@ export default function CompanyList() {
                 location={company.address}
                 openings={company.openPositions || 0}
                 logo={company.logo}
-                companyType={company.companyType || "Technology"}
+                companyType={company.industry || "Technology"}
               />
             ))}
           </div>
         )}
 
-        
         <div className="mt-10 flex items-center justify-center gap-3">
           <button
             className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 text-gray-500 transition hover:border-blue-300 hover:text-blue-600 disabled:opacity-30"
@@ -207,7 +238,12 @@ export default function CompanyList() {
             disabled={page === 1}
           >
             <svg width="18" height="18" fill="none" stroke="currentColor">
-              <path d="M11 15L7 11L11 7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path
+                d="M11 15L7 11L11 7"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </button>
 
@@ -231,7 +267,12 @@ export default function CompanyList() {
             disabled={page === pagination.totalPages}
           >
             <svg width="18" height="18" fill="none" stroke="currentColor">
-              <path d="M7 7L11 11L7 15" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path
+                d="M7 7L11 11L7 15"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </button>
         </div>

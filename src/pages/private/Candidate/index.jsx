@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Button, Pagination, Skeleton } from "antd";
+import { Button, Skeleton, Empty, Avatar } from "antd";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../../../store/useAuthStore";
@@ -9,7 +9,7 @@ import { EnvironmentOutlined } from "@ant-design/icons";
 import { BriefcaseBusiness, Bookmark, Bell, ArrowRight } from "lucide-react";
 import ROUTER from "../../../router/ROUTER";
 
-const PAGE_SIZE = 10;
+const RECENT_COUNT = 5;
 
 const StatusBadge = ({ status }) => {
   if (!status) return null;
@@ -146,7 +146,7 @@ const CandidateOverview = () => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [isProfileMissing, setIsProfileMissing] = useState(false);
   const [favoriteCount, setFavoriteCount] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
+  // pagination removed for overview: we only show the most recent RECENT_COUNT items
   const avatar = (() => {
     if (!user?.avatar) return null;
     try {
@@ -241,15 +241,17 @@ const CandidateOverview = () => {
     [appliedJobs]
   );
   const totalApplied = visibleAppliedJobs.length;
-  const paginatedAppliedJobs = useMemo(() => {
-    const start = (currentPage - 1) * PAGE_SIZE;
-    return visibleAppliedJobs.slice(start, start + PAGE_SIZE);
-  }, [visibleAppliedJobs, currentPage]);
-
-  useEffect(() => {
-    const totalPages = Math.max(1, Math.ceil(visibleAppliedJobs.length / PAGE_SIZE) || 1);
-    setCurrentPage((prev) => (prev > totalPages ? totalPages : prev));
-  }, [visibleAppliedJobs.length]);
+  // take the most recent RECENT_COUNT applied jobs (sort by appliedAt/createdAt desc)
+  const recentAppliedJobs = useMemo(() => {
+    if (!visibleAppliedJobs || !visibleAppliedJobs.length) return [];
+    const arr = [...visibleAppliedJobs];
+    arr.sort((a, b) => {
+      const aDate = new Date(a.appliedAt || a.createdAt || 0).getTime();
+      const bDate = new Date(b.appliedAt || b.createdAt || 0).getTime();
+      return bDate - aDate;
+    });
+    return arr.slice(0, RECENT_COUNT);
+  }, [visibleAppliedJobs]);
 
  
   return (
@@ -291,11 +293,9 @@ const CandidateOverview = () => {
   <div className="flex flex-col items-center justify-between gap-4 rounded-2xl bg-blue-400 px-6 py-5 text-white shadow-sm sm:flex-row">
     
     <div className="flex items-center gap-4">
-      <img
-        src={avatar?.url}
-        alt="User avatar"
-        className="h-12 w-12 rounded-full object-cover"
-      />
+      <Avatar className="bg-primary-600" src={avatar?.url || null}>
+        {user?.lastName?.charAt(0).toUpperCase()}
+      </Avatar>
       <div>
         <p className="text-base font-semibold">
           Your profile editing is not completed.
@@ -355,29 +355,21 @@ const CandidateOverview = () => {
                     Action
                   </span>
                 </div>
-                {paginatedAppliedJobs.map((application) => (
+                {recentAppliedJobs.map((application) => (
                   <AppliedJobRow
                     key={application.applicationId || application._id}
                     application={application}
                     onViewDetails={handleViewDetails}
                   />
                 ))}
-                {visibleAppliedJobs.length > PAGE_SIZE && (
-                  <div className="flex justify-end border-t border-neutral-100 bg-white px-6 py-4">
-                    <Pagination
-                      current={currentPage}
-                      pageSize={PAGE_SIZE}
-                      total={visibleAppliedJobs.length}
-                      showSizeChanger={false}
-                      onChange={setCurrentPage}
-                    />
-                  </div>
-                )}
+                {/* showing only recent {RECENT_COUNT} applied jobs; full list available elsewhere */}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-neutral-200 py-12 text-sm text-neutral-500">
-                You haven't applied to any jobs yet.
-              </div>
+              <Empty
+                className="mt-4"
+                description="You haven't applied to any jobs yet."
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+              />
             )}
           </div>
         </div>

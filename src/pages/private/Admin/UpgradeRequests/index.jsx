@@ -135,7 +135,7 @@ const AdminUpgradeRequests = () => {
       };
 
       let requestsData = normalizeData(requestsResponse);
-      
+
       // Filter by user name if appliedSearchText is provided
       if (appliedSearchText.trim()) {
         const searchLower = appliedSearchText.trim().toLowerCase();
@@ -145,7 +145,7 @@ const AdminUpgradeRequests = () => {
           return fullName.includes(searchLower) || email.includes(searchLower);
         });
       }
-      
+
       const statsData = statsResponse?.data?.data || statsResponse?.data || {};
 
       setRequests(requestsData);
@@ -412,7 +412,7 @@ const AdminUpgradeRequests = () => {
       </Row>
 
       {/* 🔹 Banner Header */}
-      <div 
+      <div
         style={{
           background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #4facfe 100%)',
           borderRadius: '12px',
@@ -425,7 +425,7 @@ const AdminUpgradeRequests = () => {
         className="flex items-center justify-between"
       >
         <div style={{ position: 'relative', zIndex: 1 }} className="flex items-center">
-          <div 
+          <div
             style={{
               width: '56px',
               height: '56px',
@@ -464,7 +464,7 @@ const AdminUpgradeRequests = () => {
               allowClear
               enterButton
               className="search-input-white"
-              style={{ 
+              style={{
                 width: 300
               }}
             />
@@ -474,7 +474,7 @@ const AdminUpgradeRequests = () => {
               onChange={setStatusFilter}
               placeholder="Filter by Status"
               allowClear
-              style={{ 
+              style={{
                 width: 160,
                 background: 'rgba(255, 255, 255, 0.2)',
                 border: '1px solid rgba(255, 255, 255, 0.3)',
@@ -485,8 +485,8 @@ const AdminUpgradeRequests = () => {
               <Option value="approved">Approved</Option>
               <Option value="rejected">Rejected</Option>
             </Select>
-            <Button 
-              type="default" 
+            <Button
+              type="default"
               onClick={fetchData}
               style={{
                 background: 'rgba(255, 255, 255, 0.2)',

@@ -388,7 +388,7 @@ const CandidatePersonal = () => {
           <section className="space-y-6 rounded-lg bg-white p-6 shadow-sm">
             <header className="space-y-1">
               <Title level={4} className="!mb-0">
-                Basic Information
+                Your Avatar
               </Title>
             </header>
 
@@ -453,20 +453,6 @@ const CandidatePersonal = () => {
                 className="space-y-4"
               >
 
-                <div className="grid gap-4 md:grid-cols-2">
-                  <Form.Item name="experience" label="Experience">
-                    <Input size="large" allowClear placeholder="Your experience" />
-                  </Form.Item>
-                  <Form.Item name="education" label="Education">
-                    <Input size="large" allowClear placeholder="Your education" />
-                  </Form.Item>
-                </div>
-
-                <div className="flex justify-start">
-                  <Button type="primary" htmlType="submit" size="large" loading={isSaving}>
-                    Save Changes
-                  </Button>
-                </div>
               </Form>
             </div>
           </section>

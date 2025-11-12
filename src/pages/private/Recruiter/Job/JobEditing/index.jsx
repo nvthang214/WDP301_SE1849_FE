@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { JobService } from "../../../../../services/JobService";
 import { UserService } from "../../../../../services/UserService";
 import { TagService } from "../../../../../services/TagService";
@@ -13,6 +13,7 @@ const jobTypes = ["FULL-TIME", "PART-TIME", "INTERNSHIP", "TEMPORARY", "CONTRACT
 const jobLevels = ["Intern", "Fresher", "Junior", "Middle", "Senior", "Lead"];
 
 export default function JobEditing() {
+  const nav = useNavigate();
   const { id } = useParams();
   const [form, setForm] = useState({
     company: "",
@@ -89,7 +90,7 @@ export default function JobEditing() {
   useEffect(() => {
     async function fetchJob() {
       try {
-        const res = await JobService.getJobById("", id);
+        const res = await JobService.getJobById("auth", id);
         let tagIds = [];
         if (Array.isArray(res.data.tags) && res.data.tags.length > 0) {
           tagIds = res.data.tags
@@ -192,9 +193,7 @@ export default function JobEditing() {
       };
       await JobService.updateJob(id, submitData);
       notifySuccess("Job updated successfully!");
-      setTimeout(() => {
-        window.location.href = "/recruiter/jobs/my-jobs";
-      }, 500);
+      nav("/recruiter/jobs/my-jobs");
     } catch (error) {
       console.error("Failed to update job:", error);
       notifyError("Failed to update job. Please try again.");

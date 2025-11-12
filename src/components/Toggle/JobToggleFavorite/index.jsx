@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import ROUTER from "../../../router/ROUTER";
 
 const JobToggleFavorite = ({ jobId, isFavorite }) => {
-  const [fav, setFav] = useState(!!isFavorite);
+  const [fav, setFav] = useState(isFavorite);
   const nav = useNavigate();
   const handleToggleFavorite = async () => {
     setFav((prev) => !prev);

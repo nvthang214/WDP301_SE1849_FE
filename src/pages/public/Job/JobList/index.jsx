@@ -6,6 +6,7 @@ import JobCard from "../../../../components/Card/JobCard";
 import FilterSidebar from "../JobList/components/FilterSidebar";
 import { useSearchParams, useLocation } from "react-router-dom";
 import useAuthStore from "../../../../store/useAuthStore";
+import { Spin } from "antd";
 
 const jobTypes = ["FULL-TIME", "PART-TIME", "INTERNSHIP", "TEMPORARY", "CONTRACT BASE"];
 
@@ -252,30 +253,34 @@ export default function JobList() {
 
       {/* Job Cards Grid */}
       <div>
-        {loading ? (
-          <div className="w-full py-10 text-center text-gray-400">Loading...</div>
-        ) : (
-          <div className={`grid ${gridCols} gap-6`}>
-            {jobs.map((job, idx) => (
-              <JobCard
-                user={user}
-                key={job._id || idx}
-                jobId={job._id}
-                title={job.title}
-                type={job.jobType}
-                salary={
-                  job.minSalary && job.maxSalary
-                    ? `$${job.minSalary.toLocaleString()} - $${job.maxSalary.toLocaleString()}`
-                    : "Negotiable"
-                }
-                company={job.company?.name}
-                location={job.city}
-                logo={job.company?.logo}
-                isFavorite={job.isFavorite}
-              />
-            ))}
-          </div>
-        )}
+        <Spin spinning={loading}>
+          {!loading && jobs.length === 0 ? (
+            <div className="my-20 text-center text-lg font-medium text-gray-500">
+              No jobs found matching your criteria.
+            </div>
+          ) : (
+            <div className={`grid ${gridCols} gap-6`}>
+              {jobs.map((job, idx) => (
+                <JobCard
+                  userRole={user.role.name}
+                  key={job._id || idx}
+                  jobId={job._id}
+                  title={job.title}
+                  type={job.jobType}
+                  salary={
+                    job.minSalary && job.maxSalary
+                      ? `$${job.minSalary.toLocaleString()} - $${job.maxSalary.toLocaleString()}`
+                      : "Negotiable"
+                  }
+                  company={job.company?.name}
+                  location={job.city}
+                  logo={job.company?.logo}
+                  isFavorite={job.isFavorite}
+                />
+              ))}
+            </div>
+          )}
+        </Spin>
       </div>
 
       {/* Pagination */}

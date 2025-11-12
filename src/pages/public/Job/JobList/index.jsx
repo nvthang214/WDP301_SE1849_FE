@@ -150,21 +150,30 @@ export default function JobList() {
     };
     fetchJobs();
     // eslint-disable-next-line
-  }, [search, location, filters, page, limit]);
+  }, [search, location, filters, page, limit, company, categoryId, user]);
 
   //////////////////////////////////////
-  // Xử lý submit search/filter
+  // Event Handlers
+
+  // search handler
   const handleSearch = (e) => {
     e.preventDefault();
     setPage(1);
     setSearch(searchInput.trim());
   };
 
-  // Xử lý chuyển trang
+  // pagination handler
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= pagination.totalPages) {
       setPage(newPage);
     }
+  };
+
+  // clear filters function
+  const clearFilters = () => {
+    setFilters({ ...initialFilters });
+    setDraftFilters({ ...initialFilters });
+    setPage(1);
   };
 
   return (
@@ -257,6 +266,19 @@ export default function JobList() {
           {!loading && jobs.length === 0 ? (
             <div className="my-20 text-center text-lg font-medium text-gray-500">
               No jobs found matching your criteria.
+              <button>
+                <span
+                  className="ml-2 cursor-pointer text-[var(--color-primary-600)] underline"
+                  onClick={() => {
+                    setSearchInput("");
+                    setSearch("");
+                    setPage(1);
+                    clearFilters();
+                  }}
+                >
+                  Clear Filters
+                </span>
+              </button>
             </div>
           ) : (
             <div className={`grid ${gridCols} gap-6`}>
@@ -276,6 +298,7 @@ export default function JobList() {
                   location={job.city}
                   logo={job.company?.logo}
                   isFavorite={job.isFavorite}
+                  tags={job.tags}
                 />
               ))}
             </div>

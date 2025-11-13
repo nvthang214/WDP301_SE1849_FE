@@ -1,6 +1,6 @@
 import { get } from "lodash";
 import api from "../00-Axios";
-import {  accountSettings, companyInfo, socialMedia, stats, recentJobs } from "./urls";
+import {  accountSettings, companyInfo, socialMedia, stats, recentJobs, profile } from "./urls";
 
 
 export const RecruiterService = {
@@ -8,5 +8,6 @@ export const RecruiterService = {
   getCompanyInfo: async () => await api.get(companyInfo, {params: {}}),
   getSocialMedia: async () => await api.get(socialMedia, {params: {}}),
   getStats: async () => await api.get(stats),
-  getRecentJobs: async () => await api.get(recentJobs)
+  getRecentJobs: async (limit = 3) => await api.get(recentJobs, { params: { limit } }),
+  getProfile: async () => await api.get(profile)
 };

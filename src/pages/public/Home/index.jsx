@@ -483,10 +483,10 @@ const Home = () => {
                 companyId={item._id || item.id}
                 name={item.name || item.companyName}
                 location={item.location || item.address}
-                openings={item.openings || item.jobCount || 0}
+                openings={item.openings ?? item.jobCount ?? 0}
                 logo={item.logo || item.companyLogo}
                 companyType={item.industry || "Technology"}
-                linkTo={ROUTER.COMPANY_LIST}
+                linkTo={item._id || item.id ? undefined : ROUTER.COMPANY_LIST}
                 {...item}
               />
             ))

@@ -29,6 +29,31 @@ const transitionMap = {
   rejected: [],
 };
 
+// Normalize cover letter: remove unnecessary HTML tags and preserve line breaks
+const normalizeCoverLetter = (raw) => {
+  const input = String(raw || '').trim();
+  if (!input) return '';
+  // Quick unwrap single <p> wrapper
+  const singlePMatch = input.match(/^<p\b[^>]*>([\s\S]*?)<\/p>$/i);
+  let cleaned = singlePMatch ? singlePMatch[1] : input;
+  // Convert <br> to newline and </p> to double newline, remove <p>
+  cleaned = cleaned
+    .replace(/<br\s*\/?>(\r?\n)?/gi, '\n')
+    .replace(/<\/p>/gi, '\n\n')
+    .replace(/<p\b[^>]*>/gi, '')
+    .replace(/<[^>]+>/g, ''); // strip remaining tags
+  // Decode HTML entities
+  const textarea = document.createElement('textarea');
+  textarea.innerHTML = cleaned;
+  cleaned = textarea.value;
+  // Normalize whitespace
+  cleaned = cleaned
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+  return cleaned;
+};
+
 const Applications = () => {
   const [applications, setApplications] = useState([]);
   const [shortlistedApplications, setShortlistedApplications] = useState([]);
@@ -115,7 +140,7 @@ const Applications = () => {
 
     // Otherwise treat it as plain text and show in modal
     try {
-      const content = String(coverLetter || '');
+      const content = normalizeCoverLetter(coverLetter);
       const fullName = `${candidate?.firstName || ''}${candidate?.lastName ? ' ' + candidate?.lastName : ''}`.trim();
       setCoverModalTitle(fullName ? `${fullName} - Cover Letter` : 'Cover Letter');
       setCoverModalContent(content);

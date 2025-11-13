@@ -15,6 +15,7 @@ const RecruiterOverview = () => {
   const [recentJobs, setRecentJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [recruiterName, setRecruiterName] = useState("");
 
   const navigate = useNavigate();
 
@@ -27,22 +28,25 @@ const RecruiterOverview = () => {
       setLoading(true);
       setError(null);
       
-      // Fetch stats and recent jobs in parallel
-      const [statsResponse, jobsResponse] = await Promise.all([
+      // Fetch stats, recent jobs and profile in parallel
+      const [statsResponse, jobsResponse, profileResponse] = await Promise.all([
         RecruiterService.getStats(),
-        RecruiterService.getRecentJobs()
+        RecruiterService.getRecentJobs(3),
+        RecruiterService.getProfile()
       ]);
 
-      console.log('Stats Response:', statsResponse);
-      console.log('Jobs Response:', jobsResponse);
-
       if (statsResponse.isOk) {
-        console.log('Setting stats:', statsResponse.data);
         setStats(statsResponse.data);
       }
 
       if (jobsResponse.isOk) {
         setRecentJobs(jobsResponse.data);
+      }
+
+      if (profileResponse?.isOk) {
+        const p = profileResponse.data || {};
+        const name = [p.firstName, p.lastName].filter(Boolean).join(" ") || p.username || p.email || "Recruiter";
+        setRecruiterName(name);
       }
     } catch (err) {
       console.error('Error fetching data:', err);
@@ -159,7 +163,7 @@ const RecruiterOverview = () => {
       {/* Header */}
       <div className="mb-8">
         <Title level={3} className="!mb-2 !text-gray-900">
-          Hello, Instagram
+          {`Hello, ${recruiterName || 'Recruiter'}`}
         </Title>
         <Text type="secondary" className="text-gray-600">Here is your daily activities and job alerts</Text>
       </div>

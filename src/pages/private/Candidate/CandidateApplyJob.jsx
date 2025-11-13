@@ -173,7 +173,7 @@ const CandidateApplyJob = () => {
       <div>
         <Title level={4} className="!mb-0 text-neutral-900">
           Applied Jobs{" "}
-          <span className="text-sm font-semibold text-neutral-400">({totalApplied})</span>
+          <span className="text-sm font-semibold text-neutral-900">({totalApplied})</span>
         </Title>
       </div>
     </div>
@@ -300,15 +300,19 @@ const CandidateApplyJob = () => {
             description="You haven't applied to any jobs yet."
             image={Empty.PRESENTED_IMAGE_SIMPLE}
           />
-          <Button type="primary" ghost onClick={handleRefresh} disabled={isRefreshing}>
-            Refresh List
-          </Button>
+
         </div>
       );
     }
 
     return (
       <>
+        <div className="grid grid-cols-12 items-center gap-4 border-b border-neutral-100 bg-neutral-50 px-6 py-4 text-[12px] font-semibold tracking-[0.18em] text-neutral-500 uppercase">
+          <span className="col-span-5 hidden md:block">Jobs</span>
+          <span className="col-span-12 md:col-span-3 md:text-center">Date Applied</span>
+          <span className="col-span-12 md:col-span-2 md:text-center">Status</span>
+          <span className="col-span-12 md:col-span-2 md:text-right">Action</span>
+        </div>
         <div className="divide-y divide-neutral-100">
           {paginatedAppliedJobs.map(renderJobRow)}
         </div>
@@ -332,12 +336,6 @@ const CandidateApplyJob = () => {
       <section className="flex flex-col gap-4">
         {renderHeader()}
         <div>
-          <div className="grid grid-cols-12 items-center gap-4 border-b border-neutral-100 bg-neutral-50 px-6 py-4 text-[12px] font-semibold tracking-[0.18em] text-neutral-500 uppercase">
-            <span className="col-span-5 hidden md:block">Jobs</span>
-            <span className="col-span-12 md:col-span-3 md:text-center">Date Applied</span>
-            <span className="col-span-12 md:col-span-2 md:text-center">Status</span>
-            <span className="col-span-12 md:col-span-2 md:text-right">Action</span>
-          </div>
           {renderContent()}
         </div>
       </section>

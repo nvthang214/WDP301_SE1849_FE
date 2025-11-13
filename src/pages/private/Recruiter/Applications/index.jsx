@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Layout, Button, Dropdown, Menu, Avatar, Typography, Spin, Empty, Table, Select } from 'antd';
+import { Layout, Button, Dropdown, Menu, Avatar, Typography, Spin, Empty, Table, Select, Modal } from 'antd';
 import {
   FilterOutlined,
   SortAscendingOutlined,
@@ -35,6 +35,9 @@ const Applications = () => {
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('all');
   const [sortOrder, setSortOrder] = useState('newest');
+  const [coverModalVisible, setCoverModalVisible] = useState(false);
+  const [coverModalContent, setCoverModalContent] = useState('');
+  const [coverModalTitle, setCoverModalTitle] = useState('Cover Letter');
   const location = useLocation();
   
   // Lấy jobId từ query string
@@ -97,6 +100,29 @@ const Applications = () => {
         window.open(resumeUrlFallback, '_blank', 'noopener,noreferrer');
         notifyInfo('Không thể tải trực tiếp, đã mở CV để xem');
       }
+    }
+  };
+
+  const handleViewCoverLetter = (coverLetter, candidate) => {
+    if (!coverLetter) return;
+
+    // If coverLetter looks like a URL, open it in a new tab
+    if (typeof coverLetter === 'string' && /^https?:\/\//.test(coverLetter)) {
+      window.open(coverLetter, '_blank', 'noopener,noreferrer');
+      notifyInfo('Mở cover letter');
+      return;
+    }
+
+    // Otherwise treat it as plain text and show in modal
+    try {
+      const content = String(coverLetter || '');
+      const fullName = `${candidate?.firstName || ''}${candidate?.lastName ? ' ' + candidate?.lastName : ''}`.trim();
+      setCoverModalTitle(fullName ? `${fullName} - Cover Letter` : 'Cover Letter');
+      setCoverModalContent(content);
+      setCoverModalVisible(true);
+    } catch (e) {
+      console.error('Error showing cover letter', e);
+      notifyInfo('Không thể hiển thị cover letter');
     }
   };
 
@@ -191,6 +217,20 @@ const Applications = () => {
       ) : '—'
     },
     {
+      title: 'Cover Letter',
+      dataIndex: 'coverLetter',
+      key: 'coverLetter',
+      render: (coverLetter, record) => coverLetter ? (
+        <button
+          type="button"
+          className="text-blue-600 hover:text-blue-700 underline"
+          onClick={() => handleViewCoverLetter(coverLetter, record.candidate)}
+        >
+          View
+        </button>
+      ) : '—'
+    },
+    {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
@@ -253,12 +293,28 @@ const Applications = () => {
         ) : dataSource.length === 0 ? (
           <Empty description="No candidates have applied for this job yet" className="my-8" />
         ) : (
-          <Table
+          <>
+            <Table
             rowKey={(record) => record._id}
             columns={columns}
             dataSource={dataSource}
             pagination={{ pageSize: 10 }}
-          />
+            />
+
+            <Modal
+              visible={coverModalVisible}
+              title={coverModalTitle}
+              onCancel={() => setCoverModalVisible(false)}
+              footer={null}
+              width={800}
+            >
+              <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+                <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word', fontFamily: 'inherit' }}>
+                  {coverModalContent}
+                </pre>
+              </div>
+            </Modal>
+          </>
         )}
       </Content>
     </Layout>

@@ -38,6 +38,8 @@ export function ScrollToTop() {
 export default function JobList() {
   const [searchParams] = useSearchParams();
   const urlSearch = searchParams.get("search") || "";
+  const categoryId = searchParams.get("categoryId") || "";
+  const company = searchParams.get("company") || "";
 
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -110,6 +112,8 @@ export default function JobList() {
           limit,
         };
         if (search) params.search = search;
+        if (categoryId) params.categoryId = categoryId;
+        if (company) params.company = company;
         if (location) params.location = location;
         if (filters.jobType) params.jobType = filters.jobType;
         if (filters.experience) params.experience = filters.experience;

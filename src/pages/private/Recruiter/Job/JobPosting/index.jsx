@@ -6,12 +6,14 @@ import { Select } from "antd";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { notifyError, notifySuccess } from "../../../../../components/Notification";
+import { useNavigate } from "react-router-dom";
 import useAuthStore from "../../../../../store/useAuthStore";
 
 const jobTypes = ["FULL-TIME", "PART-TIME", "INTERNSHIP", "TEMPORARY", "CONTRACT BASE"];
 const jobLevels = ["Intern", "Fresher", "Junior", "Middle", "Senior", "Lead"];
 
 export default function JobPosting() {
+  const nav = useNavigate();
   const { loading, setLoading } = useAuthStore();
   const [form, setForm] = useState({
     company: "",
@@ -40,27 +42,50 @@ export default function JobPosting() {
     isActive: true,
   });
 
-  // Fetch all tags for selection
+  // Fetch all tags with pagination and search
   const [allTags, setAllTags] = useState([]);
+  const [tagSearch, setTagSearch] = useState("");
+  const [tagPage, setTagPage] = useState(1);
+  const [tagLimit] = useState(50);
+  const [tagPagination, setTagPagination] = useState({
+    total: 0,
+    totalPages: 1,
+  });
+  const [loadingTags, setLoadingTags] = useState(false);
+
   useEffect(() => {
     async function fetchTags() {
       try {
-        const res = await TagService.getAllTags();
-        setAllTags(res.data);
-      } catch {
+        setLoadingTags(true);
+        const res = await TagService.getAllTags({
+          page: tagPage,
+          limit: tagLimit,
+          search: tagSearch,
+        });
+
+        // Backend trả về: { success, message, data: [...tags], pagination: {...} }
+        const tags = res.data?.data || res.data || [];
+        const pagination = res.data?.pagination || { total: 0, totalPages: 1 };
+
+        setAllTags(tags);
+        setTagPagination(pagination);
+      } catch (error) {
+        console.error("Error fetching tags:", error);
         setAllTags([]);
+      } finally {
+        setLoadingTags(false);
       }
     }
     fetchTags();
-  }, []);
+  }, [tagPage, tagLimit, tagSearch]);
 
-  // Fetch categories (not used in form but could be useful)
+  // Fetch categories
   const [allCategories, setAllCategories] = useState([]);
   useEffect(() => {
     async function fetchCategories() {
       try {
         const res = await CategoryService.getAllCategories();
-        setAllCategories(res.data);
+        setAllCategories(res.data || []);
       } catch {
         setAllCategories([]);
       }
@@ -68,7 +93,7 @@ export default function JobPosting() {
     fetchCategories();
   }, []);
 
-  // Fetch company by recruiter ID (hardcoded for now)
+  // Fetch company by recruiter ID
   useEffect(() => {
     async function fetchCompany() {
       try {
@@ -98,6 +123,25 @@ export default function JobPosting() {
       ...prev,
       tags: values,
     }));
+  };
+
+  // Handle tag search
+  const handleTagSearch = (value) => {
+    setTagSearch(value);
+    setTagPage(1); // Reset về trang 1 khi search
+  };
+
+  // Handle scroll to load more tags
+  const handleTagPopupScroll = (e) => {
+    const { target } = e;
+    // Khi scroll gần đến cuối dropdown
+    if (
+      target.scrollTop + target.offsetHeight >= target.scrollHeight - 10 &&
+      !loadingTags &&
+      tagPage < tagPagination.totalPages
+    ) {
+      setTagPage((prev) => prev + 1);
+    }
   };
 
   const quillModules = {
@@ -150,9 +194,7 @@ export default function JobPosting() {
       await JobService.postJob(submitData);
       setLoading(false);
       notifySuccess("Job posted successfully!");
-      setTimeout(() => {
-        window.location.href = "/recruiter/jobs/my-jobs";
-      }, 1200);
+      nav("/recruiter/jobs/my-jobs");
     } catch (error) {
       console.error("Failed to post job:", error);
       notifyError("Failed to post job. Please try again.");
@@ -191,26 +233,50 @@ export default function JobPosting() {
                 <div>
                   <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
                     Tags
+                    {loadingTags && (
+                      <span className="ml-2 text-xs text-[var(--color-primary-500)]">
+                        Loading...
+                      </span>
+                    )}
                   </label>
                   <Select
                     mode="multiple"
                     allowClear
+                    showSearch
                     style={{ width: "100%" }}
                     className="w-full rounded-xl"
-                    placeholder="Select tags"
+                    placeholder="Search and select tags"
                     value={form.tags}
                     onChange={handleTagsChange}
+                    onSearch={handleTagSearch}
+                    onPopupScroll={handleTagPopupScroll}
                     options={allTags.map((tag) => ({
                       label: tag.name,
                       value: tag._id,
                     }))}
                     optionFilterProp="label"
+                    filterOption={false} // Disable client-side filtering vì đã search từ server
+                    loading={loadingTags}
+                    dropdownRender={(menu) => (
+                      <>
+                        {menu}
+                        {tagPage < tagPagination.totalPages && !loadingTags && (
+                          <div className="px-4 py-2 text-center text-xs text-[var(--color-neutral-500)]">
+                            Scroll down to load more...
+                          </div>
+                        )}
+                      </>
+                    )}
                   />
+                  <p className="mt-1 text-xs text-[var(--color-neutral-500)]">
+                    Showing {allTags.length} of {tagPagination.total} tags
+                  </p>
                 </div>
               </div>
             </div>
           </section>
 
+          {/* ...existing code... */}
           <section>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
               {/* Min Salary */}
@@ -294,9 +360,9 @@ export default function JobPosting() {
             </div>
           </section>
 
+          {/* ...rest of the form sections remain the same... */}
           <section>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-4">
-              {/* Education */}
               <div className="md:col-span-1">
                 <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
                   Education
@@ -317,7 +383,6 @@ export default function JobPosting() {
                   showSearch
                 />
               </div>
-              {/* Experience */}
               <div>
                 <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
                   Experience
@@ -330,7 +395,6 @@ export default function JobPosting() {
                   onChange={handleChange}
                 />
               </div>
-              {/* Job Type */}
               <div>
                 <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
                   Job Type
@@ -346,7 +410,6 @@ export default function JobPosting() {
                   showSearch
                 />
               </div>
-              {/* Vacancies */}
               <div>
                 <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
                   Vacancies
@@ -361,7 +424,6 @@ export default function JobPosting() {
                   min={1}
                 />
               </div>
-              {/* Expiration */}
               <div>
                 <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
                   Expiration Date
@@ -374,7 +436,6 @@ export default function JobPosting() {
                   onChange={handleChange}
                 />
               </div>
-              {/* Job Level */}
               <div>
                 <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
                   Job Level
@@ -463,52 +524,7 @@ export default function JobPosting() {
               </div>
             </div>
           </section>
-          <section>
-            <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
-              Apply Job On
-            </label>
-            <div className="flex flex-col gap-4 md:flex-row">
-              {["Jobpilot", "external", "email"].map((type) => {
-                const active = form.applyType === type;
-                return (
-                  <label
-                    key={type}
-                    className={`flex flex-1 items-start gap-3 rounded-xl border p-2 transition ${
-                      active
-                        ? "border-[var(--color-primary-400)] shadow-[var(--shadow-md)]"
-                        : "border-transparent hover:border-[var(--color-primary-200)]"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="applyType"
-                      value={type}
-                      checked={active}
-                      onChange={handleChange}
-                      className="mt-1"
-                    />
-                    <div>
-                      <div className="text-sm font-semibold text-[var(--color-neutral-900)]">
-                        {type === "Jobpilot"
-                          ? "On Jobpilot"
-                          : type === "external"
-                            ? "External Platform"
-                            : "On Your Email"}
-                      </div>
-                      <p className="mt-1 text-xs text-[var(--color-neutral-500)]">
-                        {type === "Jobpilot"
-                          ? "Candidates apply via Jobpilot and appear in your dashboard."
-                          : type === "external"
-                            ? "Redirect candidates to your site and manage applications yourself."
-                            : "Receive applications directly in your inbox."}
-                      </p>
-                    </div>
-                  </label>
-                );
-              })}
-            </div>
-          </section>
-          {/* Job Description */}
+
           <section>
             <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
               Job Description
@@ -522,7 +538,7 @@ export default function JobPosting() {
               className="rounded-xl"
             />
           </section>
-          {/* Job Requirements */}
+
           <section>
             <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
               Job Requirements
@@ -536,8 +552,8 @@ export default function JobPosting() {
               className="rounded-xl"
             />
           </section>
-          {/* Job Desirable */}
-          <section>
+
+          {/* <section>
             <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
               Job Desirable
             </label>
@@ -549,8 +565,8 @@ export default function JobPosting() {
               placeholder="Share bonus points, nice-to-have experience..."
               className="rounded-xl"
             />
-          </section>
-          {/* Job Benefits */}
+          </section> */}
+
           <section>
             <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
               Job Benefits

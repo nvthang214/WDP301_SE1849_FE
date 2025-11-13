@@ -16,6 +16,9 @@ const useAuthStore = create((set, get) => ({
       localStorage.removeItem("accessToken");
     }
   },
+  setLoading: (load) => {
+    set({ loading: load });
+  },
 
   clearState: () => {
     set({ accessToken: null, user: null, loading: false });

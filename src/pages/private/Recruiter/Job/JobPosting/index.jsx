@@ -6,11 +6,13 @@ import { Select } from "antd";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { notifyError, notifySuccess } from "../../../../../components/Notification";
+import useAuthStore from "../../../../../store/useAuthStore";
 
 const jobTypes = ["FULL-TIME", "PART-TIME", "INTERNSHIP", "TEMPORARY", "CONTRACT BASE"];
 const jobLevels = ["Intern", "Fresher", "Junior", "Middle", "Senior", "Lead"];
 
 export default function JobPosting() {
+  const { loading, setLoading } = useAuthStore();
   const [form, setForm] = useState({
     company: "",
     category: "",
@@ -116,6 +118,7 @@ export default function JobPosting() {
   // Handle form submission
   const handleSubmit = async (e) => {
     try {
+      setLoading(true);
       e.preventDefault();
       const submitData = {
         recruiter: form.recruiter,
@@ -145,6 +148,7 @@ export default function JobPosting() {
         isActive: typeof form.isActive === "boolean" ? form.isActive : true,
       };
       await JobService.postJob(submitData);
+      setLoading(false);
       notifySuccess("Job posted successfully!");
       setTimeout(() => {
         window.location.href = "/recruiter/jobs/my-jobs";

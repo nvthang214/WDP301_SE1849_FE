@@ -258,14 +258,12 @@ export default function MyJob() {
                 className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 px-2 py-2 text-xs font-semibold text-white shadow-md transition hover:from-blue-600 hover:to-blue-700 hover:shadow-lg"
               >
                 <Eye size={14} />
-                View Application
               </Link>
               <Link
                 to={`/recruiter/jobs/edit/${job?._id}`}
                 className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 px-2 py-2 text-xs font-semibold text-white shadow-md transition hover:from-blue-600 hover:to-blue-700 hover:shadow-lg"
               >
                 <Edit size={14} />
-                Edit
               </Link>
             </div>
           );

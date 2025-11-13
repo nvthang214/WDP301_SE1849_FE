@@ -1,4 +1,4 @@
-import { Card, Tag } from "antd";
+import { Avatar, Card, Tag } from "antd";
 import { EnvironmentOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import JobToggleFavorite from "../../Toggle/JobToggleFavorite";
@@ -16,17 +16,15 @@ const JobCard = ({
 }) => {
   return (
     <Card
-      className="h-full rounded-xl border border-gray-100 shadow-sm transition-all hover:shadow-md"
-      bodyStyle={{ padding: "16px" }}
+      className="flex h-full flex-col justify-between rounded-xl border border-gray-100 shadow-sm transition-all hover:shadow-md"
+      bodyStyle={{ padding: "16px", height: "100%" }}
     >
-      <div className="flex flex-col h-full justify-between">
-        {/* Job title + salary */}
+      <div className="flex h-full flex-col justify-between">
         <div className="flex flex-col gap-2">
           <div className="flex items-start justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+            <h3 className="line-clamp-2 text-lg font-semibold text-gray-900">{title}</h3>
             {user && <JobToggleFavorite jobId={jobId} initialIsFavorited={isFavorite} />}
           </div>
-
           <div className="flex items-center gap-3 text-sm">
             <Tag color="green" className="m-0 rounded px-2 py-0.5 text-xs font-medium">
               {type}
@@ -37,13 +35,22 @@ const JobCard = ({
           </div>
         </div>
 
-        {/* Company + location (footer) */}
         <Link to={`/jobs/${jobId}`} className="mt-4 block">
           <div className="flex items-center gap-3">
-            <img src={logo} alt={company} className="h-12 w-12 flex-shrink-0 rounded object-cover" />
+            {logo ? (
+              <img
+                src={logo}
+                alt={`${company} logo`}
+                className="h-10 w-10 flex-shrink-0 rounded object-cover"
+              />
+            ) : (
+              <Avatar shape="square" size={50} className="flex-shrink-0 bg-gray-200 text-gray-600">
+                {company.charAt(0)}
+              </Avatar>
+            )}
             <div className="min-w-0">
-              <p className="font-medium text-gray-800 truncate">{company}</p>
-              <p className="flex items-center gap-1 text-sm text-gray-500 truncate">
+              <p className="truncate font-medium text-gray-800">{company}</p>
+              <p className="flex items-center gap-1 truncate text-sm text-gray-500">
                 <EnvironmentOutlined /> {location}
               </p>
             </div>

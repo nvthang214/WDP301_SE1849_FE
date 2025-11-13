@@ -48,12 +48,33 @@ const AdminOverview = () => {
       setError(null);
 
       const statsResponse = await AdminService.getOverviewStats();
-      const statsData = statsResponse.data || statsResponse;
+      // Handle different response structures
+      let statsData = statsResponse?.data?.data || statsResponse?.data || statsResponse;
+      
+      // Ensure upgradeRequests exists with default values
+      if (!statsData.upgradeRequests) {
+        statsData = {
+          ...statsData,
+          upgradeRequests: {
+            total: 0,
+            pending: 0,
+            approved: 0,
+            rejected: 0
+          }
+        };
+      }
 
       setStats(statsData);
     } catch (err) {
       console.error('Error fetching data:', err);
       setError('Unable to load data. Please try again.');
+      // Set default stats on error to prevent crash
+      setStats({
+        users: { total: 0, active: 0, banned: 0 },
+        upgradeRequests: { total: 0, pending: 0, approved: 0, rejected: 0 },
+        jobs: { total: 0, active: 0, inactive: 0 },
+        companies: { total: 0 }
+      });
     } finally {
       setLoading(false);
     }
@@ -466,7 +487,14 @@ const AdminOverview = () => {
                 padding: '16px'
               }}
             >
-              <div className="flex flex-col h-full space-y-3">
+              <div 
+                className="flex flex-col h-full space-y-3"
+                style={{
+                  overflowY: 'auto',
+                  overflowX: 'hidden',
+                  maxHeight: '100%'
+                }}
+              >
                 {latestJobs.length > 0 ? (
                   latestJobs.map((job, index) => {
                     const rank = index + 1;
@@ -613,7 +641,14 @@ const AdminOverview = () => {
                 padding: '16px'
               }}
             >
-              <div className="flex flex-col h-full space-y-3">
+              <div 
+                className="flex flex-col h-full space-y-3"
+                style={{
+                  overflowY: 'auto',
+                  overflowX: 'hidden',
+                  maxHeight: '100%'
+                }}
+              >
                 {latestUsers.length > 0 ? (
                   latestUsers.map((user, index) => {
                     const rank = index + 1;

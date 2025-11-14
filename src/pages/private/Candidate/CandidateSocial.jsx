@@ -25,7 +25,11 @@ const LinkedInIcon = () => (
 const SOCIAL_PLATFORMS = [
   { value: "facebook", label: "Facebook", icon: <FacebookOutlined style={{ color: "#1877f2" }} /> },
   { value: "twitter", label: "Twitter", icon: <TwitterOutlined style={{ color: "#1da1f2" }} /> },
-  {value: "instagram",label: "Instagram",icon: <InstagramOutlined style={{ color: "#d6249f" }} />,},
+  {
+    value: "instagram",
+    label: "Instagram",
+    icon: <InstagramOutlined style={{ color: "#d6249f" }} />,
+  },
   { value: "linkedin", label: "LinkedIn", icon: <LinkedInIcon /> },
 ];
 
@@ -77,8 +81,8 @@ const CandidateSocial = () => {
   const [isDirty, setIsDirty] = useState(false);
 
   const nextAvailablePlatform = useMemo(() => getNextAvailablePlatform(socialLinks), [socialLinks]);
-  // lấy user từ authstore 
-  const { user,loading } = useAuthStore();
+  // lấy user từ authstore
+  const { user, loading } = useAuthStore();
   const userId = useMemo(() => user?._id || user?.id || user?.userId || null, [user]);
 
   useEffect(() => {
@@ -260,15 +264,17 @@ const CandidateSocial = () => {
               </div>
             ))}
 
-            <Button
-              type="dashed"
-              icon={<PlusCircleOutlined />}
-              onClick={handleAddSocialLink}
-              disabled={isSubmitting}
-              style={{ width: "100%", height: 48 }}
-            >
-              Add New Social Link
-            </Button>
+            {socialLinks.length < SOCIAL_PLATFORMS.length && (
+              <Button
+                type="dashed"
+                icon={<PlusCircleOutlined />}
+                onClick={handleAddSocialLink}
+                disabled={isSubmitting}
+                style={{ width: "100%", height: 48 }}
+              >
+                Add New Social Link
+              </Button>
+            )}
           </div>
         )}
       </div>

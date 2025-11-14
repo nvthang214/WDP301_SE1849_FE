@@ -73,7 +73,7 @@ export default function CompanyInformation() {
   const instagram = social.instagram || "#";
 
   return (
-    <div className="min-h-screen bg-gray-50 px-0 py-8 md:px-8">
+    <div className="min-h-screen min-w-7xl bg-gray-50 px-0 py-8 md:px-8">
       {/* Banner */}
       <div className="relative mb-[-64px] h-48 w-full overflow-hidden rounded-xl bg-gray-200 md:h-64">
         <img src={banner} alt="banner" className="h-full w-full object-cover" />

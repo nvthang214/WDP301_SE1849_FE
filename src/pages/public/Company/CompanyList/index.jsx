@@ -3,7 +3,6 @@ import CompanyService from "../../../../services/CompanyService";
 import { useResponsive } from "../../../../hook/useResponsive";
 import CompanyCard from "../../../../components/Card/CompanyCard";
 
-
 // Company types for filtering
 const companyTypes = [
   { label: "All Types", value: "" },
@@ -11,16 +10,6 @@ const companyTypes = [
   { label: "Corporation", value: "corporation" },
   { label: "Non-profit", value: "non-profit" },
   { label: "Government", value: "government" },
-];
-
-// Company sizes for filtering
-const companySizes = [
-  { label: "All Sizes", value: "" },
-  { label: "1-10 employees", value: "1-10" },
-  { label: "11-50 employees", value: "11-50" },
-  { label: "51-200 employees", value: "51-200" },
-  { label: "201-1000 employees", value: "201-1000" },
-  { label: "1000+ employees", value: "1000+" },
 ];
 
 // Initial filters
@@ -110,7 +99,7 @@ export default function CompanyList() {
   };
 
   return (
-    <div className="relative min-h-screen bg-gray-50 px-4 py-6 sm:px-6 lg:px-10">
+    <div className="relative min-h-screen min-w-7xl bg-gray-50 px-4 py-6 sm:px-6 lg:px-10">
       <div className="w-full">
         <form className="mb-8 flex w-full flex-col gap-2" onSubmit={handleSearch}>
           <div className="flex w-full flex-wrap items-center gap-3 rounded-xl border bg-white px-5 py-3 shadow-sm">
@@ -132,7 +121,6 @@ export default function CompanyList() {
                 onChange={(e) => setSearchInput(e.target.value)}
               />
             </div>
-
 
             <div className="ml-auto flex items-center gap-2">
               <button
@@ -170,7 +158,9 @@ export default function CompanyList() {
             </p>
           </div>
         ) : (
-          <div className={`mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr items-stretch`}>
+          <div
+            className={`mt-6 grid auto-rows-fr grid-cols-1 items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3`}
+          >
             {companies.map((company, idx) => (
               <CompanyCard
                 key={company._id || idx}
@@ -230,8 +220,6 @@ export default function CompanyList() {
             </svg>
           </button>
         </div>
-
-
       </div>
     </div>
   );

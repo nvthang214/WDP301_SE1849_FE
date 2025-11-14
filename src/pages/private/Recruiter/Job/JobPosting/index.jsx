@@ -1,20 +1,18 @@
-import React, { useEffect, useState } from "react";
-import { JobService } from "../../../../../services/JobService";
-import { TagService } from "../../../../../services/TagService";
-import { CategoryService } from "../../../../../services/CategoryService";
 import { Select, Spin } from "antd";
+import { useEffect, useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { notifyError, notifySuccess } from "../../../../../components/Notification";
 import { useNavigate } from "react-router-dom";
-import useAuthStore from "../../../../../store/useAuthStore";
+import { notifyError, notifySuccess } from "../../../../../components/Notification";
+import { CategoryService } from "../../../../../services/CategoryService";
+import { JobService } from "../../../../../services/JobService";
+import { TagService } from "../../../../../services/TagService";
 
 const jobTypes = ["FULL-TIME", "PART-TIME", "INTERNSHIP", "TEMPORARY", "CONTRACT BASE"];
 const jobLevels = ["Intern", "Fresher", "Junior", "Middle", "Senior", "Lead"];
 
 export default function JobPosting() {
   const nav = useNavigate();
-  const { loading, setLoading } = useAuthStore();
   const [form, setForm] = useState({
     company: "",
     category: "",

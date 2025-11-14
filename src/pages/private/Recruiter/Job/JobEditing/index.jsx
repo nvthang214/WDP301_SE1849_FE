@@ -43,19 +43,42 @@ export default function JobEditing() {
   });
   const [loading, setLoading] = useState(true);
 
-  // Fetch all tags for selection
+  // Fetch all tags with pagination and search
   const [allTags, setAllTags] = useState([]);
+  const [tagSearch, setTagSearch] = useState("");
+  const [tagPage, setTagPage] = useState(1);
+  const [tagLimit] = useState(50);
+  const [tagPagination, setTagPagination] = useState({
+    total: 0,
+    totalPages: 1,
+  });
+  const [loadingTags, setLoadingTags] = useState(false);
+
   useEffect(() => {
     async function fetchTags() {
       try {
-        const res = await TagService.getAllTags();
-        setAllTags(res.data);
-      } catch {
+        setLoadingTags(true);
+        const res = await TagService.getAllTags({
+          page: tagPage,
+          limit: tagLimit,
+          search: tagSearch,
+        });
+
+        // Backend trả về: { success, message, data: [...tags], pagination: {...} }
+        const tags = res.data?.data || res.data || [];
+        const pagination = res.data?.pagination || { total: 0, totalPages: 1 };
+
+        setAllTags(tags);
+        setTagPagination(pagination);
+      } catch (error) {
+        console.error("Error fetching tags:", error);
         setAllTags([]);
+      } finally {
+        setLoadingTags(false);
       }
     }
     fetchTags();
-  }, []);
+  }, [tagPage, tagLimit, tagSearch]);
 
   // Fetch categories
   const [allCategories, setAllCategories] = useState([]);
@@ -139,11 +162,31 @@ export default function JobEditing() {
     }));
   };
 
+  // Handle tags change
   const handleTagsChange = (values) => {
     setForm((prev) => ({
       ...prev,
       tags: values,
     }));
+  };
+
+  // Handle tag search
+  const handleTagSearch = (value) => {
+    setTagSearch(value);
+    setTagPage(1); // Reset về trang 1 khi search
+  };
+
+  // Handle scroll to load more tags
+  const handleTagPopupScroll = (e) => {
+    const { target } = e;
+    // Khi scroll gần đến cuối dropdown
+    if (
+      target.scrollTop + target.offsetHeight >= target.scrollHeight - 10 &&
+      !loadingTags &&
+      tagPage < tagPagination.totalPages
+    ) {
+      setTagPage((prev) => prev + 1);
+    }
   };
 
   const quillModules = {
@@ -235,21 +278,44 @@ export default function JobEditing() {
                   <div>
                     <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
                       Tags
+                      {loadingTags && (
+                        <span className="ml-2 text-xs text-[var(--color-primary-500)]">
+                          Loading...
+                        </span>
+                      )}
                     </label>
                     <Select
                       mode="multiple"
                       allowClear
+                      showSearch
                       style={{ width: "100%" }}
                       className="w-full rounded-xl"
-                      placeholder="Select tags"
+                      placeholder="Search and select tags"
                       value={form.tags}
                       onChange={handleTagsChange}
+                      onSearch={handleTagSearch}
+                      onPopupScroll={handleTagPopupScroll}
                       options={allTags.map((tag) => ({
                         label: tag.name,
                         value: tag._id,
                       }))}
                       optionFilterProp="label"
+                      filterOption={false} // Disable client-side filtering vì đã search từ server
+                      loading={loadingTags}
+                      dropdownRender={(menu) => (
+                        <>
+                          {menu}
+                          {tagPage < tagPagination.totalPages && !loadingTags && (
+                            <div className="px-4 py-2 text-center text-xs text-[var(--color-neutral-500)]">
+                              Scroll down to load more...
+                            </div>
+                          )}
+                        </>
+                      )}
                     />
+                    <p className="mt-1 text-xs text-[var(--color-neutral-500)]">
+                      Showing {allTags.length} of {tagPagination.total} tags
+                    </p>
                   </div>
                 </div>
               </div>

@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { JobService } from "../../../../../services/JobService";
-import { TagService } from "../../../../../services/TagService";
-import { CategoryService } from "../../../../../services/CategoryService";
 import { Select, Spin } from "antd";
+import { useEffect, useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { notifyError, notifySuccess } from "../../../../../components/Notification";
 import { useNavigate } from "react-router-dom";
+import { notifyError, notifySuccess } from "../../../../../components/Notification";
+import { CategoryService } from "../../../../../services/CategoryService";
+import { JobService } from "../../../../../services/JobService";
+import { TagService } from "../../../../../services/TagService";
 
 const jobTypes = ["FULL-TIME", "PART-TIME", "INTERNSHIP", "TEMPORARY", "CONTRACT BASE"];
 const jobLevels = ["Intern", "Fresher", "Junior", "Middle", "Senior", "Lead"];
@@ -161,6 +161,7 @@ export default function JobPosting() {
   // Handle form submission
   const handleSubmit = async (e) => {
     try {
+      setLoading(true);
       e.preventDefault();
       setLoading(true);
       const submitData = {
@@ -191,6 +192,7 @@ export default function JobPosting() {
         isActive: typeof form.isActive === "boolean" ? form.isActive : true,
       };
       await JobService.postJob(submitData);
+      setLoading(false);
       notifySuccess("Job posted successfully!");
       nav("/recruiter/jobs/my-jobs");
     } catch (error) {
@@ -269,9 +271,6 @@ export default function JobPosting() {
                         </>
                       )}
                     />
-                    <p className="mt-1 text-xs text-[var(--color-neutral-500)]">
-                      Showing {allTags.length} of {tagPagination.total} tags
-                    </p>
                   </div>
                 </div>
               </div>

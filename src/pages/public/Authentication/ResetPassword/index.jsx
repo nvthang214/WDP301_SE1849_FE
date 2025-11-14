@@ -9,12 +9,12 @@ import { z } from "zod";
 
 const resetPasswordSchema = z
   .object({
-    oldPassword: z.string().min(6, "Mật khẩu cũ phải có ít nhất 6 ký tự."),
     newPassword: z.string().min(6, "Mật khẩu mới phải có ít nhất 6 ký tự."),
+    confirmPassword: z.string().min(6, "Xác nhận mật khẩu phải có ít nhất 6 ký tự."),
   })
-  .refine((data) => data.oldPassword !== data.newPassword, {
-    message: "Mật khẩu mới phải khác mật khẩu cũ.",
-    path: ["newPassword"],
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Mật khẩu xác nhận không khớp.",
+    path: ["confirmPassword"],
   });
 
 const ResetPasswordScreen = () => {
@@ -29,8 +29,8 @@ const ResetPasswordScreen = () => {
   } = useForm({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
-      oldPassword: "",
       newPassword: "",
+      confirmPassword: "",
     },
   });
 
@@ -56,22 +56,7 @@ const ResetPasswordScreen = () => {
         <div className="space-y-4">
           <div className="text-left">
             <input
-              id="email"
-              name="oldPassword"
-              type="password"
-              {...register("oldPassword")}
-              placeholder="Enter your old password"
-              className="focus:border-primary-500 focus:ring-primary-100 w-full rounded-md border border-neutral-200 px-4 py-2.5 text-neutral-800 transition focus:ring-2 focus:outline-none"
-              autoComplete="old-password"
-              aria-invalid={errors.oldPassword ? "true" : "false"}
-            />
-            {errors.oldPassword ? (
-              <p className="mt-1 text-xs text-red-500">{errors.oldPassword.message}</p>
-            ) : null}
-          </div>
-          <div className="text-left">
-            <input
-              id="email"
+              id="new-password"
               name="newPassword"
               type="password"
               {...register("newPassword")}
@@ -82,6 +67,21 @@ const ResetPasswordScreen = () => {
             />
             {errors.newPassword ? (
               <p className="mt-1 text-xs text-red-500">{errors.newPassword.message}</p>
+            ) : null}
+          </div>
+          <div className="text-left">
+            <input
+              id="confirm-password"
+              name="confirmPassword"
+              type="password"
+              {...register("confirmPassword")}
+              placeholder="Confirm your new password"
+              className="focus:border-primary-500 focus:ring-primary-100 w-full rounded-md border border-neutral-200 px-4 py-2.5 text-neutral-800 transition focus:ring-2 focus:outline-none"
+              autoComplete="new-password"
+              aria-invalid={errors.confirmPassword ? "true" : "false"}
+            />
+            {errors.confirmPassword ? (
+              <p className="mt-1 text-xs text-red-500">{errors.confirmPassword.message}</p>
             ) : null}
           </div>
         </div>

@@ -198,7 +198,7 @@ export default function JobDetails() {
   };
 
   return (
-    <div className="min-h-screen w-full px-0 py-4 md:px-8">
+    <div className="min-h-screen w-full px-0">
       <ApplyModal
         open={showApply}
         onClose={() => setShowApply(false)}
@@ -214,7 +214,7 @@ export default function JobDetails() {
           <div className="mb-6 rounded-2xl bg-white p-6 shadow-md">
             <div className="mb-4 flex items-start justify-between gap-4">
               <div className="flex items-center gap-2">
-                <div className="m-0 text-2xl font-bold">{job.title}</div>
+                <div className="m-0 text-xl font-bold">{job.title}</div>
                 {job.jobType && (
                   <span
                     className="rounded px-2 py-1 text-xs font-semibold"
@@ -227,39 +227,39 @@ export default function JobDetails() {
               <JobToggleFavorite jobId={job._id} isFavorite={job.isFavorite} />
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div className="flex items-center gap-3 rounded-xl border border-[var(--color-primary-200)] bg-[var(--color-primary-50)] p-4">
+              <div className="flex items-center gap-3 rounded-xl border border-[var(--color-primary-200)] bg-[var(--color-primary-50)]">
                 <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-primary-50)] text-[var(--color-primary-600)]">
                   <DollarSign size={22} />
                 </span>
                 <div>
-                  <p className="text-sm font-semibold text-gray-500">Salary</p>
-                  <p className="text-base font-semibold text-gray-900">
+                  <div className="text-sm font-semibold text-gray-500">Salary</div>
+                  <div className="text-base font-semibold text-gray-900">
                     {job.minSalary && job.maxSalary
                       ? `$${job.minSalary.toLocaleString()} - $${job.maxSalary.toLocaleString()}`
                       : job.salaryType || "Negotiable"}
-                  </p>
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center gap-3 rounded-xl border border-[var(--color-primary-200)] bg-[var(--color-primary-50)] p-4">
+              <div className="flex items-center gap-3 rounded-xl border border-[var(--color-primary-200)] bg-[var(--color-primary-50)] p-2">
                 <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-primary-50)] text-[var(--color-primary-600)]">
                   <MapPin size={22} />
                 </span>
                 <div>
-                  <p className="text-sm font-semibold text-gray-500">Location</p>
-                  <p className="text-base font-semibold text-gray-900">
-                    {job.location || job.city || job.country || "Not updated"}
-                  </p>
+                  <div className="text-sm font-semibold text-gray-500">Location</div>
+                  <div className="text-base font-semibold text-gray-900">
+                    {job.city || job.country || "Not updated"}
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center gap-3 rounded-xl border border-[var(--color-primary-200)] bg-[var(--color-primary-50)] p-4">
+              <div className="flex items-center gap-3 rounded-xl border border-[var(--color-primary-200)] bg-[var(--color-primary-50)] p-2">
                 <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-primary-50)] text-[var(--color-primary-600)]">
                   <Hourglass size={22} />
                 </span>
                 <div>
-                  <p className="text-sm font-semibold text-gray-500">Experience</p>
-                  <p className="text-base font-semibold text-gray-900">
+                  <div className="text-sm font-semibold text-gray-500">Experience</div>
+                  <div className="text-base font-semibold text-gray-900">
                     {job.experience || "Not required"}
-                  </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -272,8 +272,7 @@ export default function JobDetails() {
                   {job.expiration ? new Date(job.expiration).toLocaleDateString() : "Not specified"}
                 </span>
               </div>
-              <div className="flex flex-col gap-3 md:flex-row">
-              </div>
+              <div className="flex flex-col gap-3 md:flex-row"></div>
             </div>
           </div>
 

@@ -45,7 +45,7 @@ const MenuLeft = ({
   };
 
   return (
-    <Sider width={200} className="!bg-transparent">
+    <Sider width={200} className="bg-transparent!">
       <Menu
         mode="inline"
         defaultSelectedKeys={[path]}

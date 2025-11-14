@@ -275,7 +275,7 @@ const CandidateApplyJob = () => {
             className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold shadow-sm ${statusMeta.className}`}
           >
             {statusMeta.label}
-          </span >
+          </span>
         </div>
 
         <div className="col-span-12 flex justify-start md:col-span-2 md:justify-end">
@@ -300,7 +300,6 @@ const CandidateApplyJob = () => {
             description="You haven't applied to any jobs yet."
             image={Empty.PRESENTED_IMAGE_SIMPLE}
           />
-
         </div>
       );
     }
@@ -313,9 +312,7 @@ const CandidateApplyJob = () => {
           <span className="col-span-12 md:col-span-2 md:text-center">Status</span>
           <span className="col-span-12 md:col-span-2 md:text-right">Action</span>
         </div>
-        <div className="divide-y divide-neutral-100">
-          {paginatedAppliedJobs.map(renderJobRow)}
-        </div>
+        <div className="divide-y divide-neutral-100">{paginatedAppliedJobs.map(renderJobRow)}</div>
         {totalApplied > PAGE_SIZE && (
           <div className="flex justify-end border-t border-neutral-100 bg-white px-6 py-4">
             <Pagination
@@ -335,9 +332,7 @@ const CandidateApplyJob = () => {
     <div className="flex flex-col gap-6">
       <section className="flex flex-col gap-4">
         {renderHeader()}
-        <div>
-          {renderContent()}
-        </div>
+        <div>{renderContent()}</div>
       </section>
     </div>
   );

@@ -1,17 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Form,
-  Input,
-  Button,
-  Typography,
-  Space,
-  Card,
-  Divider,
-  Modal,
-  Spin,
-  Alert
-} from 'antd';
-import { notifySuccess, notifyError } from '../../../../components/Notification';
+import React, { useState, useEffect } from "react";
+import { Form, Input, Button, Typography, Space, Card, Divider, Modal, Spin, Alert } from "antd";
+import { notifySuccess, notifyError } from "../../../../components/Notification";
 import {
   UserOutlined,
   MailOutlined,
@@ -20,11 +9,11 @@ import {
   DeleteOutlined,
   SaveOutlined,
   ExclamationCircleOutlined,
-  LoadingOutlined
-} from '@ant-design/icons';
-import { UserService } from '../../../../services/UserService';
-import { AuthService } from '../../../../services/AuthService';
-import useAuthStore from '../../../../store/useAuthStore';
+  LoadingOutlined,
+} from "@ant-design/icons";
+import { UserService } from "../../../../services/UserService";
+import { AuthService } from "../../../../services/AuthService";
+import useAuthStore from "../../../../store/useAuthStore";
 
 const { Title, Text } = Typography;
 const { confirm } = Modal;
@@ -34,7 +23,7 @@ const AccountSetting = () => {
   const [passwordForm] = Form.useForm();
   const [savingContact, setSavingContact] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
-  
+
   // Sử dụng auth store
   const { user: userData, loading, fetchMe, logout } = useAuthStore();
 
@@ -52,7 +41,7 @@ const AccountSetting = () => {
         fullName: data.fullName,
         email: data.email,
         phone: data.phone,
-        address: data.address
+        address: data.address,
       });
     }
   };
@@ -61,16 +50,16 @@ const AccountSetting = () => {
     try {
       setSavingContact(true);
       const response = await UserService.updateProfile(userData._id, values);
-      
+
       if (response.isOk) {
-        notifySuccess('Thông tin liên hệ đã được cập nhật thành công!');
+        notifySuccess("Thông tin liên hệ đã được cập nhật thành công!");
         // Gọi lại fetchMe để cập nhật user data trong auth store
         await fetchMe();
       } else {
-        notifyError(response.msg || 'Thông tin liên hệ không thể được cập nhật!');
+        notifyError(response.msg || "Thông tin liên hệ không thể được cập nhật!");
       }
     } catch (error) {
-      notifyError('Thông tin liên hệ không thể được cập nhật!');
+      notifyError("Thông tin liên hệ không thể được cập nhật!");
     } finally {
       setSavingContact(false);
     }
@@ -81,17 +70,17 @@ const AccountSetting = () => {
       setChangingPassword(true);
       const response = await AuthService.changePassword({
         oldPassword: values.oldPassword,
-        newPassword: values.newPassword
+        newPassword: values.newPassword,
       });
-      
+
       if (response.isOk) {
-        notifySuccess('Mật khẩu đã được cập nhật thành công!');
+        notifySuccess("Mật khẩu đã được cập nhật thành công!");
         passwordForm.resetFields();
       } else {
-        notifyError(response.msg || 'Thông tin liên hệ không thể được cập nhật!');
+        notifyError(response.msg || "Thông tin liên hệ không thể được cập nhật!");
       }
     } catch (error) {
-      notifyError('Mật khẩu không thể được cập nhật!');
+      notifyError("Mật khẩu không thể được cập nhật!");
     } finally {
       setChangingPassword(false);
     }
@@ -99,7 +88,7 @@ const AccountSetting = () => {
 
   const handleDeleteAccount = () => {
     confirm({
-      title: 'Bạn có chắc chắn muốn xóa tài khoản này?',
+      title: "Bạn có chắc chắn muốn xóa tài khoản này?",
       icon: <ExclamationCircleOutlined />,
       content: (
         <div>
@@ -109,33 +98,35 @@ const AccountSetting = () => {
             <li>Admin access</li>
             <li>All administrative records</li>
           </ul>
-          <p><strong>Please type "DELETE" to confirm:</strong></p>
+          <p>
+            <strong>Please type "DELETE" to confirm:</strong>
+          </p>
         </div>
       ),
-      okText: 'Xóa tài khoản',
-      okType: 'danger',
-      cancelText: 'Hủy',
+      okText: "Xóa tài khoản",
+      okType: "danger",
+      cancelText: "Hủy",
       onOk: async () => {
         try {
           const response = await UserService.deleteUser(userData._id);
           if (response.isOk) {
-            notifySuccess('Tài khoản đã được xóa thành công!');
+            notifySuccess("Tài khoản đã được xóa thành công!");
             // Clear auth state and redirect to login page
             await logout();
-            window.location.href = '/login';
+            window.location.href = "/login";
           } else {
-            notifyError(response.msg || 'Tài khoản không thể được xóa!');
+            notifyError(response.msg || "Tài khoản không thể được xóa!");
           }
         } catch (error) {
-          notifyError('Tài khoản không thể được xóa!');
+          notifyError("Tài khoản không thể được xóa!");
         }
-      }
+      },
     });
   };
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '50px' }}>
+      <div style={{ textAlign: "center", padding: "50px" }}>
         <Spin size="large" indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
         <div style={{ marginTop: 16 }}>Loading account information...</div>
       </div>
@@ -145,38 +136,30 @@ const AccountSetting = () => {
   return (
     <div>
       <Title level={4}>Account Settings</Title>
-      
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+
+      <Space direction="vertical" size="large" style={{ width: "100%" }}>
         {/* Contact Information */}
-        <Card title="Contact Information" style={{ maxWidth: '600px' }}>
-          <Form
-            form={contactForm}
-            layout="vertical"
-            onFinish={handleContactInfoSave}
-          >
+        <Card title="Contact Information" style={{ maxWidth: "600px" }}>
+          <Form form={contactForm} layout="vertical" onFinish={handleContactInfoSave}>
             <Form.Item
               label="Full Name"
               name="fullName"
-              rules={[{ required: true, message: 'Please enter your full name!' }]}
+              rules={[{ required: true, message: "Please enter your full name!" }]}
             >
-              <Input 
-                prefix={<UserOutlined />} 
-                placeholder="Enter your full name" 
-                size="large"
-              />
+              <Input prefix={<UserOutlined />} placeholder="Enter your full name" size="large" />
             </Form.Item>
 
             <Form.Item
               label="Email Address"
               name="email"
               rules={[
-                { required: true, message: 'Please enter your email!' },
-                { type: 'email', message: 'Please enter a valid email!' }
+                { required: true, message: "Please enter your email!" },
+                { type: "email", message: "Please enter a valid email!" },
               ]}
             >
-              <Input 
-                prefix={<MailOutlined />} 
-                placeholder="Enter your email address" 
+              <Input
+                prefix={<MailOutlined />}
+                placeholder="Enter your email address"
                 size="large"
                 disabled // Usually email cannot be changed
               />
@@ -185,29 +168,23 @@ const AccountSetting = () => {
             <Form.Item
               label="Phone Number"
               name="phone"
-              rules={[{ required: true, message: 'Please enter your phone number!' }]}
+              rules={[{ required: true, message: "Please enter your phone number!" }]}
             >
-              <Input 
-                prefix={<PhoneOutlined />} 
-                placeholder="Enter your phone number" 
+              <Input
+                prefix={<PhoneOutlined />}
+                placeholder="Enter your phone number"
                 size="large"
               />
             </Form.Item>
 
-            <Form.Item
-              label="Address"
-              name="address"
-            >
-              <Input.TextArea 
-                placeholder="Enter your address" 
-                rows={3}
-              />
+            <Form.Item label="Address" name="address">
+              <Input.TextArea placeholder="Enter your address" rows={3} />
             </Form.Item>
 
             <Form.Item>
-              <Button 
-                type="primary" 
-                htmlType="submit" 
+              <Button
+                type="primary"
+                htmlType="submit"
                 icon={<SaveOutlined />}
                 loading={savingContact}
                 size="large"
@@ -219,20 +196,16 @@ const AccountSetting = () => {
         </Card>
 
         {/* Change Password */}
-        <Card title="Change Password" style={{ maxWidth: '600px' }}>
-          <Form
-            form={passwordForm}
-            layout="vertical"
-            onFinish={handlePasswordChange}
-          >
+        <Card title="Change Password" style={{ maxWidth: "600px" }}>
+          <Form form={passwordForm} layout="vertical" onFinish={handlePasswordChange}>
             <Form.Item
               label="Current Password"
               name="oldPassword"
-              rules={[{ required: true, message: 'Please enter your current password!' }]}
+              rules={[{ required: true, message: "Please enter your current password!" }]}
             >
-              <Input.Password 
-                prefix={<LockOutlined />} 
-                placeholder="Enter current password" 
+              <Input.Password
+                prefix={<LockOutlined />}
+                placeholder="Enter current password"
                 size="large"
               />
             </Form.Item>
@@ -241,13 +214,13 @@ const AccountSetting = () => {
               label="New Password"
               name="newPassword"
               rules={[
-                { required: true, message: 'Please enter new password!' },
-                { min: 6, message: 'Password must be at least 6 characters!' }
+                { required: true, message: "Please enter new password!" },
+                { min: 6, message: "Password must be at least 6 characters!" },
               ]}
             >
-              <Input.Password 
-                prefix={<LockOutlined />} 
-                placeholder="Enter new password" 
+              <Input.Password
+                prefix={<LockOutlined />}
+                placeholder="Enter new password"
                 size="large"
               />
             </Form.Item>
@@ -255,30 +228,30 @@ const AccountSetting = () => {
             <Form.Item
               label="Confirm New Password"
               name="confirmPassword"
-              dependencies={['newPassword']}
+              dependencies={["newPassword"]}
               rules={[
-                { required: true, message: 'Please confirm your new password!' },
+                { required: true, message: "Please confirm your new password!" },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
-                    if (!value || getFieldValue('newPassword') === value) {
+                    if (!value || getFieldValue("newPassword") === value) {
                       return Promise.resolve();
                     }
-                    return Promise.reject(new Error('The two passwords do not match!'));
+                    return Promise.reject(new Error("The two passwords do not match!"));
                   },
                 }),
               ]}
             >
-              <Input.Password 
-                prefix={<LockOutlined />} 
-                placeholder="Confirm new password" 
+              <Input.Password
+                prefix={<LockOutlined />}
+                placeholder="Confirm new password"
                 size="large"
               />
             </Form.Item>
 
             <Form.Item>
-              <Button 
-                type="primary" 
-                htmlType="submit" 
+              <Button
+                type="primary"
+                htmlType="submit"
                 icon={<LockOutlined />}
                 loading={changingPassword}
                 size="large"
@@ -291,7 +264,7 @@ const AccountSetting = () => {
 
         <Divider />
 
-        {/* Danger Zone */}
+        {/* Danger Zone
         <Card 
           title={<Text type="danger">Danger Zone</Text>} 
           style={{ maxWidth: '600px', borderColor: '#ff4d4f' }}
@@ -313,11 +286,10 @@ const AccountSetting = () => {
           >
             Delete Account
           </Button>
-        </Card>
+        </Card> */}
       </Space>
     </div>
   );
 };
 
 export default AccountSetting;
-

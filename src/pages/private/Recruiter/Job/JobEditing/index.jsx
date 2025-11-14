@@ -313,9 +313,6 @@ export default function JobEditing() {
                         </>
                       )}
                     />
-                    <p className="mt-1 text-xs text-[var(--color-neutral-500)]">
-                      Showing {allTags.length} of {tagPagination.total} tags
-                    </p>
                   </div>
                 </div>
               </div>

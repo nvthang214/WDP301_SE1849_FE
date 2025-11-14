@@ -26,7 +26,7 @@ import {
 import { notifySuccess, notifyError } from "../../../../../components/Notification";
 import { JobService } from "../../../../../services/JobService";
 import { Link } from "react-router-dom";
-import { Spin, Input, Select } from "antd";
+import { Spin, Input, Select, Tooltip } from "antd";
 
 const { Search } = Input;
 
@@ -352,67 +352,48 @@ export default function MyJob() {
 
           return (
             <div className="flex justify-end">
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setOpenDropdownId(isDropdownOpen ? null : job._id)}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-700 shadow-sm transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600"
-                >
-                  <MoreVertical size={14} />
-                  Actions
-                  <ChevronDown
-                    size={14}
-                    className={`transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
-                  />
-                </button>
+              <Link
+                to={`/recruiter/applications?jobId=${job._id}`}
+                className="flex w-full items-center gap-3 px-4 py-3 text-sm text-gray-700 transition hover:bg-blue-50 hover:text-blue-600"
+                onClick={() => setOpenDropdownId(null)}
+              >
+                <Tooltip title="View Applications">
+                  <Eye size={16} />
+                </Tooltip>
+              </Link>
 
-                {isDropdownOpen && (
+              <Link
+                to={`/recruiter/jobs/edit/${job._id}`}
+                className="flex w-full items-center gap-3 px-4 py-3 text-sm text-gray-700 transition hover:bg-blue-50 hover:text-blue-600"
+                onClick={() => setOpenDropdownId(null)}
+              >
+                <Tooltip title="Edit Job">
+                  <Edit size={16} />
+                </Tooltip>
+              </Link>
+
+              <button
+                type="button"
+                disabled={isLoading}
+                onClick={() => handleToggleStatus(job._id, job.isActive)}
+                className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-sm text-gray-700 transition disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isLoading ? (
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                ) : job.isActive ? (
                   <>
-                    <div className="fixed inset-0 z-10" onClick={() => setOpenDropdownId(null)} />
-
-                    <div className="absolute right-0 z-20 mt-2 w-56 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl">
-                      <Link
-                        to={`/recruiter/applications?jobId=${job._id}`}
-                        className="flex w-full items-center gap-3 px-4 py-3 text-sm text-gray-700 transition hover:bg-blue-50 hover:text-blue-600"
-                        onClick={() => setOpenDropdownId(null)}
-                      >
-                        <Eye size={16} />
-                        <span className="font-medium">View Applications</span>
-                      </Link>
-
-                      <Link
-                        to={`/recruiter/jobs/edit/${job._id}`}
-                        className="flex w-full items-center gap-3 px-4 py-3 text-sm text-gray-700 transition hover:bg-blue-50 hover:text-blue-600"
-                        onClick={() => setOpenDropdownId(null)}
-                      >
-                        <Edit size={16} />
-                        <span className="font-medium">Edit Job</span>
-                      </Link>
-
-                      <button
-                        type="button"
-                        disabled={isLoading}
-                        onClick={() => handleToggleStatus(job._id, job.isActive)}
-                        className="flex w-full items-center gap-3 px-4 py-3 text-sm text-gray-700 transition hover:bg-orange-50 hover:text-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        {isLoading ? (
-                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                        ) : job.isActive ? (
-                          <>
-                            <XCircle size={16} />
-                            <span className="font-medium">Deactivate Job</span>
-                          </>
-                        ) : (
-                          <>
-                            <CheckCircle size={16} />
-                            <span className="font-medium">Activate Job</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
+                    <Tooltip title="Deactivate Job">
+                      <XCircle size={16} />
+                    </Tooltip>
+                  </>
+                ) : (
+                  <>
+                    <Tooltip title="Activate Job">
+                      <CheckCircle size={16} />
+                    </Tooltip>
                   </>
                 )}
-              </div>
+              </button>
             </div>
           );
         },
@@ -442,12 +423,7 @@ export default function MyJob() {
         {/* Header Section */}
         <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              My Jobs
-              <span className="ml-3 inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold text-blue-700">
-                {pagination.total} {pagination.total === 1 ? "Job" : "Jobs"}
-              </span>
-            </h1>
+            <h1 className="text-3xl font-bold text-gray-900">My Jobs</h1>
             <p className="mt-1 text-sm text-gray-500">Manage and track your job postings</p>
           </div>
 

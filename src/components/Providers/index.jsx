@@ -1,6 +1,7 @@
 import React from "react";
 import useAuthStore from "../../store/useAuthStore";
 import { Spin } from "antd";
+import RealtimeProvider from "./RealtimeProvider.jsx";
 
 const Providers = ({ children }) => {
   const { loading, init } = useAuthStore();
@@ -17,7 +18,7 @@ const Providers = ({ children }) => {
   if (starting || loading) {
     return <Spin fullscreen spinning />;
   }
-  return children;
+  return <RealtimeProvider>{children}</RealtimeProvider>;
 };
 
 export default Providers;

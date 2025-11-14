@@ -49,7 +49,7 @@ const ROUTE_META = {
   // --- Recruiter routes ---
   [ROUTER.RECRUITER_OVERVIEW]: {
     breadcrumb: "Overview",
-    title: "Recruiter Overview",
+    title: "Overview",
   },
   [ROUTER.RECRUITER_MY_JOBS]: {
     breadcrumb: "My Jobs",
@@ -83,8 +83,8 @@ const ROUTE_META = {
 
   // Recruiter routes
   [ROUTER.RECRUITER_DASHBOARD]: {
-    breadcrumb: "Recruiter Overview",
-    title: "Recruiter Overview",
+    breadcrumb: "Overview",
+    title: "Overview",
     requiresAuth: true,
   },
   [ROUTER.CANDIDATE_PERSONAL]: {

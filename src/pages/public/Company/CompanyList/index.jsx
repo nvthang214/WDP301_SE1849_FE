@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import CompanyService from "../../../../services/CompanyService";
 import { useResponsive } from "../../../../hook/useResponsive";
 import CompanyCard from "../../../../components/Card/CompanyCard";
-import FilterSidebar from "./components/FilterSidebar";
+
 
 // Company types for filtering
 const companyTypes = [
@@ -101,10 +101,6 @@ export default function CompanyList() {
     e.preventDefault();
     setPage(1);
     setSearch(searchInput.trim());
-    setFilters((prev) => ({
-      ...prev,
-      location: locationSearch.trim() || "",
-    }));
   };
 
   const handlePageChange = (newPage) => {
@@ -137,50 +133,8 @@ export default function CompanyList() {
               />
             </div>
 
-            <div className="flex min-w-[220px] items-center rounded bg-gray-50 px-3 py-2 md:min-w-[280px]">
-              <svg
-                width="16"
-                height="16"
-                fill="none"
-                stroke="currentColor"
-                className="mr-2 text-gray-400"
-              >
-                <path
-                  d="M12 2l3 3-3 3M3 14l3-3-3-3"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M12 12v3a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h5a2 2 0 012 2v1"
-                  strokeWidth="2"
-                />
-              </svg>
-              <input
-                className="flex-1 bg-transparent text-sm outline-none"
-                placeholder="City, state or zip code"
-                value={locationSearch}
-                onChange={(e) => setLocationSearch(e.target.value)}
-              />
-            </div>
 
             <div className="ml-auto flex items-center gap-2">
-              <button
-                type="button"
-                className="flex items-center gap-2 rounded bg-gray-100 px-3 py-2 hover:bg-gray-200"
-                onClick={() => setShowFilter(true)}
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  fill="none"
-                  stroke="currentColor"
-                  className="text-gray-600"
-                >
-                  <path d="M3 6h14M5 12h10M7 18h6" strokeWidth="2" />
-                </svg>
-                Filters
-              </button>
               <button
                 type="submit"
                 className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-primary-500)] px-5 py-2 font-semibold text-white shadow-md transition hover:bg-[var(--color-primary-600)]"
@@ -223,7 +177,7 @@ export default function CompanyList() {
                 companyId={company._id}
                 name={company.name}
                 location={company.address}
-                openings={company.openPositions || 0}
+                openings={company.openings ?? company.jobCount ?? 0}
                 logo={company.logo}
                 companyType={company.industry || "Technology"}
               />
@@ -277,19 +231,7 @@ export default function CompanyList() {
           </button>
         </div>
 
-        <FilterSidebar
-          open={showFilter}
-          onClose={() => setShowFilter(false)}
-          filters={draftFilters}
-          setFilters={setDraftFilters}
-          onApply={() => {
-            setFilters(draftFilters);
-            setPage(1);
-            setShowFilter(false);
-          }}
-          companyTypes={companyTypes}
-          companySizes={companySizes}
-        />
+
       </div>
     </div>
   );

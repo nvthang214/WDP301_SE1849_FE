@@ -6,7 +6,7 @@ import {
   Clock,
   MoreVertical,
   Plus,
-  Search,
+  Search as SearchIcon,
   Filter,
   Edit,
   Eye,
@@ -15,17 +15,20 @@ import {
   MapPin,
   Briefcase,
   ArrowUpDown,
+  X,
 } from "lucide-react";
 import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
-  getPaginationRowModel,
   flexRender,
 } from "@tanstack/react-table";
 import { notifySuccess, notifyError } from "../../../../../components/Notification";
 import { JobService } from "../../../../../services/JobService";
 import { Link } from "react-router-dom";
+import { Spin, Input, Select } from "antd";
+
+const { Search } = Input;
 
 const statusOptions = [
   { label: "All Jobs", value: "all" },
@@ -33,7 +36,16 @@ const statusOptions = [
   { label: "Inactive", value: "inactive" },
 ];
 
-const formatJobType = (job) => job?.jobType?.replace("-", " ") || "N/A";
+const jobTypeOptions = [
+  { label: "All Types", value: "" },
+  { label: "Full-time", value: "FULL-TIME" },
+  { label: "Part-time", value: "PART-TIME" },
+  { label: "Internship", value: "INTERNSHIP" },
+  { label: "Temporary", value: "TEMPORARY" },
+  { label: "Contract", value: "CONTRACT BASE" },
+];
+
+const formatJobType = (job) => job?.jobType?.replace(/[_-]/g, " ") || "N/A";
 
 const getStatusLabel = (job) => (job?.isActive ? "Active" : "Inactive");
 
@@ -60,8 +72,22 @@ export default function MyJob() {
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
   const [applicationCounts, setApplicationCounts] = useState({});
   const [sorting, setSorting] = useState([]);
+  const [openDropdownId, setOpenDropdownId] = useState(null);
   const [actionLoading, setActionLoading] = useState(null);
 
+  // Search and filters state
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
+  const [jobTypeFilter, setJobTypeFilter] = useState("");
+  const [remoteFilter, setRemoteFilter] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit] = useState(8);
+  const [pagination, setPagination] = useState({
+    total: 0,
+    totalPages: 1,
+  });
+
+  // Fetch application counts
   useEffect(() => {
     if (!jobs.length) return;
 
@@ -88,47 +114,107 @@ export default function MyJob() {
     };
   }, [jobs]);
 
+  // Fetch jobs with filters and pagination
   useEffect(() => {
     const fetchJobs = async () => {
       try {
         setLoading(true);
-        const res = await JobService.getJobsOfRecruiter();
-        const list = res?.data?.jobs || res?.data || [];
-        setJobs(list);
+        const params = {
+          page,
+          limit,
+        };
+
+        if (search.trim()) params.search = search.trim();
+        if (jobTypeFilter) params.jobType = jobTypeFilter;
+        if (remoteFilter) params.remote = remoteFilter;
+
+        if (statusFilter === "active") params.isActive = true;
+        if (statusFilter === "inactive") params.isActive = false;
+
+        const res = await JobService.getJobsOfRecruiter(params);
+        const data = res?.data?.data || res?.data || {};
+
+        setJobs(data.jobs || []);
+        setPagination({
+          total: data.pagination?.total || 0,
+          totalPages: data.pagination?.totalPages || 1,
+        });
       } catch (error) {
         console.error("Failed to load recruiter jobs:", error);
+        notifyError("Failed to load jobs");
         setJobs([]);
+        setPagination({ total: 0, totalPages: 1 });
       } finally {
         setLoading(false);
       }
     };
     fetchJobs();
-  }, []);
+  }, [search, jobTypeFilter, remoteFilter, statusFilter, page, limit]);
 
+  // Handle status change
+  const handleStatusChange = (value) => {
+    setStatusFilter(value);
+    setStatusDropdownOpen(false);
+    setPage(1);
+  };
+
+  // Handle search submit
+  const handleSearchSubmit = (value) => {
+    setSearch(value || searchInput);
+    setPage(1);
+  };
+
+  // Handle clear filters
+  const handleClearFilters = () => {
+    setSearchInput("");
+    setSearch("");
+    setJobTypeFilter("");
+    setRemoteFilter("");
+    setStatusFilter("all");
+    setPage(1);
+  };
+
+  // Refresh jobs with current filters
+  const refreshJobs = async () => {
+    try {
+      const params = {
+        page,
+        limit,
+      };
+
+      if (search.trim()) params.search = search.trim();
+      if (jobTypeFilter) params.jobType = jobTypeFilter;
+      if (remoteFilter) params.remote = remoteFilter;
+      if (statusFilter === "active") params.isActive = true;
+      if (statusFilter === "inactive") params.isActive = false;
+
+      const res = await JobService.getJobsOfRecruiter(params);
+      const data = res?.data?.data || res?.data || {};
+
+      setJobs(data.jobs || []);
+      setPagination({
+        total: data.pagination?.total || 0,
+        totalPages: data.pagination?.totalPages || 1,
+      });
+    } catch (error) {
+      console.error("Failed to refresh jobs:", error);
+    }
+  };
+
+  // Toggle job status
   const handleToggleStatus = async (jobId, currentStatus) => {
     setActionLoading(jobId);
     try {
       await JobService.toggleJobStatus(jobId);
       notifySuccess(`Job ${currentStatus ? "deactivated" : "activated"} successfully`);
+      await refreshJobs();
     } catch (error) {
       console.error("Failed to toggle job status:", error);
-      notifyError("Failed to update job status. Please try again.");
+      notifyError("Failed to update job status");
     } finally {
       setActionLoading(null);
+      setOpenDropdownId(null);
     }
-  };
-
-  const filteredJobs = useMemo(() => {
-    return jobs.filter((job) => {
-      if (statusFilter === "active") return job?.isActive;
-      if (statusFilter === "inactive") return !job?.isActive;
-      return true;
-    });
-  }, [jobs, statusFilter]);
-
-  const handleStatusChange = (value) => {
-    setStatusFilter(value);
-    setStatusDropdownOpen(false);
   };
 
   const columns = useMemo(
@@ -156,7 +242,7 @@ export default function MyJob() {
                   {job?.title || "Untitled Position"}
                 </h3>
                 <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-gray-600">
-                  <div>
+                  <div className="flex items-center gap-2">
                     <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
                       <Briefcase size={12} />
                       {formatJobType(job)}
@@ -198,20 +284,30 @@ export default function MyJob() {
         ),
         cell: ({ row }) => {
           const job = row.original;
+          const isLoading = actionLoading === job._id;
           const statusLabel = getStatusLabel(job);
+
           return (
-            <div>
-              <button>
-                <span
-                  className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold shadow-sm ${getStatusClass(
-                    job?.isActive
-                  )}`}
-                >
-                  <span className="h-2 w-2 animate-pulse rounded-full bg-current" />
-                  {statusLabel}
-                </span>
-              </button>
-            </div>
+            <button
+              type="button"
+              disabled={isLoading}
+              onClick={() => handleToggleStatus(job._id, job.isActive)}
+              className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold shadow-sm transition ${getStatusClass(
+                job?.isActive
+              )} ${
+                isLoading
+                  ? "cursor-not-allowed opacity-50"
+                  : "cursor-pointer hover:opacity-80 hover:shadow-md active:scale-95"
+              }`}
+              title={job.isActive ? "Click to deactivate" : "Click to activate"}
+            >
+              {isLoading ? (
+                <div className="h-2 w-2 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              ) : (
+                <span className="h-2 w-2 animate-pulse rounded-full bg-current" />
+              )}
+              {statusLabel}
+            </button>
           );
         },
       },
@@ -251,32 +347,82 @@ export default function MyJob() {
         ),
         cell: ({ row }) => {
           const job = row.original;
+          const isDropdownOpen = openDropdownId === job._id;
+          const isLoading = actionLoading === job._id;
+
           return (
-            <div className="flex justify-between gap-2">
-              <Link
-                to={`/recruiter/applications?jobId=${job?._id}`}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 px-2 py-2 text-xs font-semibold text-white shadow-md transition hover:from-blue-600 hover:to-blue-700 hover:shadow-lg"
-              >
-                <Eye size={14} />
-                View Application
-              </Link>
-              <Link
-                to={`/recruiter/jobs/edit/${job?._id}`}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 px-2 py-2 text-xs font-semibold text-white shadow-md transition hover:from-blue-600 hover:to-blue-700 hover:shadow-lg"
-              >
-                <Edit size={14} />
-                Edit
-              </Link>
+            <div className="flex justify-end">
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setOpenDropdownId(isDropdownOpen ? null : job._id)}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-700 shadow-sm transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600"
+                >
+                  <MoreVertical size={14} />
+                  Actions
+                  <ChevronDown
+                    size={14}
+                    className={`transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+
+                {isDropdownOpen && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setOpenDropdownId(null)} />
+
+                    <div className="absolute right-0 z-20 mt-2 w-56 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl">
+                      <Link
+                        to={`/recruiter/applications?jobId=${job._id}`}
+                        className="flex w-full items-center gap-3 px-4 py-3 text-sm text-gray-700 transition hover:bg-blue-50 hover:text-blue-600"
+                        onClick={() => setOpenDropdownId(null)}
+                      >
+                        <Eye size={16} />
+                        <span className="font-medium">View Applications</span>
+                      </Link>
+
+                      <Link
+                        to={`/recruiter/jobs/edit/${job._id}`}
+                        className="flex w-full items-center gap-3 px-4 py-3 text-sm text-gray-700 transition hover:bg-blue-50 hover:text-blue-600"
+                        onClick={() => setOpenDropdownId(null)}
+                      >
+                        <Edit size={16} />
+                        <span className="font-medium">Edit Job</span>
+                      </Link>
+
+                      <button
+                        type="button"
+                        disabled={isLoading}
+                        onClick={() => handleToggleStatus(job._id, job.isActive)}
+                        className="flex w-full items-center gap-3 px-4 py-3 text-sm text-gray-700 transition hover:bg-orange-50 hover:text-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {isLoading ? (
+                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                        ) : job.isActive ? (
+                          <>
+                            <XCircle size={16} />
+                            <span className="font-medium">Deactivate Job</span>
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle size={16} />
+                            <span className="font-medium">Activate Job</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           );
         },
       },
     ],
-    [applicationCounts]
+    [applicationCounts, openDropdownId, actionLoading]
   );
 
   const table = useReactTable({
-    data: filteredJobs,
+    data: jobs,
     columns,
     state: {
       sorting,
@@ -284,163 +430,291 @@ export default function MyJob() {
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    initialState: {
-      pagination: {
-        pageSize: 8,
-      },
-    },
+    manualPagination: true,
+    pageCount: pagination.totalPages,
   });
 
+  const hasActiveFilters = search || jobTypeFilter || remoteFilter || statusFilter !== "all";
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 p-2">
-      <div className="mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 p-6">
+      <div className="mx-auto max-w-7xl">
         {/* Header Section */}
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">
               My Jobs
               <span className="ml-3 inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold text-blue-700">
-                {jobs.length} {jobs.length === 1 ? "Job" : "Jobs"}
+                {pagination.total} {pagination.total === 1 ? "Job" : "Jobs"}
               </span>
             </h1>
+            <p className="mt-1 text-sm text-gray-500">Manage and track your job postings</p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <Link
-              to="/recruiter/jobs/post"
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:from-blue-700 hover:to-blue-600 hover:shadow-xl"
-            >
-              <Plus size={18} />
-              Post New Job
-            </Link>
+          <Link
+            to="/recruiter/jobs/post"
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:from-blue-700 hover:to-blue-600 hover:shadow-xl"
+          >
+            <Plus size={18} />
+            Post New Job
+          </Link>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="mb-6 rounded-xl bg-white p-4 shadow-sm">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+            <div className="md:col-span-2">
+              <Search
+                placeholder="Search jobs by title, location, tags..."
+                allowClear
+                size="large"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onSearch={handleSearchSubmit}
+                enterButton
+                prefix={<SearchIcon size={16} className="text-gray-400" />}
+              />
+            </div>
+
+            <Select
+              size="large"
+              placeholder="Job Type"
+              value={jobTypeFilter || undefined}
+              onChange={(value) => {
+                setJobTypeFilter(value || "");
+                setPage(1);
+              }}
+              allowClear
+              options={jobTypeOptions}
+              className="w-full"
+            />
 
             <div className="relative">
               <button
                 type="button"
-                className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition hover:border-blue-300 hover:shadow-md"
+                className="flex h-10 w-full items-center justify-between gap-2 rounded-lg border border-gray-300 bg-white px-3 text-sm transition hover:border-blue-400"
                 onClick={() => setStatusDropdownOpen((prev) => !prev)}
               >
-                <Filter size={16} />
-                <span className="hidden md:inline">Status:</span>
-                <span className="rounded-lg bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700">
-                  {statusOptions.find((option) => option.value === statusFilter)?.label}
-                </span>
+                <div className="flex items-center gap-2">
+                  <Filter size={16} className="text-gray-400" />
+                  <span className="text-gray-600">Status:</span>
+                  <span className="font-semibold text-blue-600">
+                    {statusOptions.find((opt) => opt.value === statusFilter)?.label}
+                  </span>
+                </div>
                 <ChevronDown
                   size={16}
-                  className={`transition-transform ${statusDropdownOpen ? "rotate-180" : ""}`}
+                  className={`text-gray-400 transition-transform ${statusDropdownOpen ? "rotate-180" : ""}`}
                 />
               </button>
+
               {statusDropdownOpen && (
-                <div className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl">
-                  {statusOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => handleStatusChange(option.value)}
-                      className={`flex w-full items-center justify-between px-4 py-2.5 text-sm transition ${
-                        statusFilter === option.value
-                          ? "bg-blue-50 font-semibold text-blue-700"
-                          : "text-gray-700 hover:bg-gray-50"
-                      }`}
-                    >
-                      {option.label}
-                      {statusFilter === option.value && (
-                        <CheckCircle size={16} className="text-blue-600" />
-                      )}
-                    </button>
-                  ))}
-                </div>
+                <>
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setStatusDropdownOpen(false)}
+                  />
+                  <div className="absolute right-0 z-20 mt-2 w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl">
+                    {statusOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => handleStatusChange(option.value)}
+                        className={`flex w-full items-center justify-between px-4 py-2.5 text-sm transition ${
+                          statusFilter === option.value
+                            ? "bg-blue-50 font-semibold text-blue-700"
+                            : "text-gray-700 hover:bg-gray-50"
+                        }`}
+                      >
+                        {option.label}
+                        {statusFilter === option.value && (
+                          <CheckCircle size={16} className="text-blue-600" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </>
               )}
             </div>
           </div>
+
+          {/* Active Filters */}
+          {hasActiveFilters && (
+            <div className="mt-3 flex items-center gap-2 border-t border-gray-100 pt-3">
+              <span className="text-sm text-gray-500">Active filters:</span>
+              {search && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
+                  Search: {search}
+                  <button
+                    onClick={() => {
+                      setSearchInput("");
+                      setSearch("");
+                    }}
+                    className="hover:text-blue-900"
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              )}
+              {jobTypeFilter && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
+                  Type: {jobTypeOptions.find((opt) => opt.value === jobTypeFilter)?.label}
+                  <button
+                    onClick={() => {
+                      setJobTypeFilter("");
+                      setPage(1);
+                    }}
+                    className="hover:text-blue-900"
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              )}
+              {statusFilter !== "all" && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
+                  Status: {statusOptions.find((opt) => opt.value === statusFilter)?.label}
+                  <button
+                    onClick={() => {
+                      setStatusFilter("all");
+                      setPage(1);
+                    }}
+                    className="hover:text-blue-900"
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              )}
+              <button
+                onClick={handleClearFilters}
+                className="ml-auto text-xs font-medium text-red-600 hover:text-red-700"
+              >
+                Clear all filters
+              </button>
+            </div>
+          )}
         </div>
 
         {/* React Table */}
-        <div className="mb-2 overflow-hidden rounded-2xl bg-white shadow-xl">
-          {loading ? (
-            <div className="flex flex-col items-center justify-center py-20">
-              <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600"></div>
-              <p className="mt-4 text-sm text-gray-500">Loading your jobs...</p>
-            </div>
-          ) : table.getRowModel().rows.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20">
-              <div className="rounded-full bg-gray-100 p-6">
-                <Search size={48} className="text-gray-400" />
-              </div>
-              <p className="mt-4 text-lg font-semibold text-gray-700">No jobs found</p>
-              <p className="text-sm text-gray-500">Try adjusting your filters</p>
-            </div>
-          ) : (
-            <>
-              <table className="w-full">
-                <thead className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100">
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <tr key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => (
-                        <th key={header.id} className="px-6 py-4 text-left text-xs text-gray-600">
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(header.column.columnDef.header, header.getContext())}
-                        </th>
-                      ))}
-                    </tr>
-                  ))}
-                </thead>
-                <tbody>
-                  {table.getRowModel().rows.map((row) => (
-                    <tr
-                      key={row.id}
-                      className="group border-b border-gray-100 transition last:border-none hover:bg-blue-50/50"
-                    >
-                      {row.getVisibleCells().map((cell) => (
-                        <td key={cell.id} className="px-6 py-5">
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              {/* Pagination */}
-              {table.getPageCount() > 1 && (
-                <div className="flex items-center justify-center gap-2 border-t border-gray-100 px-6 py-4">
-                  <button
-                    type="button"
-                    disabled={!table.getCanPreviousPage()}
-                    onClick={() => table.previousPage()}
-                    className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 shadow-sm transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-40"
-                  >
-                    <ArrowLeft size={18} />
-                  </button>
-                  {Array.from({ length: table.getPageCount() }, (_, i) => i).map((pageIndex) => (
-                    <button
-                      key={pageIndex}
-                      type="button"
-                      onClick={() => table.setPageIndex(pageIndex)}
-                      className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-bold transition ${
-                        table.getState().pagination.pageIndex === pageIndex
-                          ? "bg-gradient-to-r from-blue-600 to-blue-500 !text-white shadow-lg"
-                          : "border border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600"
-                      }`}
-                    >
-                      {pageIndex + 1}
-                    </button>
-                  ))}
-                  <button
-                    type="button"
-                    disabled={!table.getCanNextPage()}
-                    onClick={() => table.nextPage()}
-                    className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 shadow-sm transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-40"
-                  >
-                    <ArrowRight size={18} />
-                  </button>
+        <Spin spinning={loading}>
+          <div className="overflow-hidden rounded-2xl bg-white shadow-xl">
+            {!loading && jobs.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20">
+                <div className="rounded-full bg-gray-100 p-6">
+                  <SearchIcon size={48} className="text-gray-400" />
                 </div>
-              )}
-            </>
-          )}
-        </div>
+                <p className="mt-4 text-lg font-semibold text-gray-700">No jobs found</p>
+                <p className="text-sm text-gray-500">
+                  {hasActiveFilters
+                    ? "Try adjusting your filters or search terms"
+                    : "Post your first job to get started"}
+                </p>
+                {hasActiveFilters && (
+                  <button
+                    onClick={handleClearFilters}
+                    className="mt-4 text-sm font-medium text-blue-600 hover:text-blue-700"
+                  >
+                    Clear all filters
+                  </button>
+                )}
+              </div>
+            ) : (
+              <>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100">
+                      {table.getHeaderGroups().map((headerGroup) => (
+                        <tr key={headerGroup.id}>
+                          {headerGroup.headers.map((header) => (
+                            <th
+                              key={header.id}
+                              className="px-6 py-4 text-left text-xs text-gray-600"
+                            >
+                              {header.isPlaceholder
+                                ? null
+                                : flexRender(header.column.columnDef.header, header.getContext())}
+                            </th>
+                          ))}
+                        </tr>
+                      ))}
+                    </thead>
+                    <tbody>
+                      {table.getRowModel().rows.map((row) => (
+                        <tr
+                          key={row.id}
+                          className="group border-b border-gray-100 transition last:border-none hover:bg-blue-50/50"
+                        >
+                          {row.getVisibleCells().map((cell) => (
+                            <td key={cell.id} className="px-6 py-5">
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination */}
+                {pagination.totalPages > 1 && (
+                  <div className="flex items-center justify-between border-t border-gray-100 px-6 py-4">
+                    <div className="text-sm text-gray-500">
+                      Showing {(page - 1) * limit + 1} to {Math.min(page * limit, pagination.total)}{" "}
+                      of {pagination.total} jobs
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        disabled={page === 1}
+                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 shadow-sm transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        <ArrowLeft size={18} />
+                      </button>
+
+                      {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                        let pageNum;
+                        if (pagination.totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (page <= 3) {
+                          pageNum = i + 1;
+                        } else if (page >= pagination.totalPages - 2) {
+                          pageNum = pagination.totalPages - 4 + i;
+                        } else {
+                          pageNum = page - 2 + i;
+                        }
+
+                        return (
+                          <button
+                            key={pageNum}
+                            type="button"
+                            onClick={() => setPage(pageNum)}
+                            className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-bold transition ${
+                              page === pageNum
+                                ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg"
+                                : "border border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600"
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+
+                      <button
+                        type="button"
+                        disabled={page === pagination.totalPages}
+                        onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
+                        className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 shadow-sm transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        <ArrowRight size={18} />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </Spin>
       </div>
     </div>
   );

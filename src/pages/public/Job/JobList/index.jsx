@@ -284,7 +284,7 @@ export default function JobList() {
             <div className={`grid ${gridCols} gap-6`}>
               {jobs.map((job, idx) => (
                 <JobCard
-                  userRole={user.role.name}
+                  userRole={user?.role.name}
                   key={job._id || idx}
                   jobId={job._id}
                   title={job.title}

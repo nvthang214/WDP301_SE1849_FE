@@ -210,7 +210,7 @@ export default function JobDetails() {
                   </span>
                 )}
               </div>
-              {user && <JobToggleFavorite jobId={job._id} initialIsFavorited={job.isFavorited} />}
+              {user && <JobToggleFavorite jobId={job._id} isFavorite={job.isFavorite} />}
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div className="flex items-center gap-3 rounded-xl border border-[var(--color-primary-200)] bg-[var(--color-primary-50)] p-4">
@@ -306,20 +306,6 @@ export default function JobDetails() {
                 />
               </>
             )}
-            {/* {job.desirable && (
-              <>
-                <h2 className="mt-6 mb-2 flex items-center gap-2 text-lg font-semibold">
-                  <HandCoins size={20} className="text-[var(--color-primary-600)]" />
-                  Desirable
-                </h2>
-                <div
-                  className="prose prose-sm max-w-none break-words text-gray-700 [&_ol]:list-decimal [&_ol]:pl-5 [&_ul]:list-disc [&_ul]:pl-5"
-                  dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(job.desirable),
-                  }}
-                />
-              </>
-            )} */}
             {job.benefits && (
               <>
                 <h2 className="mt-6 mb-2 flex items-center gap-2 text-lg font-semibold">

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import JobToggleFavorite from "../../Toggle/JobToggleFavorite";
 
 const JobCard = ({
-  user = null,
+  userRole = null,
   jobId = null,
   title = "Technical Support Specialist",
   type = "PART-TIME",
@@ -13,18 +13,24 @@ const JobCard = ({
   location = "Dhaka, Bangladesh",
   logo = "https://www.google.com/favicon.ico",
   isFavorite = false,
+  tags = [], // ✅ Thêm tags prop
 }) => {
+  // Màu sắc cho tags
+  const tagColors = ["blue", "purple", "cyan", "geekblue", "magenta", "volcano"];
+
   return (
     <Card
       className="h-full rounded-xl border border-gray-100 shadow-sm transition-all hover:shadow-md"
       bodyStyle={{ padding: "16px" }}
     >
-      <div className="flex flex-col h-full justify-between">
+      <div className="flex h-full flex-col justify-between">
         {/* Job title + salary */}
         <div className="flex flex-col gap-2">
           <div className="flex items-start justify-between">
             <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-            {user && <JobToggleFavorite jobId={jobId} initialIsFavorited={isFavorite} />}
+            {userRole === "candidate" && (
+              <JobToggleFavorite jobId={jobId} isFavorite={isFavorite} />
+            )}
           </div>
 
           <div className="flex items-center gap-3 text-sm">
@@ -40,14 +46,37 @@ const JobCard = ({
         {/* Company + location (footer) */}
         <Link to={`/jobs/${jobId}`} className="mt-4 block">
           <div className="flex items-center gap-3">
-            <img src={logo} alt={company} className="h-12 w-12 flex-shrink-0 rounded object-cover" />
+            <img
+              src={logo}
+              alt={company}
+              className="h-12 w-12 flex-shrink-0 rounded object-cover"
+            />
             <div className="min-w-0">
-              <p className="font-medium text-gray-800 truncate">{company}</p>
-              <p className="flex items-center gap-1 text-sm text-gray-500 truncate">
+              <p className="truncate font-medium text-gray-800">{company}</p>
+              <p className="flex items-center gap-1 truncate text-sm text-gray-500">
                 <EnvironmentOutlined /> {location}
               </p>
             </div>
           </div>
+          {/* ✅ Tags Section */}
+          {tags && tags.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {tags.slice(0, 3).map((tag, index) => (
+                <Tag
+                  key={tag._id || tag.name || index}
+                  color={tagColors[index % tagColors.length]}
+                  className="m-0 rounded-full px-2.5 py-0.5 text-xs"
+                >
+                  {tag.name}
+                </Tag>
+              ))}
+              {tags.length > 3 && (
+                <Tag className="m-0 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs text-gray-600">
+                  +{tags.length - 3} more
+                </Tag>
+              )}
+            </div>
+          )}
         </Link>
       </div>
     </Card>

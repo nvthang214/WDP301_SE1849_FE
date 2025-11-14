@@ -4,7 +4,7 @@ import { JobService } from "../../../../../services/JobService";
 import { UserService } from "../../../../../services/UserService";
 import { TagService } from "../../../../../services/TagService";
 import { CategoryService } from "../../../../../services/CategoryService";
-import { Select } from "antd";
+import { Select, Spin } from "antd";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { notifyError, notifySuccess } from "../../../../../components/Notification";
@@ -163,6 +163,7 @@ export default function JobEditing() {
 
   const handleSubmit = async (e) => {
     try {
+      setLoading(true);
       e.preventDefault();
       const submitData = {
         company: form.company,
@@ -197,10 +198,10 @@ export default function JobEditing() {
     } catch (error) {
       console.error("Failed to update job:", error);
       notifyError("Failed to update job. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
-
-  if (loading) return <div className="py-10 text-center text-gray-400">Loading...</div>;
 
   return (
     <div className="min-h-screen bg-[var(--color-neutral-50)]">
@@ -213,365 +214,352 @@ export default function JobEditing() {
             <h1 className="text-xl font-semibold text-[var(--color-primary-700)]">Post a Job</h1>
           </div>
         </div>
-
-        <div className="space-y-4">
-          <section>
-            <div className="space-y-6">
-              {/* Tags & Role */}
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <div>
-                  <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
-                    Job Title
-                  </label>
-                  <input
-                    className="w-full rounded-xl border border-[var(--color-neutral-200)] p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-100)] focus:outline-none"
-                    name="title"
-                    placeholder="Add job title, role, vacancies etc"
-                    value={form.title}
-                    onChange={handleChange}
-                  />
+        <Spin spinning={loading}>
+          <div className="space-y-4">
+            <section>
+              <div className="space-y-6">
+                {/* Tags & Role */}
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
+                      Job Title
+                    </label>
+                    <input
+                      className="w-full rounded-xl border border-[var(--color-neutral-200)] p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-100)] focus:outline-none"
+                      name="title"
+                      placeholder="Add job title, role, vacancies etc"
+                      value={form.title}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
+                      Tags
+                    </label>
+                    <Select
+                      mode="multiple"
+                      allowClear
+                      style={{ width: "100%" }}
+                      className="w-full rounded-xl"
+                      placeholder="Select tags"
+                      value={form.tags}
+                      onChange={handleTagsChange}
+                      options={allTags.map((tag) => ({
+                        label: tag.name,
+                        value: tag._id,
+                      }))}
+                      optionFilterProp="label"
+                    />
+                  </div>
                 </div>
+              </div>
+            </section>
+
+            <section>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+                {/* Min Salary */}
                 <div>
                   <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
-                    Tags
+                    Min Salary
+                  </label>
+                  <div className="flex overflow-hidden rounded-xl border border-[var(--color-neutral-200)]">
+                    <input
+                      className="w-full p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:outline-none"
+                      name="minSalary"
+                      placeholder="Minimum salary..."
+                      value={form.minSalary}
+                      onChange={handleChange}
+                      type="number"
+                    />
+                    <span className="grid place-items-center bg-[var(--color-neutral-100)] px-3 text-sm font-semibold text-[var(--color-neutral-500)]">
+                      USD
+                    </span>
+                  </div>
+                </div>
+                {/* Max Salary */}
+                <div>
+                  <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
+                    Max Salary
+                  </label>
+                  <div className="flex overflow-hidden rounded-xl border border-[var(--color-neutral-200)]">
+                    <input
+                      className="w-full p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:outline-none"
+                      name="maxSalary"
+                      placeholder="Maximum salary..."
+                      value={form.maxSalary}
+                      onChange={handleChange}
+                      type="number"
+                    />
+                    <span className="grid place-items-center bg-[var(--color-neutral-100)] px-3 text-sm font-semibold text-[var(--color-neutral-500)]">
+                      USD
+                    </span>
+                  </div>
+                </div>
+                {/* Salary Type */}
+                <div>
+                  <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
+                    Salary Type
                   </label>
                   <Select
-                    mode="multiple"
-                    allowClear
                     style={{ width: "100%" }}
-                    className="w-full rounded-xl"
-                    placeholder="Select tags"
-                    value={form.tags}
-                    onChange={handleTagsChange}
-                    options={allTags.map((tag) => ({
-                      label: tag.name,
-                      value: tag._id,
+                    className="rounded-xl"
+                    value={form.salaryType || undefined}
+                    onChange={(val) => setForm((prev) => ({ ...prev, salaryType: val }))}
+                    options={[
+                      { label: "Monthly", value: "Monthly" },
+                      { label: "Yearly", value: "Yearly" },
+                      { label: "USD", value: "USD" },
+                    ]}
+                    placeholder="Select salary type"
+                    allowClear
+                    showSearch
+                  />
+                </div>
+                {/* Category */}
+                <div>
+                  <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
+                    Category
+                  </label>
+                  <Select
+                    style={{ width: "100%" }}
+                    className="rounded-xl"
+                    value={form.category || undefined}
+                    onChange={(val) => setForm((prev) => ({ ...prev, category: val }))}
+                    options={allCategories.map((cat) => ({
+                      label: cat.name,
+                      value: cat._id,
                     }))}
+                    placeholder="Select category"
+                    allowClear
+                    showSearch
                     optionFilterProp="label"
                   />
                 </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          <section>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
-              {/* Min Salary */}
-              <div>
-                <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
-                  Min Salary
-                </label>
-                <div className="flex overflow-hidden rounded-xl border border-[var(--color-neutral-200)]">
-                  <input
-                    className="w-full p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:outline-none"
-                    name="minSalary"
-                    placeholder="Minimum salary..."
-                    value={form.minSalary}
-                    onChange={handleChange}
-                    type="number"
+            <section>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-4">
+                {/* Education */}
+                <div className="md:col-span-1">
+                  <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
+                    Education
+                  </label>
+                  <Select
+                    style={{ width: "100%" }}
+                    className="rounded-xl"
+                    value={form.education || undefined}
+                    onChange={(val) => setForm((prev) => ({ ...prev, education: val }))}
+                    options={[
+                      { label: "Graduated", value: "Graduated" },
+                      { label: "Bachelor", value: "Bachelor" },
+                      { label: "Master", value: "Master" },
+                      { label: "Ph.D", value: "Ph.D" },
+                    ]}
+                    placeholder="Select education"
+                    allowClear
+                    showSearch
                   />
-                  <span className="grid place-items-center bg-[var(--color-neutral-100)] px-3 text-sm font-semibold text-[var(--color-neutral-500)]">
-                    USD
-                  </span>
                 </div>
-              </div>
-              {/* Max Salary */}
-              <div>
-                <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
-                  Max Salary
-                </label>
-                <div className="flex overflow-hidden rounded-xl border border-[var(--color-neutral-200)]">
-                  <input
-                    className="w-full p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:outline-none"
-                    name="maxSalary"
-                    placeholder="Maximum salary..."
-                    value={form.maxSalary}
-                    onChange={handleChange}
-                    type="number"
-                  />
-                  <span className="grid place-items-center bg-[var(--color-neutral-100)] px-3 text-sm font-semibold text-[var(--color-neutral-500)]">
-                    USD
-                  </span>
-                </div>
-              </div>
-              {/* Salary Type */}
-              <div>
-                <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
-                  Salary Type
-                </label>
-                <Select
-                  style={{ width: "100%" }}
-                  className="rounded-xl"
-                  value={form.salaryType || undefined}
-                  onChange={(val) => setForm((prev) => ({ ...prev, salaryType: val }))}
-                  options={[
-                    { label: "Monthly", value: "Monthly" },
-                    { label: "Yearly", value: "Yearly" },
-                    { label: "USD", value: "USD" },
-                  ]}
-                  placeholder="Select salary type"
-                  allowClear
-                  showSearch
-                />
-              </div>
-              {/* Category */}
-              <div>
-                <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
-                  Category
-                </label>
-                <Select
-                  style={{ width: "100%" }}
-                  className="rounded-xl"
-                  value={form.category || undefined}
-                  onChange={(val) => setForm((prev) => ({ ...prev, category: val }))}
-                  options={allCategories.map((cat) => ({
-                    label: cat.name,
-                    value: cat._id,
-                  }))}
-                  placeholder="Select category"
-                  allowClear
-                  showSearch
-                  optionFilterProp="label"
-                />
-              </div>
-            </div>
-          </section>
-
-          <section>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-4">
-              {/* Education */}
-              <div className="md:col-span-1">
-                <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
-                  Education
-                </label>
-                <Select
-                  style={{ width: "100%" }}
-                  className="rounded-xl"
-                  value={form.education || undefined}
-                  onChange={(val) => setForm((prev) => ({ ...prev, education: val }))}
-                  options={[
-                    { label: "Graduated", value: "Graduated" },
-                    { label: "Bachelor", value: "Bachelor" },
-                    { label: "Master", value: "Master" },
-                    { label: "Ph.D", value: "Ph.D" },
-                  ]}
-                  placeholder="Select education"
-                  allowClear
-                  showSearch
-                />
-              </div>
-              {/* Experience */}
-              <div>
-                <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
-                  Experience
-                </label>
-                <input
-                  className="w-full rounded-xl border border-[var(--color-neutral-200)] p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-100)] focus:outline-none"
-                  name="experience"
-                  placeholder="Experience"
-                  value={form.experience}
-                  onChange={handleChange}
-                />
-              </div>
-              {/* Job Type */}
-              <div>
-                <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
-                  Job Type
-                </label>
-                <Select
-                  style={{ width: "100%" }}
-                  className="rounded-xl"
-                  value={form.jobType || undefined}
-                  onChange={(val) => setForm((prev) => ({ ...prev, jobType: val }))}
-                  options={jobTypes.map((type) => ({ label: type, value: type }))}
-                  placeholder="Select job type"
-                  allowClear
-                  showSearch
-                />
-              </div>
-              {/* Vacancies */}
-              <div>
-                <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
-                  Vacancies
-                </label>
-                <input
-                  className="w-full rounded-xl border border-[var(--color-neutral-200)] p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-100)] focus:outline-none"
-                  name="vacancies"
-                  type="number"
-                  placeholder="Vacancies"
-                  value={form.vacancies}
-                  onChange={handleChange}
-                  min={1}
-                />
-              </div>
-              {/* Expiration */}
-              <div>
-                <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
-                  Expiration Date
-                </label>
-                <input
-                  className="w-full rounded-xl border border-[var(--color-neutral-200)] p-2 text-[var(--color-neutral-900)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-100)] focus:outline-none"
-                  name="expiration"
-                  type="date"
-                  value={form.expiration}
-                  onChange={handleChange}
-                />
-              </div>
-              {/* Job Level */}
-              <div>
-                <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
-                  Job Level
-                </label>
-                <Select
-                  style={{ width: "100%" }}
-                  className="rounded-xl"
-                  value={form.jobLevel || undefined}
-                  onChange={(val) => setForm((prev) => ({ ...prev, jobLevel: val }))}
-                  options={jobLevels.map((level) => ({ label: level, value: level }))}
-                  placeholder="Select job level"
-                  allowClear
-                  showSearch
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
-                  Role
-                </label>
-                <input
-                  className="w-full rounded-xl border border-[var(--color-neutral-200)] p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-100)] focus:outline-none"
-                  name="role"
-                  placeholder="Role"
-                  value={form.role}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
-                  Remote
-                </label>
-                <input
-                  type="checkbox"
-                  name="remote"
-                  checked={form.remote}
-                  onChange={handleChange}
-                />
-                <span className="text-sm text-[var(--color-neutral-700)]">
-                  Fully Remote Position – <span className="font-semibold">Worldwide</span>
-                </span>
-              </div>
-            </div>
-          </section>
-
-          <section>
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
-                      Country
-                    </label>
-                    <input
-                      className="w-full rounded-xl border border-[var(--color-neutral-200)] p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-100)] focus:outline-none"
-                      name="country"
-                      placeholder="Country"
-                      value={form.country}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
-                      City
-                    </label>
-                    <input
-                      className="w-full rounded-xl border border-[var(--color-neutral-200)] p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-100)] focus:outline-none"
-                      name="city"
-                      placeholder="City"
-                      value={form.city}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
+                {/* Experience */}
                 <div>
                   <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
-                    Location (Not contain city and country name)
+                    Experience
                   </label>
                   <input
                     className="w-full rounded-xl border border-[var(--color-neutral-200)] p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-100)] focus:outline-none"
-                    name="location"
-                    placeholder="Location"
-                    value={form.location}
+                    name="experience"
+                    placeholder="Experience"
+                    value={form.experience}
                     onChange={handleChange}
                   />
                 </div>
+                {/* Job Type */}
+                <div>
+                  <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
+                    Job Type
+                  </label>
+                  <Select
+                    style={{ width: "100%" }}
+                    className="rounded-xl"
+                    value={form.jobType || undefined}
+                    onChange={(val) => setForm((prev) => ({ ...prev, jobType: val }))}
+                    options={jobTypes.map((type) => ({ label: type, value: type }))}
+                    placeholder="Select job type"
+                    allowClear
+                    showSearch
+                  />
+                </div>
+                {/* Vacancies */}
+                <div>
+                  <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
+                    Vacancies
+                  </label>
+                  <input
+                    className="w-full rounded-xl border border-[var(--color-neutral-200)] p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-100)] focus:outline-none"
+                    name="vacancies"
+                    type="number"
+                    placeholder="Vacancies"
+                    value={form.vacancies}
+                    onChange={handleChange}
+                    min={1}
+                  />
+                </div>
+                {/* Expiration */}
+                <div>
+                  <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
+                    Expiration Date
+                  </label>
+                  <input
+                    className="w-full rounded-xl border border-[var(--color-neutral-200)] p-2 text-[var(--color-neutral-900)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-100)] focus:outline-none"
+                    name="expiration"
+                    type="date"
+                    value={form.expiration}
+                    onChange={handleChange}
+                  />
+                </div>
+                {/* Job Level */}
+                <div>
+                  <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
+                    Job Level
+                  </label>
+                  <Select
+                    style={{ width: "100%" }}
+                    className="rounded-xl"
+                    value={form.jobLevel || undefined}
+                    onChange={(val) => setForm((prev) => ({ ...prev, jobLevel: val }))}
+                    options={jobLevels.map((level) => ({ label: level, value: level }))}
+                    placeholder="Select job level"
+                    allowClear
+                    showSearch
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
+                    Role
+                  </label>
+                  <input
+                    className="w-full rounded-xl border border-[var(--color-neutral-200)] p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-100)] focus:outline-none"
+                    name="role"
+                    placeholder="Role"
+                    value={form.role}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
+                    Remote
+                  </label>
+                  <input
+                    type="checkbox"
+                    name="remote"
+                    checked={form.remote}
+                    onChange={handleChange}
+                  />
+                  <span className="text-sm text-[var(--color-neutral-700)]">
+                    Fully Remote Position – <span className="font-semibold">Worldwide</span>
+                  </span>
+                </div>
               </div>
-            </div>
-          </section>
-          {/* Job Description */}
-          <section>
-            <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
-              Job Description
-            </label>
-            <ReactQuill
-              theme="snow"
-              modules={quillModules}
-              value={form.description}
-              onChange={handleRichTextChange("description")}
-              placeholder="Share job responsibilities, requirements..."
-              className="rounded-xl"
-            />
-          </section>
-          {/* Job Requirements */}
-          <section>
-            <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
-              Job Requirements
-            </label>
-            <ReactQuill
-              theme="snow"
-              modules={quillModules}
-              value={form.requirements}
-              onChange={handleRichTextChange("requirements")}
-              placeholder="Share must-have skills, qualifications..."
-              className="rounded-xl"
-            />
-          </section>
-          {/* Job Desirable */}
-          {/* <section>
-            <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
-              Job Desirable
-            </label>
-            <ReactQuill
-              theme="snow"
-              modules={quillModules}
-              value={form.desirable}
-              onChange={handleRichTextChange("desirable")}
-              placeholder="Share bonus points, nice-to-have experience..."
-              className="rounded-xl"
-            />
-          </section> */}
-          {/* Job Benefits */}
-          <section>
-            <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
-              Job Benefits
-            </label>
-            <ReactQuill
-              theme="snow"
-              modules={quillModules}
-              value={form.benefits}
-              onChange={handleRichTextChange("benefits")}
-              placeholder="Share benefits, perks, and incentives..."
-              className="rounded-xl"
-            />
-          </section>
-        </div>
+            </section>
 
-        <div className="mt-8 flex justify-center">
-          <button
-            type="submit"
-            className="inline-flex items-center gap-2 rounded-xl bg-[var(--color-primary-500)] px-6 py-3 text-sm font-semibold !text-white shadow-[var(--shadow-md)] transition hover:bg-[var(--color-primary-600)] focus:ring-2 focus:ring-[var(--color-primary-300)] focus:outline-none"
-          >
-            Save Job
-          </button>
-        </div>
+            <section>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <div>
+                      <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
+                        Country
+                      </label>
+                      <input
+                        className="w-full rounded-xl border border-[var(--color-neutral-200)] p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-100)] focus:outline-none"
+                        name="country"
+                        placeholder="Country"
+                        value={form.country}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
+                        City
+                      </label>
+                      <input
+                        className="w-full rounded-xl border border-[var(--color-neutral-200)] p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-100)] focus:outline-none"
+                        name="city"
+                        placeholder="City"
+                        value={form.city}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
+                      Location (Not contain city and country name)
+                    </label>
+                    <input
+                      className="w-full rounded-xl border border-[var(--color-neutral-200)] p-2 text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-100)] focus:outline-none"
+                      name="location"
+                      placeholder="Location"
+                      value={form.location}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+              </div>
+            </section>
+            {/* Job Description */}
+            <section>
+              <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
+                Job Description
+              </label>
+              <ReactQuill
+                theme="snow"
+                modules={quillModules}
+                value={form.description}
+                onChange={handleRichTextChange("description")}
+                placeholder="Share job responsibilities, requirements..."
+                className="rounded-xl"
+              />
+            </section>
+            {/* Job Requirements */}
+            <section>
+              <label className="block text-sm font-medium text-[var(--color-neutral-900)]">
+                Job Requirements
+              </label>
+              <ReactQuill
+                theme="snow"
+                modules={quillModules}
+                value={form.requirements}
+                onChange={handleRichTextChange("requirements")}
+                placeholder="Share must-have skills, qualifications..."
+                className="rounded-xl"
+              />
+            </section>
+            {/* Job Benefits */}
+            <section>
+              <label className="mb-2 block text-sm font-medium text-[var(--color-neutral-900)]">
+                Job Benefits
+              </label>
+              <ReactQuill
+                theme="snow"
+                modules={quillModules}
+                value={form.benefits}
+                onChange={handleRichTextChange("benefits")}
+                placeholder="Share benefits, perks, and incentives..."
+                className="rounded-xl"
+              />
+            </section>
+          </div>
+
+          <div className="mt-8 flex justify-center">
+            <button
+              type="submit"
+              className="inline-flex items-center gap-2 rounded-xl bg-[var(--color-primary-500)] px-6 py-3 text-sm font-semibold !text-white shadow-[var(--shadow-md)] transition hover:bg-[var(--color-primary-600)] focus:ring-2 focus:ring-[var(--color-primary-300)] focus:outline-none"
+            >
+              Save Job
+            </button>
+          </div>
+        </Spin>
       </form>
     </div>
   );

@@ -6,6 +6,7 @@ import JobCard from "../../../../components/Card/JobCard";
 import FilterSidebar from "../JobList/components/FilterSidebar";
 import { useSearchParams, useLocation } from "react-router-dom";
 import useAuthStore from "../../../../store/useAuthStore";
+import { Spin } from "antd";
 
 const jobTypes = ["FULL-TIME", "PART-TIME", "INTERNSHIP", "TEMPORARY", "CONTRACT BASE"];
 
@@ -149,21 +150,30 @@ export default function JobList() {
     };
     fetchJobs();
     // eslint-disable-next-line
-  }, [search, location, filters, page, limit]);
+  }, [search, location, filters, page, limit, company, categoryId, user]);
 
   //////////////////////////////////////
-  // Xử lý submit search/filter
+  // Event Handlers
+
+  // search handler
   const handleSearch = (e) => {
     e.preventDefault();
     setPage(1);
     setSearch(searchInput.trim());
   };
 
-  // Xử lý chuyển trang
+  // pagination handler
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= pagination.totalPages) {
       setPage(newPage);
     }
+  };
+
+  // clear filters function
+  const clearFilters = () => {
+    setFilters({ ...initialFilters });
+    setDraftFilters({ ...initialFilters });
+    setPage(1);
   };
 
   return (
@@ -252,30 +262,48 @@ export default function JobList() {
 
       {/* Job Cards Grid */}
       <div>
-        {loading ? (
-          <div className="w-full py-10 text-center text-gray-400">Loading...</div>
-        ) : (
-          <div className={`grid ${gridCols} gap-6`}>
-            {jobs.map((job, idx) => (
-              <JobCard
-                user={user}
-                key={job._id || idx}
-                jobId={job._id}
-                title={job.title}
-                type={job.jobType}
-                salary={
-                  job.minSalary && job.maxSalary
-                    ? `$${job.minSalary.toLocaleString()} - $${job.maxSalary.toLocaleString()}`
-                    : "Negotiable"
-                }
-                company={job.company?.name}
-                location={job.city}
-                logo={job.company?.logo}
-                isFavorite={job.isFavorite}
-              />
-            ))}
-          </div>
-        )}
+        <Spin spinning={loading}>
+          {!loading && jobs.length === 0 ? (
+            <div className="my-20 text-center text-lg font-medium text-gray-500">
+              No jobs found matching your criteria.
+              <button>
+                <span
+                  className="ml-2 cursor-pointer text-[var(--color-primary-600)] underline"
+                  onClick={() => {
+                    setSearchInput("");
+                    setSearch("");
+                    setPage(1);
+                    clearFilters();
+                  }}
+                >
+                  Clear Filters
+                </span>
+              </button>
+            </div>
+          ) : (
+            <div className={`grid ${gridCols} gap-6`}>
+              {jobs.map((job, idx) => (
+                <JobCard
+                  userRole={user?.role.name}
+                  key={job._id || idx}
+                  jobId={job._id}
+                  title={job.title}
+                  type={job.jobType}
+                  salary={
+                    job.minSalary && job.maxSalary
+                      ? `$${job.minSalary.toLocaleString()} - $${job.maxSalary.toLocaleString()}`
+                      : "Negotiable"
+                  }
+                  company={job.company?.name}
+                  location={job.city}
+                  logo={job.company?.logo}
+                  isFavorite={job.isFavorite}
+                  tags={job.tags}
+                />
+              ))}
+            </div>
+          )}
+        </Spin>
       </div>
 
       {/* Pagination */}

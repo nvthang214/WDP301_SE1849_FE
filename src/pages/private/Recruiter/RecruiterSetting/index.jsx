@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import { Tabs, Card, Typography } from 'antd';
 import {
-  SettingOutlined,
-  BankOutlined,
-  ShareAltOutlined,
   UserOutlined,
   PictureOutlined
 } from '@ant-design/icons';
@@ -60,22 +57,21 @@ const RecruiterSettings = () => {
   ];
 
   return (
-    <div style={{ padding: '24px', background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: '24px 24px 24px 0', minHeight: '100vh' }}>
       <Card
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <SettingOutlined />
             <span>Settings</span>
           </div>
         }
-        style={{ maxWidth: '1200px', margin: '0 auto' }}
+        style={{ maxWidth: '1200px' }}
+        bodyStyle={{ padding: 0 }}
+        headStyle={{ padding: '12px 16px' }}
       >
         <Tabs
-          // activeKey={activeTab}
-          // onChange={setActiveTab}
           items={tabItems}
           size="large"
-          tabBarStyle={{ marginBottom: '24px' }}
+          tabBarStyle={{ marginBottom: '16px' }}
         />
       </Card>
     </div>
